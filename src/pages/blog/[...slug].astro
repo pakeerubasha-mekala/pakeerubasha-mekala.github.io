@@ -1,9 +1,10 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
+import { readingTime } from '../../utils/readingTime';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const posts = await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft);
   return posts.map((post) => ({
     params: { slug: post.id },
     props: { post },
@@ -24,7 +25,12 @@ const dateFmt = (d: Date) =>
       <p class="post-meta">
         <span>{dateFmt(post.data.pubDate)}</span>
         {post.data.updatedDate && <span>· updated {dateFmt(post.data.updatedDate)}</span>}
+        <span>· {readingTime(post.body)} min read</span>
+        {post.data.draft && <span>· draft</span>}
       </p>
+      {post.data.canonicalUrl && (
+        <p class="post-meta">Also published on <a href={post.data.canonicalUrl}>{new URL(post.data.canonicalUrl).hostname.replace('www.', '')}</a></p>
+      )}
       {post.data.tags.length > 0 && (
         <ul class="tag-list">
           {post.data.tags.map((tag) => <li>{tag}</li>)}

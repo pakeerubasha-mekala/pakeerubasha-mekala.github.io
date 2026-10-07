@@ -11,6 +11,8 @@ const blog = defineCollection({
     updatedDate: z.coerce.date().optional(),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
+    // Set when the post was first published elsewhere (e.g. Medium).
+    canonicalUrl: z.url().optional(),
   }),
 });
 

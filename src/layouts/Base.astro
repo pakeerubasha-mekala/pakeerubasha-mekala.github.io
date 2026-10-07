@@ -46,8 +46,9 @@ const pageTitle = title === siteTitle ? title : `${title} · ${siteTitle}`;
     <meta name="twitter:image" content={ogImageURL} />
   </head>
   <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <Header />
-    <main>
+    <main id="main">
       <slot />
     </main>
     <Footer />

@@ -1,8 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
+import { readingTime } from '../../utils/readingTime';
 
-const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+const posts = (await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft)).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
 
@@ -19,6 +20,8 @@ const dateFmt = (d: Date) =>
           <a href={`/blog/${post.id}/`}>{post.data.title}</a>
           <p class="post-meta">
             <span class="post-date">{dateFmt(post.data.pubDate)}</span>
+            <span>{readingTime(post.body)} min read</span>
+            {post.data.draft && <span class="tag">draft</span>}
             {post.data.tags.length > 0 && (
               <span class="post-tags">
                 {post.data.tags.map((tag) => <span class="tag">{tag}</span>)}

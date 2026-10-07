@@ -1,0 +1,432 @@
+---
+import Base from '../layouts/Base.astro';
+import { profile } from '../data/profile';
+import { experience } from '../data/experience';
+import { skills } from '../data/skills';
+import { projects } from '../data/projects';
+import { education } from '../data/education';
+import { publications } from '../data/publications';
+
+const pdfPath = '/pakeeru-basha-mekala-resume.pdf';
+const short = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '');
+
+const contact = [
+  { label: 'Email', text: profile.email, href: profile.email && `mailto:${profile.email}` },
+  { label: 'LinkedIn', text: short(profile.links.linkedin), href: profile.links.linkedin },
+  {
+    label: 'GitHub',
+    text: profile.links.github && short(profile.links.github),
+    href: profile.links.github,
+  },
+  { label: 'Location', text: profile.location },
+].filter((c) => c.text);
+---
+
+<Base title="Resume" description={`Resume of ${profile.name}: ${profile.headline}`}>
+  <div class="actions no-print">
+    <a class="btn primary" href={pdfPath} download>Download PDF</a>
+    <a class="btn" href="/">← back to site</a>
+  </div>
+
+  <article class="sheet">
+    <header class="head">
+      <img class="photo" src={profile.photo} alt={profile.name} width="120" height="120" />
+      <div class="head-text">
+        <h1>{profile.name}</h1>
+        <p class="role">{profile.headline}</p>
+        <dl class="contact">
+          {contact.map((c) => (
+            <>
+              <dt>{c.label}</dt>
+              <dd>{c.href ? <a href={c.href}>{c.text}</a> : c.text}</dd>
+            </>
+          ))}
+        </dl>
+      </div>
+    </header>
+
+    <section>
+      <h2>Summary</h2>
+      <p class="summary">{profile.summary}</p>
+    </section>
+
+    <section>
+      <h2>Experience</h2>
+      {experience.map((job) => (
+        <div class="entry">
+          <div class="entry-head">
+            <h3>{job.role}</h3>
+            <span class="period">{job.period}</span>
+          </div>
+          <p class="org">{job.company}{job.location && ` · ${job.location}`}</p>
+          {job.bullets.length > 0 && (
+            <ul>{job.bullets.map((b) => <li>{b}</li>)}</ul>
+          )}
+          {job.tech.length > 0 && (
+            <p class="chips">{job.tech.map((t) => <span>{t}</span>)}</p>
+          )}
+          {job.projects?.map((proj) => (
+            <div class="proj">
+              <div class="entry-head">
+                <h4>{proj.name ?? proj.location}</h4>
+                <span class="period">{proj.period}</span>
+              </div>
+              {proj.name && proj.location && <p class="org">{proj.location}</p>}
+              <ul>{proj.bullets.map((b) => <li>{b}</li>)}</ul>
+              <p class="chips">{proj.tech.map((t) => <span>{t}</span>)}</p>
+            </div>
+          ))}
+        </div>
+      ))}
+    </section>
+
+    <section>
+      <h2>Skills</h2>
+      <div class="skills">
+        {skills.map((g) => (
+          <div class="skill">
+            <h4>{g.label}</h4>
+            <p>{g.items.join(' · ')}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    {projects.length > 0 && (
+      <section>
+        <h2>Projects</h2>
+        {projects.map((p) => (
+          <div class="entry">
+            <div class="entry-head"><h3>{p.name}</h3></div>
+            <p class="desc">{p.description}</p>
+          </div>
+        ))}
+      </section>
+    )}
+
+    <section>
+      <h2>Education</h2>
+      {education.map((e) => (
+        <div class="entry">
+          <div class="entry-head">
+            <h3>{e.degree}, {e.field}</h3>
+            <span class="period">{e.period}</span>
+          </div>
+          <p class="org">{e.institution}{e.grade && ` · ${e.grade}`}</p>
+        </div>
+      ))}
+    </section>
+
+    {publications.length > 0 && (
+      <section>
+        <h2>Publications</h2>
+        {publications.map((p) => (
+          <div class="entry">
+            <div class="entry-head">
+              <h3>{p.title}</h3>
+              <span class="period">{p.date}</span>
+            </div>
+            <p class="org">{p.venue}</p>
+          </div>
+        ))}
+      </section>
+    )}
+  </article>
+</Base>
+
+<style>
+  .actions {
+    display: flex;
+    gap: 0.6rem;
+    margin: var(--space-2) 0;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 0.5em 1.1em;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+  }
+
+  /* The sheet looks the same on screen and in the PDF: dark ink on white paper. */
+  .sheet {
+    --ink: #1c2430;
+    --muted: #5b6676;
+    --line: #dde3ea;
+    --brand: #0d6b4a;
+    --tint: #eef6f2;
+
+    background: #fff;
+    color: var(--ink);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 2.2rem 2.4rem 2rem;
+    font-family: var(--font-sans);
+    font-size: 0.93rem;
+    line-height: 1.5;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .sheet :global(*) {
+    color: inherit;
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+    padding: 1.2rem 1.4rem;
+    margin: -0.6rem -0.8rem 1.4rem;
+    background: var(--tint);
+    border-left: 5px solid var(--brand);
+    border-radius: 10px;
+  }
+
+  .photo {
+    flex: none;
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px var(--brand);
+  }
+
+  .head-text {
+    min-width: 0;
+  }
+
+  .sheet h1 {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 1.85rem;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .role {
+    margin: 0.15rem 0 0.7rem;
+    color: var(--brand);
+    font-weight: 600;
+  }
+
+  .contact {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.1rem 0.9rem;
+    margin: 0;
+    font-size: 0.84rem;
+  }
+
+  .contact dt {
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .contact dd {
+    margin: 0;
+    word-break: break-word;
+  }
+
+  .sheet .contact a {
+    color: var(--brand);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--brand) 45%, transparent);
+    text-underline-offset: 2px;
+    font-weight: 500;
+  }
+
+  .sheet .contact a:hover,
+  .sheet .contact a:focus-visible {
+    text-decoration-color: currentColor;
+  }
+
+  .sheet h2 {
+    display: block;
+    margin: 1.5rem 0 0.7rem;
+    padding-bottom: 0.3rem;
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--brand);
+    border-bottom: 2px solid var(--line);
+    break-after: avoid;
+  }
+
+  .sheet h2::before,
+  .sheet h2::after {
+    content: none;
+  }
+
+  .summary {
+    margin: 0;
+  }
+
+  .entry {
+    margin-bottom: 1.1rem;
+  }
+
+  .entry-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    break-after: avoid;
+  }
+
+  .sheet h3 {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    color: var(--ink);
+  }
+
+  .proj {
+    margin: 0.5rem 0 0.2rem;
+    padding-left: 0.9rem;
+    border-left: 3px solid var(--line);
+  }
+
+  .proj h4 {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    color: var(--brand);
+  }
+
+  .period {
+    flex: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .org {
+    margin: 0.05rem 0 0.45rem;
+    color: var(--brand);
+    font-size: 0.86rem;
+    font-weight: 500;
+    break-after: avoid;
+  }
+
+  .sheet ul {
+    margin: 0 0 0.5rem;
+    padding-left: 1.1rem;
+  }
+
+  .sheet li {
+    margin-bottom: 0.22rem;
+    break-inside: avoid;
+  }
+
+  .sheet li::marker {
+    color: var(--brand);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0.3rem 0 0;
+  }
+
+  .chips span {
+    padding: 0.08rem 0.55rem;
+    font-size: 0.74rem;
+    color: var(--brand);
+    background: var(--tint);
+    border: 1px solid #cfe5db;
+    border-radius: 999px;
+  }
+
+  .skills {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem 1.6rem;
+  }
+
+  .skill {
+    break-inside: avoid;
+  }
+
+  .skill h4 {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    color: var(--ink);
+  }
+
+  .skill p,
+  .desc {
+    margin: 0.1rem 0 0;
+    font-size: 0.86rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 640px) {
+    .sheet {
+      padding: 1.4rem 1.1rem;
+    }
+    .head {
+      flex-direction: column;
+      text-align: center;
+      margin: 0 0 1.2rem;
+    }
+    .contact {
+      text-align: left;
+    }
+    .skills {
+      grid-template-columns: 1fr;
+    }
+    .entry-head {
+      flex-direction: column;
+      gap: 0;
+    }
+  }
+
+  @media print {
+    .sheet {
+      box-shadow: none;
+      border-radius: 0;
+      padding: 0;
+      font-size: 9.6pt;
+      line-height: 1.42;
+    }
+    .head {
+      margin: 0 0 1rem;
+      padding: 0.9rem 1.1rem;
+    }
+    .photo {
+      width: 26mm;
+      height: 26mm;
+    }
+    .sheet h1 {
+      font-size: 22pt;
+    }
+    .sheet h2 {
+      margin-top: 1.1rem;
+    }
+    .skills {
+      grid-template-columns: 1fr 1fr;
+    }
+    .entry-head {
+      flex-direction: row;
+    }
+  }
+</style>
