@@ -1,0 +1,269 @@
+---
+import Base from '../layouts/Base.astro';
+import { profile } from '../data/profile';
+
+// One entry per box in the flow. Click (or focus) a box to read what it does.
+const steps = [
+  {
+    id: 'write',
+    title: 'Write',
+    sub: 'editor, Pages CMS or GitHub',
+    text: 'Posts are Markdown files and the profile data is JSON, all in one Git repo. I can edit them locally, on github.com, or in the Pages CMS web UI. Every save is a commit.',
+  },
+  {
+    id: 'repo',
+    title: 'Git repo',
+    sub: 'main branch',
+    text: 'The single source of truth. A push to main starts the pipeline. There are no servers and no database to look after.',
+  },
+  {
+    id: 'build',
+    title: 'Build',
+    sub: 'Astro, type-check',
+    text: 'GitHub Actions installs dependencies and runs `astro check` and `astro build`. The output is plain static HTML, CSS and a little JavaScript for the interactive parts.',
+  },
+  {
+    id: 'assets',
+    title: 'Generate',
+    sub: 'PDF + link previews',
+    text: 'A headless Chromium renders the resume page into PDF files and renders social preview cards into PNG images, so they always match the current content.',
+  },
+  {
+    id: 'gates',
+    title: 'Quality gates',
+    sub: 'links, Lighthouse',
+    text: 'A separate workflow checks for broken links and runs Lighthouse for performance, accessibility and SEO. Dependabot opens pull requests for outdated dependencies.',
+  },
+  {
+    id: 'deploy',
+    title: 'Deploy',
+    sub: 'GitHub Pages CDN',
+    text: 'The build output is published to GitHub Pages, served over HTTPS from a CDN. The whole pipeline takes about a minute.',
+  },
+  {
+    id: 'live',
+    title: 'Live',
+    sub: 'what visitors see',
+    text: 'The site you are on. Comments run on GitHub Discussions through giscus, and the status page reads the public GitHub API live in your browser.',
+  },
+];
+
+const badge = `https://github.com/${profile.repo}/actions/workflows/deploy.yml/badge.svg`;
+const repoUrl = `https://github.com/${profile.repo}`;
+
+const stack = [
+  ['Framework', 'Astro (static output)'],
+  ['Hosting', 'GitHub Pages'],
+  ['CI/CD', 'GitHub Actions'],
+  ['Content', 'Markdown + JSON, edited with Pages CMS'],
+  ['Comments', 'giscus on GitHub Discussions'],
+  ['PDF and previews', 'Headless Chromium in CI'],
+  ['Quality', 'astro check, Lighthouse CI, link checker, Dependabot'],
+];
+---
+
+<Base title="How this site is built" description="The architecture and pipeline behind this portfolio: Astro, GitHub Actions, Pages, a Git-based CMS and live status.">
+  <section>
+    <h1>how it's built</h1>
+    <p class="lead">
+      A portfolio should show how I work, so this site is a small production system: everything is in Git, every change goes
+      through a pipeline, and the status is public. Click a step to see what it does.
+    </p>
+
+    <p class="badge">
+      <a href={`${repoUrl}/actions/workflows/deploy.yml`}><img src={badge} alt="Deploy workflow status" width="208" height="20" /></a>
+      <a href="/status">live status →</a> <a href={repoUrl}>source →</a>
+    </p>
+
+    <ol class="flow" id="flow">
+      {steps.map((s, i) => (
+        <li>
+          <button type="button" class="node" data-id={s.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+            <strong>{s.title}</strong>
+            <span>{s.sub}</span>
+          </button>
+        </li>
+      ))}
+    </ol>
+
+    <div class="detail" id="detail" aria-live="polite">
+      <h2 id="detail-title">{steps[0].title}</h2>
+      <p id="detail-text">{steps[0].text}</p>
+    </div>
+
+    <noscript>
+      <ul>{steps.map((s) => <li><strong>{s.title}.</strong> {s.text}</li>)}</ul>
+    </noscript>
+
+    <h2>stack</h2>
+    <dl class="stack">
+      {stack.map(([k, v]) => (
+        <>
+          <dt>{k}</dt>
+          <dd>{v}</dd>
+        </>
+      ))}
+    </dl>
+  </section>
+  <script id="steps-data" type="application/json" is:inline set:html={JSON.stringify(steps).replace(/</g, '\\u003c')} />
+</Base>
+
+<script>
+  interface Step { id: string; title: string; sub: string; text: string }
+
+  const steps: Step[] = JSON.parse(document.getElementById('steps-data')?.textContent ?? '[]');
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('#flow .node'));
+  const title = document.getElementById('detail-title');
+  const text = document.getElementById('detail-text');
+
+  function show(id: string) {
+    const step = steps.find((s) => s.id === id);
+    if (!step || !title || !text) return;
+    title.textContent = step.title;
+    text.textContent = step.text;
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === id)));
+  }
+
+  buttons.forEach((b) => {
+    b.addEventListener('click', () => show(b.dataset.id ?? ''));
+    b.addEventListener('mouseenter', () => show(b.dataset.id ?? ''));
+  });
+</script>
+
+<style>
+  .lead {
+    color: var(--fg-dim);
+  }
+
+  .badge {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+
+  .flow {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.1rem;
+    padding: 0;
+    margin: var(--space-3) 0 var(--space-2);
+    counter-reset: step;
+  }
+
+  .flow li {
+    position: relative;
+    margin: 0;
+    flex: 1 1 6.5rem;
+    counter-increment: step;
+  }
+
+  .flow li:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    z-index: 1;
+  }
+
+  .node {
+    width: 100%;
+    height: 100%;
+    padding: 0.7rem 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    text-align: left;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--fg);
+    font: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  }
+
+  .node::before {
+    content: counter(step, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--fg-dim);
+  }
+
+  .node strong {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+  }
+
+  .node span {
+    font-size: 0.72rem;
+    color: var(--fg-dim);
+  }
+
+  .node:hover,
+  .node:focus-visible,
+  .node[aria-pressed='true'] {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 3px var(--glow);
+  }
+
+  .detail {
+    padding: var(--space-2) var(--space-3);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    min-height: 7.5rem;
+  }
+
+  .detail h2 {
+    margin: 0 0 0.4rem;
+    font-size: 1rem;
+  }
+
+  .detail h2::before,
+  .detail h2::after {
+    content: none;
+  }
+
+  .detail p {
+    margin: 0;
+  }
+
+  .stack {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.4rem 1.4rem;
+    margin: 0;
+  }
+
+  .stack dt {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent);
+  }
+
+  .stack dd {
+    margin: 0;
+  }
+
+  @media (max-width: 560px) {
+    .flow li::after {
+      display: none;
+    }
+    .stack {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .stack dd {
+      margin-bottom: 0.5rem;
+    }
+  }
+</style>

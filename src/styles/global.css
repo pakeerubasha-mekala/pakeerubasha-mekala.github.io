@@ -2,21 +2,23 @@
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 
-  --bg: #070b12;
-  --bg-elevated: #0e1522;
-  --fg: #e7ecf3;
-  --fg-dim: #94a1b5;
-  --border: #1c2638;
-  --accent: #36f2a0;
-  --accent-dim: #1b8a5e;
-  --accent-2: #4cc9f0;
-  --accent-3: #a78bfa;
-  --link: #7cc7ff;
-  --grid: rgba(54, 242, 160, 0.07);
-  --glow: rgba(54, 242, 160, 0.10);
-  --glow-2: rgba(76, 201, 240, 0.10);
-  --glow-3: rgba(167, 139, 250, 0.08);
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  /* Colours use light-dark(): the first value is for light mode, the second for dark mode.
+     Light/dark follows the system unless html[data-scheme] is set (header toggle, terminal `theme`). */
+  --bg: light-dark(#f5f7fa, #070b12);
+  --bg-elevated: light-dark(#ffffff, #0e1522);
+  --fg: light-dark(#0e1620, #e7ecf3);
+  --fg-dim: light-dark(#546073, #94a1b5);
+  --border: light-dark(#d8dee8, #1c2638);
+  --accent: light-dark(#0a7d52, #36f2a0);
+  --accent-dim: light-dark(#075c3c, #1b8a5e);
+  --accent-2: light-dark(#0a6fa8, #4cc9f0);
+  --accent-3: light-dark(#6d4fd6, #a78bfa);
+  --link: light-dark(#0a5bb0, #7cc7ff);
+  --grid: light-dark(rgba(10, 125, 82, 0.08), rgba(54, 242, 160, 0.07));
+  --glow: light-dark(rgba(10, 125, 82, 0.10), rgba(54, 242, 160, 0.10));
+  --glow-2: light-dark(rgba(10, 111, 168, 0.10), rgba(76, 201, 240, 0.10));
+  --glow-3: light-dark(rgba(109, 79, 214, 0.07), rgba(167, 139, 250, 0.08));
+  --shadow: light-dark(0 10px 30px rgba(20, 30, 50, 0.10), 0 10px 30px rgba(0, 0, 0, 0.4));
   --radius: 14px;
 
   --measure: 52rem;
@@ -28,24 +30,38 @@
   color-scheme: dark light;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #f5f7fa;
-    --bg-elevated: #ffffff;
-    --fg: #0e1620;
-    --fg-dim: #546073;
-    --border: #d8dee8;
-    --accent: #0a7d52;
-    --accent-dim: #075c3c;
-    --accent-2: #0a6fa8;
-    --accent-3: #6d4fd6;
-    --link: #0a5bb0;
-    --grid: rgba(10, 125, 82, 0.08);
-    --glow: rgba(10, 125, 82, 0.10);
-    --glow-2: rgba(10, 111, 168, 0.10);
-    --glow-3: rgba(109, 79, 214, 0.07);
-    --shadow: 0 10px 30px rgba(20, 30, 50, 0.10);
-  }
+/* Manual light/dark override */
+:root[data-scheme="light"] {
+  color-scheme: light;
+}
+
+:root[data-scheme="dark"] {
+  color-scheme: dark;
+}
+
+/* Accent themes (terminal command `theme amber|cyan|violet|green`) */
+:root[data-accent="amber"] {
+  --accent: light-dark(#b45309, #ffb454);
+  --accent-dim: light-dark(#8a3f06, #9a6a1f);
+  --accent-2: light-dark(#c2410c, #ff7e5f);
+  --grid: light-dark(rgba(180, 83, 9, 0.08), rgba(255, 180, 84, 0.07));
+  --glow: light-dark(rgba(180, 83, 9, 0.10), rgba(255, 180, 84, 0.10));
+}
+
+:root[data-accent="cyan"] {
+  --accent: light-dark(#0a6fa8, #4cc9f0);
+  --accent-dim: light-dark(#075480, #1f7e9b);
+  --accent-2: light-dark(#0a7d52, #36f2a0);
+  --grid: light-dark(rgba(10, 111, 168, 0.08), rgba(76, 201, 240, 0.07));
+  --glow: light-dark(rgba(10, 111, 168, 0.10), rgba(76, 201, 240, 0.10));
+}
+
+:root[data-accent="violet"] {
+  --accent: light-dark(#6d4fd6, #a78bfa);
+  --accent-dim: light-dark(#4f36a8, #6f56c4);
+  --accent-2: light-dark(#0a6fa8, #4cc9f0);
+  --grid: light-dark(rgba(109, 79, 214, 0.08), rgba(167, 139, 250, 0.07));
+  --glow: light-dark(rgba(109, 79, 214, 0.10), rgba(167, 139, 250, 0.10));
 }
 
 * {

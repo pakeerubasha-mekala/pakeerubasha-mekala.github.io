@@ -11,6 +11,9 @@ const year = new Date().getFullYear();
     <a href={profile.links.linkedin}>linkedin</a>
     {profile.links.stackoverflow && <> · <a href={profile.links.stackoverflow}>stackoverflow</a></>}
   </p>
+  <p class="links">
+    <a href="/work">work</a> · <a href="/status">status</a> · <a href="/how-its-built">how it's built</a> · <a href="/rss.xml">rss</a>
+  </p>
   <p class="copyright">© {year} {profile.name} · <span id="uptime" class="fx"></span></p>
 </footer>
 

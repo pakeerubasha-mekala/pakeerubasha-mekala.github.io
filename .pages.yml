@@ -49,6 +49,66 @@ content:
         label: Post
         type: rich-text
 
+  - name: work
+    label: Case studies
+    type: collection
+    path: src/content/work
+    format: yaml-frontmatter
+    filename: "{primary}.md"
+    view:
+      primary: title
+      fields: [title, company, period]
+      sort: order
+      order: asc
+    fields:
+      - name: title
+        label: Project name (the page address is made from this; keep it matching a project name in Experience to link them)
+        type: string
+        required: true
+      - name: company
+        label: Company
+        type: string
+        required: true
+      - name: role
+        label: Role
+        type: string
+        required: true
+      - name: period
+        label: Period
+        type: string
+        required: true
+      - name: location
+        label: Location
+        type: string
+      - name: summary
+        label: Summary (one or two sentences)
+        type: text
+        required: true
+      - name: stack
+        label: Tools
+        type: string
+        list: true
+      - name: impact
+        label: Impact, measured results (the Impact section only shows when this has items)
+        type: string
+        list: true
+      - name: order
+        label: Sort order (1 is first)
+        type: number
+      - name: body
+        label: Case study
+        type: rich-text
+
+  - name: analytics
+    label: Analytics
+    type: file
+    path: src/data/analytics.json
+    format: json
+    fields:
+      - name: goatcounter
+        label: GoatCounter site code (the part before .goatcounter.com; leave empty to disable)
+        type: string
+
   - name: profile
     label: Profile
     type: file
@@ -73,6 +133,9 @@ content:
         list: true
       - name: email
         label: Email (leave empty to hide)
+        type: string
+      - name: bookingUrl
+        label: Booking link, e.g. Calendly or Cal.com (leave empty to hide the "Book a call" button)
         type: string
       - name: links
         label: Links
@@ -117,6 +180,10 @@ content:
         label: Highlights
         type: string
         list: true
+      - name: resumeBullets
+        label: Short highlights for the one-page resume (optional, falls back to Highlights)
+        type: string
+        list: true
       - name: tech
         label: Tools
         type: string
@@ -137,6 +204,10 @@ content:
             type: string
           - name: bullets
             label: Highlights
+            type: string
+            list: true
+          - name: resumeBullets
+            label: Short highlights for the one-page resume (optional, falls back to Highlights)
             type: string
             list: true
           - name: tech

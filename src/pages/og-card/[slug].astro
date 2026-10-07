@@ -1,0 +1,153 @@
+---
+import { getCollection } from 'astro:content';
+import { profile } from '../../data/profile';
+
+// 1200x630 social preview cards. They are rendered to PNG by scripts/make-og.mjs during the deploy
+// and referenced from the og:image meta tags. Not part of the public site (noindex, removed after use).
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft);
+  const work = await getCollection('work');
+  return [
+    { params: { slug: 'default' }, props: { kicker: 'portfolio', title: profile.name, sub: profile.headline, tags: [] as string[] } },
+    ...posts.map((p) => ({
+      params: { slug: `post-${p.id}` },
+      props: { kicker: 'blog', title: p.data.title, sub: p.data.description, tags: p.data.tags },
+    })),
+    ...work.map((w) => ({
+      params: { slug: `work-${w.id}` },
+      props: { kicker: 'case study', title: w.data.title, sub: w.data.summary, tags: w.data.stack.slice(0, 5) },
+    })),
+  ];
+}
+
+const { kicker, title, sub, tags } = Astro.props;
+const isDefault = kicker === 'portfolio';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="card">
+      <div class="text">
+        <p class="kicker"><span>$</span> {kicker}</p>
+        <h1 class:list={[{ big: isDefault }]}>{title}</h1>
+        <p class="sub">{sub}</p>
+        {tags.length > 0 && <p class="tags">{tags.map((t) => <span>{t}</span>)}</p>}
+      </div>
+      <div class="side">
+        <img src={profile.photo} alt="" width="220" height="220" />
+        <p class="who">{profile.name}</p>
+        <p class="site">pakeerubasha-mekala.github.io</p>
+      </div>
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #070b12; }
+  body { font-family: system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; }
+
+  .card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+    width: 1200px;
+    height: 630px;
+    padding: 64px 72px;
+    color: #e7ecf3;
+    background:
+      radial-gradient(700px 400px at 5% 0%, rgba(54, 242, 160, 0.18), transparent 70%),
+      radial-gradient(600px 400px at 100% 100%, rgba(76, 201, 240, 0.16), transparent 70%),
+      #070b12;
+    border: 2px solid #1c2638;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(54, 242, 160, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(54, 242, 160, 0.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+    -webkit-mask-image: radial-gradient(ellipse at 20% 0%, #000, transparent 75%);
+    mask-image: radial-gradient(ellipse at 20% 0%, #000, transparent 75%);
+  }
+
+  .text { position: relative; flex: 1; min-width: 0; }
+
+  .kicker {
+    margin: 0 0 20px;
+    font: 600 26px ui-monospace, Menlo, Consolas, monospace;
+    color: #36f2a0;
+  }
+
+  .kicker span { color: #94a1b5; }
+
+  h1 {
+    margin: 0;
+    font: 800 54px/1.12 ui-monospace, Menlo, Consolas, monospace;
+    letter-spacing: -0.02em;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  h1.big {
+    font-size: 72px;
+    background: linear-gradient(100deg, #e7ecf3, #36f2a0 60%, #4cc9f0);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .sub {
+    margin: 24px 0 0;
+    font-size: 28px;
+    line-height: 1.4;
+    color: #94a1b5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .tags { margin: 28px 0 0; display: flex; flex-wrap: wrap; gap: 12px; }
+
+  .tags span {
+    padding: 6px 16px;
+    border: 1px solid #1b8a5e;
+    border-radius: 999px;
+    font: 22px ui-monospace, Menlo, Consolas, monospace;
+    color: #36f2a0;
+    background: rgba(54, 242, 160, 0.08);
+  }
+
+  .side {
+    position: relative;
+    flex: none;
+    width: 270px;
+    text-align: center;
+  }
+
+  .side img {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 6px solid #070b12;
+    box-shadow: 0 0 0 4px #36f2a0, 0 0 60px rgba(54, 242, 160, 0.35);
+  }
+
+  .who { margin: 26px 0 4px; font: 700 26px ui-monospace, Menlo, Consolas, monospace; }
+  .site { margin: 0; font: 20px ui-monospace, Menlo, Consolas, monospace; color: #94a1b5; }
+</style>

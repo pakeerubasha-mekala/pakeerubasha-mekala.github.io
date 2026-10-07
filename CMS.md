@@ -10,7 +10,8 @@ The site is static, so there is no server to log in to. Instead, [Pages CMS](htt
 2. Install the Pages CMS GitHub app on the `pakeerubasha-mekala.github.io` repository when asked (you can limit it to that one repo).
 3. Open the repo in Pages CMS. It reads `.pages.yml` from the repo root and shows these sections:
    - **Blog posts** (`src/content/blog/*.md`): title, description, date, tags, draft switch, optional "originally published at" link, and the post body in a rich-text editor. Images you upload go to `public/blog/`.
-   - **Profile**, **Experience**, **Skills**, **Education**, **Projects**, **Publications** (`src/data/*.json`).
+   - **Case studies** (`src/content/work/*.md`): title, company, role, summary, tools, optional measured impact, and the write-up.
+   - **Profile**, **Experience**, **Skills**, **Education**, **Projects**, **Publications**, **Analytics** (`src/data/*.json`).
 
 > Not yet tested in the real Pages CMS app. If a field looks wrong in the editor, adjust `.pages.yml`; the [Pages CMS docs](https://pagescms.org/docs/) describe every option. If you prefer another tool (Decap CMS, Tina), the JSON and Markdown files do not need to change.
 
@@ -28,7 +29,9 @@ Open the section, edit, save. Notes:
 
 - Leave **Email**, **GitHub URL** or **Stack Overflow URL** empty to hide that button.
 - **Projects** and **Publications** sections stay hidden on the site while their lists are empty.
-- In **Experience**, a company can have a list of projects (newest first); each project has its own highlights and tools.
+- In **Experience**, a company can have a list of projects (newest first); each project has its own highlights and tools. The **short highlights for the one-page resume** are what the two resumes print; keep them to a few lines each so the PDF stays on one page.
+- **Booking link** in Profile shows a "Book a call" button when filled in.
+- **Case studies:** a project in Experience links to its case study when the names match (project `Waitrose` and case study titled `Waitrose`). Add real, measured results under **Impact** and an Impact section appears.
 - The JSON files are in `src/data/`. The matching `.ts` files only add types; edit the JSON, not the `.ts`.
 - The resume page and its PDF use the same data, so they update on the next deploy.
 

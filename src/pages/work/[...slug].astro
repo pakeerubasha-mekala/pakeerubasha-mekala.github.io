@@ -1,0 +1,62 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const items = await getCollection('work');
+  return items.map((w) => ({ params: { slug: w.id }, props: { w } }));
+}
+
+const { w } = Astro.props;
+const { Content } = await render(w);
+---
+
+<Base title={w.data.title} description={w.data.summary} image={`/og/work-${w.id}.png`}>
+  <article>
+    <p class="crumb"><a href="/work">← all work</a></p>
+    <h1>{w.data.title}</h1>
+    <p class="meta">{w.data.role} · {w.data.company}</p>
+    <p class="meta">{w.data.period}{w.data.location && ` · ${w.data.location}`}</p>
+    <p class="summary">{w.data.summary}</p>
+    <ul class="tag-list">{w.data.stack.map((t) => <li>{t}</li>)}</ul>
+
+    <div class="prose">
+      <Content />
+      {w.data.impact.length > 0 && (
+        <>
+          <h2>Impact</h2>
+          <ul>{w.data.impact.map((i) => <li>{i}</li>)}</ul>
+        </>
+      )}
+    </div>
+    <p><a href="/work">← all work</a> · <a href="/resume">resume</a></p>
+  </article>
+</Base>
+
+<style>
+  .crumb {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+
+  .meta {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--fg-dim);
+  }
+
+  .summary {
+    margin-top: var(--space-2);
+    font-size: 1.08rem;
+    color: var(--fg-dim);
+  }
+
+  .prose {
+    margin-top: var(--space-3);
+  }
+
+  .prose :global(h2) {
+    margin-top: var(--space-3);
+  }
+</style>

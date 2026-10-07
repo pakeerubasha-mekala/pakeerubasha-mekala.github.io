@@ -9,6 +9,12 @@ export default defineConfig({
   trailingSlash: 'ignore',
   build: {
     format: 'directory',
+    // Inline the (small) stylesheet so it does not block first paint.
+    inlineStylesheets: 'always',
   },
-  integrations: [sitemap()],
+  markdown: {
+    // Comments in the default theme fail WCAG contrast; this one passes.
+    shikiConfig: { theme: 'github-dark-high-contrast' },
+  },
+  integrations: [sitemap({ filter: (page) => !page.includes('/og-card/') && !page.includes('/resume-ats') })],
 });

@@ -1,1 +1,53 @@
-[]
+[
+  {
+    "name": "gitlab-oidc-aws",
+    "description": "Terraform and a sample .gitlab-ci.yml that let GitLab CI/CD jobs use AWS without stored access keys, using short-lived OIDC tokens. The trust policy checks both the audience and the project and branch. Companion to my article on the topic.",
+    "tech": [
+      "Terraform",
+      "AWS IAM",
+      "GitLab CI/CD",
+      "OIDC"
+    ],
+    "links": [
+      {
+        "label": "Repo",
+        "href": "https://github.com/pakeerubasha-mekala/gitlab-oidc-aws"
+      },
+      {
+        "label": "Article",
+        "href": "/blog/secure-aws-integration-with-gitlab-ci-cd-using-oidc/"
+      }
+    ]
+  },
+  {
+    "name": "terraform-aws-secure-s3",
+    "description": "A small reusable Terraform module for an S3 bucket with secure defaults: public access blocked, ACLs disabled, encryption (SSE-S3 or KMS), TLS-only access, versioning and lifecycle rules.",
+    "tech": [
+      "Terraform",
+      "AWS S3",
+      "KMS"
+    ],
+    "links": [
+      {
+        "label": "Repo",
+        "href": "https://github.com/pakeerubasha-mekala/terraform-aws-secure-s3"
+      }
+    ]
+  },
+  {
+    "name": "argocd-gitops-demo",
+    "description": "A minimal GitOps setup with Argo CD: an app-of-apps root, a Kustomize base with dev and prod overlays, auto-sync for dev and manual sync for prod.",
+    "tech": [
+      "Argo CD",
+      "Kubernetes",
+      "Kustomize",
+      "GitOps"
+    ],
+    "links": [
+      {
+        "label": "Repo",
+        "href": "https://github.com/pakeerubasha-mekala/argocd-gitops-demo"
+      }
+    ]
+  }
+]

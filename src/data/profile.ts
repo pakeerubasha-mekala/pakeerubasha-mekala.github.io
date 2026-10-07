@@ -11,6 +11,8 @@ export interface Profile {
   languages: string[];
   summary: string;
   email?: string;
+  /** Scheduling link (Calendly, Cal.com...). The "Book a call" button shows only when this is set. */
+  bookingUrl?: string;
   links: {
     github?: string;
     linkedin: string;

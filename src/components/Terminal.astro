@@ -54,6 +54,7 @@ const data = {
 <script>
   import { getCommits, getDeploy } from '../utils/liveStatus';
   import { startMatrix } from '../utils/matrix';
+  import { ACCENTS, currentAccent, currentScheme, setAccent, setScheme, type Accent } from '../utils/theme';
 
   type Part = string | { text: string; href: string };
   interface TermData {
@@ -120,8 +121,12 @@ const data = {
       ['blog', 'latest posts'],
       ['contact', 'get in touch'],
       ['resume', 'open the resume page'],
+      ['cat resume', 'the resume, as text'],
       ['neofetch', 'system info'],
       ['uptime', 'time in production'],
+      ['ask [topic]', 'quick answers (try: ask stack)'],
+      ['open <page>', 'work, blog, resume, status, how'],
+      ['theme [name]', 'light, dark, auto, green, amber, cyan, violet'],
       ['git log', 'my real recent commits (live)'],
       ['status', 'live deploy status of this site'],
       ['matrix', 'take the red pill'],
@@ -172,11 +177,63 @@ const data = {
       date() { out(new Date().toString()); },
       echo(args) { out(args.join(' ')); },
       cat(args) {
-        if (args[0] === 'resume.pdf') out('binary file. Try: resume', 'dim');
+        if (args[0] === 'resume') {
+          out(`${d.name} · ${d.headline}`, 'ok');
+          out(d.location, 'dim');
+          out('');
+          out(d.summary);
+          out('');
+          d.jobs.forEach((j) => {
+            out(`${j.role} @ ${j.company}  (${j.period})`);
+            j.projects.forEach((p) => out(`    └─ ${p}`, 'dim'));
+          });
+          out('');
+          d.skills.forEach((g) => out(`${g.label}: ${g.items.join(', ')}`, 'dim'));
+        } else if (args[0] === 'resume.pdf') out('binary file. Try: resume', 'dim');
         else if (args[0] === 'contact.txt') contact();
         else out(`cat: ${args[0] ?? ''}: No such file or directory`, 'err');
       },
       clear() { screen!.replaceChildren(); },
+      ask(args) {
+        const topic = (args[0] ?? '').toLowerCase();
+        const skill = (label: string) => d.skills.find((g) => g.label === label)?.items.join(', ') ?? '-';
+        const answers: Record<string, () => void> = {
+          stack: () => d.skills.forEach((g) => out(`${g.label.padEnd(28)} ${g.items.join(', ')}`)),
+          clouds: () => out(`${skill('Cloud')}. Multi-cloud work across AWS, GCP and Azure.`),
+          where: () => out(`Based in ${d.location}.`),
+          now: () => out(`${d.jobs[0].role} at ${d.jobs[0].company} (${d.jobs[0].period}).`),
+          contact: () => { out('Easiest is email or LinkedIn:'); contact(); },
+          site: () => out(['This site is a static Astro build deployed by GitHub Actions. Details: ', { text: '/how-its-built', href: '/how-its-built' }]),
+        };
+        if (answers[topic]) return answers[topic]();
+        out('Ask me about: ' + Object.keys(answers).join(', ') + '.  Example: ask stack', 'dim');
+      },
+      open(args) {
+        const pages: Record<string, string> = {
+          work: '/work', blog: '/blog', resume: '/resume', status: '/status', how: '/how-its-built', home: '/',
+        };
+        const target = pages[(args[0] ?? '').toLowerCase()];
+        if (!target) return out('open: pick one of ' + Object.keys(pages).join(', '), 'dim');
+        out(['Opening ', { text: target, href: target }, ' ...'], 'dim');
+        setTimeout(() => { location.href = target; }, 400);
+      },
+      theme(args) {
+        const choice = (args[0] ?? '').toLowerCase();
+        if (!choice) {
+          out(`scheme: ${currentScheme()}   accent: ${currentAccent()}`, 'dim');
+          out('Try: theme light | dark | auto | ' + ACCENTS.join(' | '), 'dim');
+          return;
+        }
+        if (choice === 'light' || choice === 'dark' || choice === 'auto') {
+          setScheme(choice);
+          return out(`scheme set to ${choice}.`, 'ok');
+        }
+        if ((ACCENTS as readonly string[]).includes(choice)) {
+          setAccent(choice as Accent);
+          return out(`accent set to ${choice}.`, 'ok');
+        }
+        out(`theme: unknown option '${choice}'. Try: light, dark, auto, ${ACCENTS.join(', ')}`, 'err');
+      },
       history() {
         if (!history.length) return out('no history yet.', 'dim');
         history.forEach((h, i) => out(`${String(i + 1).padStart(4)}  ${h}`));
@@ -300,7 +357,7 @@ const data = {
   .title {
     margin-left: 0.5rem;
     font-size: 0.75rem;
-    color: #6b7686;
+    color: #8b98ab;
   }
 
   .screen {
@@ -316,7 +373,7 @@ const data = {
     min-height: 1.2em;
   }
 
-  .screen :global(.dim) { color: #6b7686; }
+  .screen :global(.dim) { color: #8b98ab; }
   .screen :global(.ok) { color: #36f2a0; }
   .screen :global(.err) { color: #ff6b6b; }
   .screen :global(.cmd) { color: #8fd1ff; }
@@ -330,7 +387,7 @@ const data = {
     border-top: 1px solid #1c2530;
   }
 
-  label { white-space: nowrap; color: #6b7686; }
+  label { white-space: nowrap; color: #8b98ab; }
   .u { color: #36f2a0; }
   .p { color: #8fd1ff; }
 

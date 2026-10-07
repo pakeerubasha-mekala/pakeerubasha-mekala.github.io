@@ -13,7 +13,7 @@ In traditional CI/CD pipelines, developers often store AWS access keys as enviro
 
 This article introduces a more secure approach: integrating GitLab CI/CD with AWS using OpenID Connect (OIDC). This method eliminates the need for long-lived access keys by leveraging short-lived, automatically rotated credentials through IAM roles and identity federation.
 
-![GitLab OIDC Integration with AWS: the pipeline requests a token, the OIDC provider authenticates to AWS IAM, and AWS returns temporary credentials](/blog/gitlab-oidc-aws-flow.png)
+<img src="/blog/gitlab-oidc-aws-flow.jpg" alt="GitLab OIDC Integration with AWS: the pipeline requests a token, the OIDC provider authenticates to AWS IAM, and AWS returns temporary credentials" width="1388" height="864" decoding="async" />
 
 ## Why You Should Avoid AWS Access Keys in CI/CD Variables
 

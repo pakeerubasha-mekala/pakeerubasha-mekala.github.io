@@ -9,6 +9,8 @@ export interface ProjectExperience {
   period: string;
   location?: string;
   bullets: string[];
+  /** Shorter version of the bullets for the one-page resume. Falls back to `bullets` when empty. */
+  resumeBullets?: string[];
   tech: string[];
 }
 
@@ -19,6 +21,8 @@ export interface Experience {
   period: string;
   location?: string;
   bullets: string[];
+  /** Shorter version of the bullets for the one-page resume. Falls back to `bullets` when empty. */
+  resumeBullets?: string[];
   tech: string[];
   /** Optional per-project breakdown, most recent first. */
   projects?: ProjectExperience[];
@@ -30,6 +34,12 @@ const clean = (items: string[] | undefined) => (items ?? []).filter((s) => s.tri
 export const experience: Experience[] = (raw as Experience[]).map((job) => ({
   ...job,
   bullets: clean(job.bullets),
+  resumeBullets: clean(job.resumeBullets),
   tech: clean(job.tech),
-  projects: (job.projects ?? []).map((p) => ({ ...p, bullets: clean(p.bullets), tech: clean(p.tech) })),
+  projects: (job.projects ?? []).map((p) => ({
+    ...p,
+    bullets: clean(p.bullets),
+    resumeBullets: clean(p.resumeBullets),
+    tech: clean(p.tech),
+  })),
 }));

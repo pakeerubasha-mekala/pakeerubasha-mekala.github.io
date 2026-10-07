@@ -60,6 +60,13 @@
           "Grafana",
           "ELK",
           "PagerDuty"
+        ],
+        "resumeBullets": [
+          "Led the migration of legacy infrastructure to the cloud and built a self-service portal for provisioning and de-provisioning resources.",
+          "Ran highly available EKS clusters with Helm releases and ArgoCD GitOps deployments.",
+          "Provisioned infrastructure with CloudFormation, Terraform and Crossplane; managed configuration with Ansible, including custom modules and plugins.",
+          "Built Groovy DSL CI/CD pipelines with blue/green and canary deployments and early quality checks; managed Jenkins, Nexus, SonarQube, Contrast, Keycloak and the Elastic Stack.",
+          "Instrumented 150+ microservices (CloudWatch, Grafana, Prometheus, PagerDuty) and built cloud cost optimisation metrics."
         ]
       },
       {
@@ -89,6 +96,12 @@
           "Kubernetes",
           "Docker",
           "Azure Kubernetes Service"
+        ],
+        "resumeBullets": [
+          "Led CI/CD with Jenkins and shell scripting; set up artifact repositories and quality testing tools.",
+          "Implemented zero-downtime deployments on AWS ECS and Azure Kubernetes Service, and ran Kubernetes on on-prem VMs, including cluster upgrades.",
+          "Containerised applications with Docker and integrated SAST, DAST and open-source scanning into CI/CD.",
+          "Part of the 24/7 on-call team: incident management, root cause analysis and permanent fixes; supported global development teams and prepared knowledge-transition documents."
         ]
       }
     ]

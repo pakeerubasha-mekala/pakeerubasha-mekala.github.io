@@ -1,0 +1,12 @@
+# Dependabot opens pull requests for outdated dependencies, so security fixes do not wait for me to remember.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly

@@ -2,6 +2,7 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CommandPalette from '../components/CommandPalette.astro';
+import analytics from '../data/analytics.json';
 import '../styles/global.css';
 
 interface Props {
@@ -9,9 +10,13 @@ interface Props {
   description: string;
   ogType?: 'website' | 'article';
   image?: string;
+  /** Structured data (schema.org) for search engines. */
+  jsonLd?: Record<string, unknown>;
+  /** Keep utility pages (duplicate or generated) out of search results. */
+  noindex?: boolean;
 }
 
-const { title, description, ogType = 'website', image = '/og.svg' } = Astro.props;
+const { title, description, ogType = 'website', image = '/og/default.png', jsonLd, noindex = false } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImageURL = new URL(image, Astro.site);
@@ -31,6 +36,10 @@ const pageTitle = title === siteTitle ? title : `${title} · ${siteTitle}`;
         try {
           var d = document.documentElement;
           if (localStorage.getItem('mode') === 'clean') d.dataset.mode = 'clean';
+          var sc = localStorage.getItem('scheme');
+          if (sc === 'light' || sc === 'dark') d.dataset.scheme = sc;
+          var ac = localStorage.getItem('accent');
+          if (ac && ac !== 'green') d.dataset.accent = ac;
           if (
             location.pathname === '/' &&
             d.dataset.mode !== 'clean' &&
@@ -40,12 +49,18 @@ const pageTitle = title === siteTitle ? title : `${title} · ${siteTitle}`;
         } catch (e) {}
       })();
     </script>
+    {analytics.goatcounter && (
+      <script is:inline async data-goatcounter={`https://${analytics.goatcounter}.goatcounter.com/count`} src="//gc.zgo.at/count.js"></script>
+    )}
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="alternate" type="application/rss+xml" title={siteTitle} href="/rss.xml" />
+
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />}
 
     <!-- Open Graph -->
     <meta property="og:type" content={ogType} />

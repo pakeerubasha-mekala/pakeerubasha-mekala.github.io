@@ -10,10 +10,11 @@ npm run dev                              # local dev server at localhost:4321
 npm run build                            # type-check and build static site to ./dist
 npm run preview                          # serve ./dist locally
 npm run new:post -- "My post title"      # create a new blog post (see below)
-npm run pdf                              # rebuild the resume PDF locally
+npm run pdf                              # rebuild both resume PDFs locally (designed + ATS-friendly)
+npm run og                               # render the link-preview PNGs locally
 ```
 
-Pushing to `main` builds and deploys the site (and regenerates the resume PDF) through `.github/workflows/deploy.yml`.
+Pushing to `main` builds and deploys the site (and regenerates the resume PDFs and link-preview images) through `.github/workflows/deploy.yml`. `.github/workflows/quality.yml` checks links, accessibility, SEO and performance.
 
 ## Add a blog post from the command line
 

@@ -3,12 +3,31 @@ import Base from '../layouts/Base.astro';
 import BootScreen from '../components/BootScreen.astro';
 import Pipeline from '../components/Pipeline.astro';
 import Terminal from '../components/Terminal.astro';
+import { getCollection } from 'astro:content';
 import { profile } from '../data/profile';
 import { experience } from '../data/experience';
 import { skills } from '../data/skills';
 import { projects } from '../data/projects';
 import { education } from '../data/education';
 import { publications } from '../data/publications';
+
+const workIds = new Set((await getCollection('work')).map((w) => w.id));
+const caseStudy = (name?: string) => {
+  const id = (name ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return workIds.has(id) ? `/work/${id}/` : null;
+};
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.name,
+  jobTitle: profile.headline.split(' · ')[0],
+  description: profile.summary,
+  url: Astro.site?.href,
+  image: new URL(profile.photo, Astro.site).href,
+  address: { '@type': 'PostalAddress', addressLocality: profile.location },
+  sameAs: [profile.links.linkedin, profile.links.github, profile.links.stackoverflow].filter(Boolean),
+};
 
 // Career started Nov 2016 (first role on LinkedIn).
 const careerStart = new Date(2016, 10, 1);
@@ -22,7 +41,7 @@ const stats = [
 ];
 ---
 
-<Base title="Pakeeru Basha Mekala" description={profile.summary}>
+<Base title="Pakeeru Basha Mekala" description={profile.summary} jsonLd={jsonLd}>
   <BootScreen />
   <section id="about" class="hero">
     <img class="avatar" src={profile.photo} alt={profile.name} width="132" height="132" />
@@ -40,6 +59,8 @@ const stats = [
   <p class="cta">
     <a class="btn primary" href="#contact">Hire me</a>
     <a class="btn" href="/pakeeru-basha-mekala-resume.pdf" download>Download resume</a>
+    {profile.bookingUrl && <a class="btn" href={profile.bookingUrl}>Book a call</a>}
+    <a class="btn" href="/work">Case studies</a>
     <a class="btn" href="/blog">Read my blog</a>
     <a class="btn" href={profile.links.linkedin}>LinkedIn</a>
     {profile.links.github && <a class="btn" href={profile.links.github}>GitHub</a>}
@@ -79,6 +100,7 @@ const stats = [
             <div class="proj">
               <h4>{proj.name || proj.location}</h4>
               <p class="period">{proj.period}{proj.name && proj.location && ` · ${proj.location}`}</p>
+              {caseStudy(proj.name) && <p class="period"><a href={caseStudy(proj.name)!}>read the case study →</a></p>}
               <ul class="bullets">
                 {proj.bullets.map((bullet) => <li>{bullet}</li>)}
               </ul>
@@ -94,16 +116,16 @@ const stats = [
 
   <section id="skills">
     <h2>skills</h2>
-    <div class="pods fx" role="table" aria-label="Skills">
-      <div class="pod head" role="row"><span>NAME</span><span>READY</span><span>STATUS</span><span>TOOLS</span></div>
-      <div class="pod live-row" id="pod-live" role="row" hidden>
+    <div class="pods fx" role="group" aria-label="Skills">
+      <div class="pod head"><span>NAME</span><span>READY</span><span>STATUS</span><span>TOOLS</span></div>
+      <div class="pod live-row" id="pod-live" hidden>
         <span class="name">site-deploy</span>
         <span>1/1</span>
         <span class="run"><i></i><b class="state">Succeeded</b></span>
         <span class="tools"></span>
       </div>
       {skills.map((group) => (
-        <div class="pod" role="row">
+        <div class="pod">
           <span class="name">{group.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '')}</span>
           <span>1/1</span>
           <span class="run"><i></i>Running</span>
@@ -224,11 +246,11 @@ const stats = [
   .pods .foot {
     margin: 0.6rem 0 0;
     font-size: 0.72rem;
-    color: #6b7686;
+    color: #8b98ab;
   }
 
   .pods .foot b { color: #ffd479; font-weight: 500; }
-  .pod.head { color: #6b7686; }
+  .pod.head { color: #8b98ab; }
   .pod .name { color: #8fd1ff; }
   .pod .tools { color: #9aa6b6; }
 

@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
 import { readingTime } from '../../utils/readingTime';
 import Comments from '../../components/Comments.astro';
+import { profile } from '../../data/profile';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft);
@@ -13,13 +14,39 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
+
+// Table of contents from h2/h3 headings (only worth showing on longer posts).
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+
+// Related posts: other published posts sharing the most tags.
+const all = await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft);
+const related = all
+  .filter((p) => p.id !== post.id)
+  .map((p) => ({ post: p, shared: p.data.tags.filter((t) => post.data.tags.includes(t)).length }))
+  .filter((r) => r.shared > 0)
+  .sort((a, b) => b.shared - a.shared || b.post.data.pubDate.valueOf() - a.post.data.pubDate.valueOf())
+  .slice(0, 3)
+  .map((r) => r.post);
+
+const url = new URL(`/blog/${post.id}/`, Astro.site).href;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.pubDate.toISOString(),
+  ...(post.data.updatedDate ? { dateModified: post.data.updatedDate.toISOString() } : {}),
+  keywords: post.data.tags.join(', '),
+  mainEntityOfPage: url,
+  author: { '@type': 'Person', name: profile.name, url: profile.links.linkedin },
+};
 
 const dateFmt = (d: Date) =>
   d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 ---
 
-<Base title={post.data.title} description={post.data.description} ogType="article">
+<Base title={post.data.title} description={post.data.description} ogType="article" jsonLd={jsonLd} image={`/og/post-${post.id}.png`}>
   <article>
     <header class="post-header">
       <h1>{post.data.title}</h1>
@@ -38,13 +65,60 @@ const dateFmt = (d: Date) =>
         </ul>
       )}
     </header>
+    {toc.length >= 3 && (
+      <nav class="toc" aria-label="Table of contents">
+        <p class="toc-title">on this page</p>
+        <ol>
+          {toc.map((h) => (
+            <li class={h.depth === 3 ? 'sub' : ''}><a href={`#${h.slug}`}>{h.text}</a></li>
+          ))}
+        </ol>
+      </nav>
+    )}
     <div class="prose">
       <Content />
     </div>
     <p><a href="/blog">← back to blog</a></p>
+    {related.length > 0 && (
+      <section class="related" aria-label="Related posts">
+        <h2>related</h2>
+        <ul>
+          {related.map((r) => (
+            <li>
+              <a href={`/blog/${r.id}/`}>{r.data.title}</a>
+              <span>{r.data.tags.filter((t) => post.data.tags.includes(t)).map((t) => `#${t}`).join(' ')}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
     <Comments />
   </article>
 </Base>
+
+<script>
+  // Add a "copy" button to every code block in the post.
+  document.querySelectorAll<HTMLPreElement>('.prose pre').forEach((pre) => {
+    const code = pre.querySelector('code');
+    if (!code) return;
+    pre.classList.add('has-copy');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy';
+    btn.textContent = 'copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(code.textContent ?? '');
+        btn.textContent = 'copied';
+      } catch {
+        btn.textContent = 'press Ctrl+C';
+      }
+      setTimeout(() => { btn.textContent = 'copy'; }, 1600);
+    });
+    pre.appendChild(btn);
+  });
+</script>
 
 <style>
   .post-header {
@@ -68,5 +142,84 @@ const dateFmt = (d: Date) =>
   .prose :global(img) {
     max-width: 100%;
     height: auto;
+  }
+
+  .toc {
+    margin: 0 0 var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+  }
+
+  .toc-title {
+    margin: 0 0 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+  }
+
+  .toc ol {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+
+  .toc li {
+    margin-bottom: 0.2rem;
+  }
+
+  .toc li.sub {
+    margin-left: 1rem;
+    list-style: circle;
+  }
+
+  .prose :global(pre.has-copy) {
+    position: relative;
+  }
+
+  .prose :global(.copy) {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.15em 0.6em;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--fg-dim);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    cursor: pointer;
+    opacity: 0.75;
+  }
+
+  .prose :global(.copy:hover),
+  .prose :global(.copy:focus-visible) {
+    opacity: 1;
+    color: var(--accent);
+    border-color: var(--accent-dim);
+  }
+
+  .related ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .related li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .related span {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--fg-dim);
   }
 </style>

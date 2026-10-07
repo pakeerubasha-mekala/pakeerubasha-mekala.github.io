@@ -1,0 +1,48 @@
+name: Quality gates
+
+# Checks the built site for broken links, accessibility, SEO and performance.
+# Runs on pushes to main, on pull requests (including Dependabot's), and weekly to catch link rot.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+      # Internal links, images and anchors must resolve (fails the job when broken).
+      - name: Check internal links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --no-progress --root-dir ${{ github.workspace }}/dist './dist/**/*.html'
+          fail: true
+
+      # External links are checked too, but third-party sites can be flaky or block bots, so this only warns.
+      - name: Check external links (warning only)
+        uses: lycheeverse/lychee-action@v2
+        continue-on-error: true
+        with:
+          args: --no-progress --max-retries 2 --timeout 20 --accept '200..=299,301,302,303,307,308,403,429,999' --exclude 'localhost|127\.0\.0\.1|giscus\.app|fonts\.googleapis\.com' './dist/**/*.html'
+          fail: true
+
+      # Lighthouse: accessibility and SEO must stay at 90+, performance and best practices only warn.
+      - name: Lighthouse
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true

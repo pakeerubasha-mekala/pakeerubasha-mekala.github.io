@@ -65,3 +65,45 @@ export async function getCommits(repo: string, n = 5): Promise<CommitInfo[] | nu
     ago: timeAgo(c.commit.author.date),
   }));
 }
+
+export interface RunInfo {
+  id: number;
+  state: 'success' | 'failure' | 'running' | 'cancelled';
+  message: string;
+  sha: string;
+  seconds: number;
+  startedAt: string;
+  url: string;
+}
+
+interface RawRun {
+  id: number;
+  status: string;
+  conclusion: string | null;
+  head_sha: string;
+  head_commit: { message: string } | null;
+  run_started_at: string;
+  updated_at: string;
+  html_url: string;
+}
+
+export async function getRuns(repo: string, n = 30): Promise<RunInfo[] | null> {
+  const data = await gh<{ workflow_runs: RawRun[] }>(`/repos/${repo}/actions/runs?per_page=${n}`);
+  if (!data) return null;
+  return data.workflow_runs.map((r) => ({
+    id: r.id,
+    state:
+      r.status !== 'completed' ? 'running' : r.conclusion === 'success' ? 'success' : r.conclusion === 'cancelled' ? 'cancelled' : 'failure',
+    message: (r.head_commit?.message ?? '').split('\n')[0],
+    sha: r.head_sha.slice(0, 7),
+    seconds: Math.max(0, Math.round((new Date(r.updated_at).getTime() - new Date(r.run_started_at).getTime()) / 1000)),
+    startedAt: r.run_started_at,
+    url: r.html_url,
+  }));
+}
+
+/** Commit timestamps (newest first, up to 100) for the activity chart. */
+export async function getCommitDates(repo: string): Promise<string[] | null> {
+  const data = await gh<{ commit: { author: { date: string } } }[]>(`/repos/${repo}/commits?per_page=100`);
+  return data ? data.map((c) => c.commit.author.date) : null;
+}

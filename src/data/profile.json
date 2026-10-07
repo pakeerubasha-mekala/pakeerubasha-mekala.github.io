@@ -1,7 +1,7 @@
 {
   "name": "Pakeeru Basha Mekala",
   "headline": "DevOps Engineer · AWS, GCP, Azure · Kubernetes · GitOps",
-  "photo": "/photo.png",
+  "photo": "/photo.jpg",
   "repo": "pakeerubasha-mekala/pakeerubasha-mekala.github.io",
   "location": "Hyderabad, Telangana, India",
   "languages": [
@@ -12,5 +12,6 @@
   "links": {
     "github": "https://github.com/pakeerubasha-mekala",
     "linkedin": "https://www.linkedin.com/in/pakeeru-basha"
-  }
+  },
+  "bookingUrl": ""
 }

@@ -1,0 +1,309 @@
+---
+import Base from '../layouts/Base.astro';
+import { profile } from '../data/profile';
+---
+
+<Base title="Status" description="Live deploy history and build stats for this site, read from the GitHub Actions API.">
+  <section>
+    <h1>status</h1>
+    <p class="lead">
+      This site is deployed by a GitHub Actions pipeline, and this page is its status page. Everything below is read live
+      from the public GitHub API for <a href={`https://github.com/${profile.repo}`}>{profile.repo}</a>.
+    </p>
+
+    <p id="state" class="state" role="status">loading deploy history…</p>
+
+    <ul class="tiles" id="tiles" hidden>
+      {[0, 1, 2, 3].map(() => <li><strong>&nbsp;</strong><span>&nbsp;</span></li>)}
+    </ul>
+
+    <h2>deploys</h2>
+    <div class="table" id="runs" aria-label="Recent deploys"></div>
+
+    <h2>commit activity</h2>
+    <p class="hint" id="chart-hint"></p>
+    <div class="chart" id="chart" aria-label="Commits per week"></div>
+  </section>
+  <script id="status-data" type="application/json" is:inline set:html={JSON.stringify({ repo: profile.repo })} />
+</Base>
+
+<script>
+  import { getCommitDates, getRuns, timeAgo, type RunInfo } from '../utils/liveStatus';
+
+  const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+
+  const fmt = (s: number) => (s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`);
+
+  function tile(value: string, label: string) {
+    const li = document.createElement('li');
+    const strong = document.createElement('strong');
+    strong.textContent = value;
+    const span = document.createElement('span');
+    span.textContent = label;
+    li.append(strong, span);
+    return li;
+  }
+
+  function row(r: RunInfo) {
+    const a = document.createElement('a');
+    a.className = 'row';
+    a.href = r.url;
+    a.rel = 'noopener noreferrer';
+    a.target = '_blank';
+    const dot = document.createElement('i');
+    dot.className = r.state;
+    const msg = document.createElement('span');
+    msg.className = 'msg';
+    msg.textContent = r.message || '(no message)';
+    const sha = document.createElement('code');
+    sha.textContent = r.sha;
+    const dur = document.createElement('span');
+    dur.className = 'dur';
+    dur.textContent = r.state === 'running' ? 'running…' : fmt(r.seconds);
+    const ago = document.createElement('span');
+    ago.className = 'ago';
+    ago.textContent = timeAgo(r.startedAt);
+    a.append(dot, msg, sha, dur, ago);
+    return a;
+  }
+
+  function chart(dates: string[]) {
+    const weeks = 12;
+    const now = Date.now();
+    const weekMs = 7 * 24 * 3600 * 1000;
+    const counts = Array(weeks).fill(0);
+    for (const d of dates) {
+      const idx = Math.floor((now - new Date(d).getTime()) / weekMs);
+      if (idx >= 0 && idx < weeks) counts[weeks - 1 - idx] += 1;
+    }
+    const max = Math.max(...counts, 1);
+    const box = el('chart');
+    box.replaceChildren();
+    counts.forEach((c, i) => {
+      const col = document.createElement('div');
+      col.className = 'col';
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      bar.style.height = `${Math.max((c / max) * 100, c ? 6 : 2)}%`;
+      bar.title = `${c} commit${c === 1 ? '' : 's'}, ${weeks - i} week${weeks - i === 1 ? '' : 's'} ago`;
+      const n = document.createElement('span');
+      n.textContent = c ? String(c) : '';
+      col.append(n, bar);
+      box.appendChild(col);
+    });
+    el('chart-hint').textContent = `Commits per week over the last ${weeks} weeks (hover a bar for details).`;
+  }
+
+  async function init() {
+    const repo = JSON.parse(el('status-data').textContent ?? '{}').repo as string;
+    const [runs, dates] = await Promise.all([getRuns(repo, 30), getCommitDates(repo)]);
+    const state = el('state');
+    if (!runs) {
+      el('runs').style.minHeight = '0';
+      state.textContent = 'Could not reach the GitHub API (offline or rate-limited). Try again in a few minutes.';
+      state.classList.add('bad');
+      return;
+    }
+
+    const done = runs.filter((r) => r.state !== 'running');
+    const ok = done.filter((r) => r.state === 'success');
+    const last = done[0];
+    state.textContent = last
+      ? last.state === 'success'
+        ? `● all systems operational. Last deploy succeeded ${timeAgo(last.startedAt)}.`
+        : `● last deploy ${last.state} ${timeAgo(last.startedAt)}.`
+      : 'No deploys yet.';
+    state.classList.add(last?.state === 'success' ? 'good' : 'bad');
+
+    const tiles = el('tiles');
+    const rate = done.length ? Math.round((ok.length / done.length) * 100) : 0;
+    const avg = ok.length ? Math.round(ok.reduce((s, r) => s + r.seconds, 0) / ok.length) : 0;
+    tiles.replaceChildren(
+      tile(`${rate}%`, `success rate (last ${done.length})`),
+      tile(ok.length ? fmt(avg) : '-', 'average build and deploy time'),
+      tile(String(runs.filter((r) => Date.now() - new Date(r.startedAt).getTime() < 30 * 86400000).length), 'deploys in 30 days'),
+      tile(last ? timeAgo(last.startedAt) : '-', 'last deploy'),
+    );
+    tiles.hidden = false;
+
+    const table = el('runs');
+    table.replaceChildren(...runs.slice(0, 15).map(row));
+
+    if (dates) chart(dates);
+    else el('chart-hint').textContent = 'Commit activity unavailable right now.';
+  }
+
+  init();
+</script>
+
+<style>
+  .lead {
+    color: var(--fg-dim);
+  }
+
+  .state {
+    margin: var(--space-2) 0;
+    padding: 0.7rem 1rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+  }
+
+  .state.good {
+    color: var(--accent);
+    border-color: var(--accent-dim);
+  }
+
+  .state.bad {
+    color: #ff6b6b;
+  }
+
+  .tiles {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-2);
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Keep the space while loading so the page does not jump when the data arrives. */
+  .tiles[hidden] {
+    display: grid;
+    visibility: hidden;
+  }
+
+  .tiles :global(li) {
+    margin: 0;
+    min-height: 6.6rem;
+    padding: var(--space-2);
+    text-align: center;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .tiles :global(strong) {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    color: var(--accent);
+  }
+
+  .tiles :global(span) {
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+  }
+
+  .table {
+    min-height: 40.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-elevated);
+    overflow: hidden;
+  }
+
+  .table :global(.row) {
+    display: grid;
+    grid-template-columns: 0.8rem 1fr auto 5rem 5rem;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--fg);
+    text-decoration: none;
+    font-size: 0.85rem;
+  }
+
+  .table :global(.row:last-child) {
+    border-bottom: none;
+  }
+
+  .table :global(.row:hover) {
+    background: var(--glow);
+  }
+
+  .table :global(.msg) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .table :global(code),
+  .table :global(.dur),
+  .table :global(.ago) {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+  }
+
+  .table :global(.dur),
+  .table :global(.ago) {
+    text-align: right;
+  }
+
+  .table :global(i) {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--fg-dim);
+  }
+
+  .table :global(i.success) { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .table :global(i.failure) { background: #ff5f56; }
+  .table :global(i.running) { background: #ffbd2e; }
+
+  .hint {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+  }
+
+  .chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 9rem;
+    padding: var(--space-2);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .chart :global(.col) {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .chart :global(.col span) {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--fg-dim);
+    min-height: 0.9rem;
+  }
+
+  .chart :global(.bar) {
+    width: 100%;
+    max-width: 2.2rem;
+    border-radius: 4px 4px 0 0;
+    background: linear-gradient(var(--accent), var(--accent-2));
+    min-height: 2px;
+  }
+
+  @media (max-width: 560px) {
+    .table :global(.row) {
+      grid-template-columns: 0.8rem 1fr auto;
+    }
+    .table :global(.dur),
+    .table :global(.ago) {
+      display: none;
+    }
+  }
+</style>

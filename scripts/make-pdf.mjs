@@ -1,12 +1,21 @@
-// Renders /resume to public/pakeeru-basha-mekala-resume.pdf using a locally installed
-// Chromium-based browser (Chrome, Brave, Edge or Chromium). No extra npm packages needed.
-// Run via `npm run pdf` (builds the site first). Set CHROME_PATH to override the browser.
-import { spawn, spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+// Renders the resume pages to PDFs using a locally installed Chromium-based browser
+// (Chrome, Brave, Edge or Chromium). No extra npm packages needed.
+//
+// Usage: node scripts/make-pdf.mjs [outputDir]     (default: public)
+// `npm run pdf` builds the site first. CI passes `dist` so the deployed PDFs always match the data.
+// Set CHROME_PATH to choose a browser.
+import { spawn } from 'node:child_process';
+import { existsSync, mkdirSync } from 'node:fs';
+import { startServer } from './static-server.mjs';
 
 const PORT = 4399;
-// Usage: node scripts/make-pdf.mjs [output.pdf]   (CI writes into dist/ so the deployed PDF is always fresh)
-const OUT = process.argv[2] ?? 'public/pakeeru-basha-mekala-resume.pdf';
+const OUT_DIR = process.argv[2] ?? 'public';
+
+// path on the built site -> PDF file name
+const TARGETS = [
+  { path: '/resume/', file: 'pakeeru-basha-mekala-resume.pdf' },
+  { path: '/resume-ats/', file: 'pakeeru-basha-mekala-resume-ats.pdf' },
+];
 
 const candidates = [
   process.env.CHROME_PATH,
@@ -25,38 +34,40 @@ if (!browser) {
   process.exit(1);
 }
 
-const server = spawn('npx', ['astro', 'preview', '--port', String(PORT)], { stdio: 'ignore' });
+if (!existsSync('dist')) { console.error('dist/ not found. Run `npm run build` first.'); process.exit(1); }
 
-async function waitForServer() {
-  for (let i = 0; i < 40; i++) {
-    try {
-      const res = await fetch(`http://localhost:${PORT}/resume/`);
-      if (res.ok) return;
-    } catch {}
-    await new Promise((r) => setTimeout(r, 250));
-  }
-  throw new Error('Preview server did not start');
+// Run the browser without blocking the event loop (the static server lives in this same process).
+function run(cmd, args) {
+  return new Promise((done) => {
+    const child = spawn(cmd, args, { stdio: 'ignore' });
+    const timer = setTimeout(() => child.kill('SIGKILL'), 60_000);
+    child.on('exit', (code) => { clearTimeout(timer); done(code); });
+    child.on('error', () => { clearTimeout(timer); done(1); });
+  });
 }
 
-let status = 1;
+mkdirSync(OUT_DIR, { recursive: true });
+const server = await startServer('dist', PORT);
+
+let status = 0;
 try {
-  await waitForServer();
-  const result = spawnSync(
-    browser,
-    [
-      '--headless=new',
-      '--disable-gpu',
-      ...(process.env.CI ? ['--no-sandbox'] : []),
-      '--no-pdf-header-footer',
-      `--print-to-pdf=${OUT}`,
-      `http://localhost:${PORT}/resume/`,
-    ],
-    { stdio: 'inherit' },
-  );
-  status = result.status ?? 1;
-  if (status === 0 && existsSync(OUT)) console.log(`Wrote ${OUT}`);
-  else console.error('PDF generation failed');
+  for (const { path, file } of TARGETS) {
+    const out = `${OUT_DIR}/${file}`;
+    const code = await run(
+      browser,
+      [
+        '--headless=new',
+        '--disable-gpu',
+        ...(process.env.CI ? ['--no-sandbox'] : []),
+        '--no-pdf-header-footer',
+        `--print-to-pdf=${out}`,
+        `http://127.0.0.1:${PORT}${path}`,
+      ],
+    );
+    if (code === 0 && existsSync(out)) console.log(`Wrote ${out}`);
+    else { console.error(`PDF generation failed for ${path}`); status = 1; }
+  }
 } finally {
-  server.kill();
+  server.close();
 }
 process.exit(status);

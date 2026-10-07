@@ -1,0 +1,198 @@
+---
+import Base from '../layouts/Base.astro';
+import { profile } from '../data/profile';
+import { experience } from '../data/experience';
+import { skills } from '../data/skills';
+import { education } from '../data/education';
+
+// Plain, single-column, one-page resume for applicant tracking systems: no photo, cards, chips, icons or
+// columns, standard section headings and a single font. Uses the same short `resumeBullets` as the
+// designed resume (/resume) so it stays on one page; the website keeps the full detail.
+const pdfPath = '/pakeeru-basha-mekala-resume-ats.pdf';
+const contact = [profile.email, profile.links.linkedin, profile.links.github, profile.location].filter(Boolean);
+const pick = (resume?: string[], full: string[] = []) => (resume && resume.length > 0 ? resume : full);
+---
+
+<Base title="Resume (ATS-friendly)" description={`Plain-text friendly resume of ${profile.name}`} noindex>
+  <div class="actions no-print">
+    <a class="btn" href={pdfPath} download>Download ATS-friendly PDF</a>
+    <a class="btn" href="/resume">← designed version</a>
+  </div>
+
+  <article class="ats">
+    <header>
+      <h1>{profile.name}</h1>
+      <p class="headline">{profile.headline}</p>
+      <p class="contact">{contact.join('  |  ')}</p>
+    </header>
+
+    <h2>Summary</h2>
+    <p>{profile.summary}</p>
+
+    <h2>Experience</h2>
+    {experience.map((job) => (
+      <section class="job">
+        <p class="line">
+          <span><strong>{job.role}</strong>, {job.company}{job.location && `, ${job.location}`}</span>
+          <span class="date">{job.period}</span>
+        </p>
+        {pick(job.resumeBullets, job.bullets).length > 0 && (
+          <ul>{pick(job.resumeBullets, job.bullets).map((b) => <li>{b}</li>)}</ul>
+        )}
+        {job.projects?.map((proj) => (
+          <>
+            <p class="line sub">
+              <span><strong>Project: {proj.name || proj.location}</strong>{proj.name && proj.location && `, ${proj.location}`}</span>
+              <span class="date">{proj.period}</span>
+            </p>
+            <ul>{pick(proj.resumeBullets, proj.bullets).map((b) => <li>{b}</li>)}</ul>
+          </>
+        ))}
+      </section>
+    ))}
+
+    <h2>Technical skills</h2>
+    <ul class="skills">
+      {skills.map((g) => <li><strong>{g.label}:</strong> {g.items.join(', ')}</li>)}
+    </ul>
+
+    <h2>Education</h2>
+    {education.map((e) => (
+      <p class="line">
+        <span><strong>{e.degree}</strong>, {e.field}, {e.institution}{e.grade && `, ${e.grade}`}</span>
+        <span class="date">{e.period}</span>
+      </p>
+    ))}
+  </article>
+</Base>
+
+<style>
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: var(--space-2) 0;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 0.5em 1.1em;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+
+  /* White paper, black text, one font (Arial: the safest choice for parsers). Same on screen and in print. */
+  .ats {
+    padding: 2rem 2.4rem;
+    background: #fff;
+    color: #111;
+    border-radius: var(--radius);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .ats :global(*) {
+    color: inherit;
+    font-family: inherit;
+  }
+
+  .ats h1 {
+    margin: 0;
+    font-size: 1.7rem;
+    line-height: 1.15;
+  }
+
+  .headline {
+    margin: 0.2rem 0 0.15rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .contact {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #333;
+  }
+
+  .ats h2 {
+    display: block;
+    margin: 1.1rem 0 0.45rem;
+    padding-bottom: 0.2rem;
+    border-bottom: 1.5px solid #111;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #111;
+  }
+
+  .ats h2::before,
+  .ats h2::after {
+    content: none;
+  }
+
+  .ats p {
+    margin: 0 0 0.3rem;
+  }
+
+  .job {
+    margin-bottom: 0.7rem;
+  }
+
+  .line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin: 0.35rem 0 0.15rem;
+  }
+
+  .line.sub {
+    margin-top: 0.55rem;
+    padding-left: 0.2rem;
+  }
+
+  .date {
+    flex: none;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .ats ul {
+    margin: 0.1rem 0 0.3rem;
+    padding-left: 1.2rem;
+  }
+
+  .ats li {
+    margin-bottom: 0.15rem;
+  }
+
+  .skills {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  @media (max-width: 560px) {
+    .line {
+      flex-direction: column;
+      gap: 0;
+    }
+  }
+
+  @media print {
+    .ats {
+      padding: 0;
+      border-radius: 0;
+      font-size: 9.6pt;
+      line-height: 1.38;
+    }
+    .ats h1 {
+      font-size: 20pt;
+    }
+  }
+</style>
