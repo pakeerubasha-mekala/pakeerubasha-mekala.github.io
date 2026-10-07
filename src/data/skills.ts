@@ -7,7 +7,7 @@ export interface SkillGroup {
 export const skills: SkillGroup[] = [
   {
     label: 'Cloud',
-    items: ['AWS (EKS, ECS)', 'Azure Kubernetes Service'],
+    items: ['AWS (EKS, ECS)', 'GCP', 'Azure Kubernetes Service'],
   },
   {
     label: 'Infrastructure as Code',
@@ -19,7 +19,7 @@ export const skills: SkillGroup[] = [
   },
   {
     label: 'CI/CD',
-    items: ['Jenkins (Groovy DSL)', 'Blue/Green and Canary deployments', 'SonarQube', 'Nexus'],
+    items: ['Jenkins (Groovy DSL)', 'GitHub Actions', 'Octopus Deploy', 'Blue/Green and Canary deployments', 'SonarQube', 'Nexus'],
   },
   {
     label: 'Observability',

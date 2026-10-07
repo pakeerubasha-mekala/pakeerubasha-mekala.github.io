@@ -14,9 +14,19 @@ export const experience: Experience[] = [
     period: 'Mar 2025 - Present',
     location: 'Bengaluru, Karnataka, India · Hybrid',
     bullets: [
-      // TODO: add achievements for this role.
+      'Platform and infrastructure work for an HR SaaS platform, across AWS and GCP.',
     ],
-    tech: [],
+    tech: [
+      'AWS',
+      'GCP',
+      'Terraform',
+      'Kubernetes',
+      'Helm',
+      'ArgoCD',
+      'Docker',
+      'GitHub Actions',
+      'Octopus Deploy',
+    ],
   },
   {
     role: 'DevOps Engineer',
