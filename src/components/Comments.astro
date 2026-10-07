@@ -1,0 +1,38 @@
+---
+import config from '../data/comments.json';
+
+// Comments run on GitHub Discussions through giscus (https://giscus.app). Visitors need a GitHub account
+// to comment, not to read. Nothing renders until repoId and categoryId are set in src/data/comments.json.
+const enabled = Boolean(config.repo && config.repoId && config.category && config.categoryId);
+---
+
+{enabled && (
+  <section class="comments" aria-label="Comments">
+    <h2>comments</h2>
+    <script
+      is:inline
+      src="https://giscus.app/client.js"
+      data-repo={config.repo}
+      data-repo-id={config.repoId}
+      data-category={config.category}
+      data-category-id={config.categoryId}
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="top"
+      data-theme="preferred_color_scheme"
+      data-lang="en"
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async
+    ></script>
+    <noscript><p>Comments need JavaScript and a GitHub account.</p></noscript>
+  </section>
+)}
+
+<style>
+  .comments {
+    margin-top: var(--space-4);
+  }
+</style>

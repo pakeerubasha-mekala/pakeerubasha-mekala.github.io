@@ -35,6 +35,10 @@ npm run build && npm run preview
 
 `npm run build` type-checks the project and builds the static site to `./dist`. `npm run preview` serves that build locally.
 
+## Edit from a web UI
+
+Blog posts and the site data (profile, experience, skills, education) can be edited from a browser with Pages CMS, and blog posts have giscus comments. See [CMS.md](./CMS.md) for the one-time setup.
+
 ## Add a blog post
 
 ```sh
@@ -50,7 +54,7 @@ This creates `src/content/blog/<slug>.md` with the frontmatter filled in and `dr
 3. Drafts show in `npm run dev` only. Set `draft: false` when ready.
 4. Commit and push to `main` to publish.
 
-Reading time is calculated automatically. `canonicalUrl` adds an "Also published on ..." link to the post.
+Reading time is calculated automatically. The blog page has a search box (press `/` to focus) that matches title, description, tags and the full post text, plus tag filters; the command palette (Ctrl/⌘ + K) also finds posts by tag and description. Share a filtered view with `/blog?q=oidc&tag=aws`. `canonicalUrl` adds an "Also published on ..." link to the post.
 
 ## Resume PDF
 

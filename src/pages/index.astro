@@ -13,12 +13,12 @@ import { publications } from '../data/publications';
 // Career started Nov 2016 (first role on LinkedIn).
 const careerStart = new Date(2016, 10, 1);
 const years = Math.floor((Date.now() - careerStart.getTime()) / (365.25 * 24 * 3600 * 1000));
-const employers = new Set(experience.map((job) => job.company)).size;
 
 const stats = [
   { value: `${years}+`, label: 'years in DevOps' },
   { value: '150+', label: 'microservices monitored' },
-  { value: String(employers), label: 'employers' },
+  { value: '3', label: 'clouds: AWS, GCP, Azure' },
+  { value: '24/7', label: 'on-call experience' },
 ];
 ---
 
@@ -28,7 +28,7 @@ const stats = [
     <img class="avatar" src={profile.photo} alt={profile.name} width="132" height="132" />
     <div class="hero-text">
       <p class="whoami" aria-hidden="true">$ whoami</p>
-      <p class="eyebrow"><span class="dot"></span>DevOps · Cloud · Kubernetes</p>
+      <p class="eyebrow"><span class="dot"></span>DevOps · Multi-cloud · Kubernetes</p>
       <h1 class="glitch" data-text={profile.name}>{profile.name}</h1>
       <p class="headline">{profile.headline}</p>
       <p class="meta">{profile.location}</p>
@@ -38,16 +38,16 @@ const stats = [
   <p class="summary">{profile.summary}</p>
 
   <p class="cta">
-    <a class="btn primary" href={profile.links.linkedin}>Connect on LinkedIn</a>
-    {profile.email && <a class="btn" href={`mailto:${profile.email}`}>Email me</a>}
+    <a class="btn primary" href="#contact">Hire me</a>
+    <a class="btn" href="/pakeeru-basha-mekala-resume.pdf" download>Download resume</a>
+    <a class="btn" href="/blog">Read my blog</a>
+    <a class="btn" href={profile.links.linkedin}>LinkedIn</a>
     {profile.links.github && <a class="btn" href={profile.links.github}>GitHub</a>}
-    <a class="btn" href="/resume">Resume</a>
-    <a class="btn" href="/pakeeru-basha-mekala-resume.pdf" download>Download PDF</a>
   </p>
 
   <ul class="stats">
     {stats.map((s) => (
-      <li>
+      <li class={s.value.length > 5 ? 'small' : ''}>
         <strong>{s.value}</strong>
         <span>{s.label}</span>
       </li>
@@ -77,7 +77,7 @@ const stats = [
           )}
           {job.projects?.map((proj) => (
             <div class="proj">
-              <h4>{proj.name ?? proj.location}</h4>
+              <h4>{proj.name || proj.location}</h4>
               <p class="period">{proj.period}{proj.name && proj.location && ` · ${proj.location}`}</p>
               <ul class="bullets">
                 {proj.bullets.map((bullet) => <li>{bullet}</li>)}
@@ -233,7 +233,7 @@ const stats = [
   .pod .tools { color: #9aa6b6; }
 
   .run {
-    color: #39ff88;
+    color: #36f2a0;
   }
 
   .run i {
@@ -242,8 +242,8 @@ const stats = [
     height: 7px;
     margin-right: 0.5ch;
     border-radius: 50%;
-    background: #39ff88;
-    box-shadow: 0 0 8px #39ff88;
+    background: #36f2a0;
+    box-shadow: 0 0 8px #36f2a0;
     animation: pulse 2s ease-in-out infinite;
   }
 
@@ -320,7 +320,7 @@ const stats = [
   .hero-text h1 {
     font-size: clamp(1.7rem, 4.5vw, 2.4rem);
     margin: 0.1em 0 0.15em;
-    background: linear-gradient(90deg, var(--fg), var(--accent));
+    background: linear-gradient(100deg, var(--fg) 0%, var(--accent) 55%, var(--accent-2) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -418,8 +418,8 @@ const stats = [
   }
 
   .btn.primary {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: linear-gradient(100deg, var(--accent), var(--accent-2));
+    border-color: transparent;
     color: var(--bg);
     font-weight: 600;
   }
@@ -452,7 +452,15 @@ const stats = [
     display: block;
     font-family: var(--font-mono);
     font-size: 1.7rem;
-    color: var(--accent);
+    line-height: 2.2rem;
+    background: linear-gradient(100deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .stats li.small strong {
+    font-size: 1.15rem;
   }
 
   .stats span {
@@ -471,7 +479,7 @@ const stats = [
   .card:hover {
     transform: translateY(-2px);
     border-color: var(--accent-dim);
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow), 0 0 0 1px var(--glow);
   }
 
   .card h3 {

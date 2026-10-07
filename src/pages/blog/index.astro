@@ -2,21 +2,45 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 import { readingTime } from '../../utils/readingTime';
+import { plainText } from '../../utils/plainText';
 
 const posts = (await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft)).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
 
+const tagCounts = new Map<string, number>();
+posts.forEach((p) => p.data.tags.forEach((t) => tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1)));
+const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
 const dateFmt = (d: Date) =>
   d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+// Lower-cased text each post is searched against: title, description, tags and body.
+const searchText = (p: (typeof posts)[number]) =>
+  [p.data.title, p.data.description, p.data.tags.join(' '), plainText(p.body)].join(' ').toLowerCase();
 ---
 
 <Base title="Blog" description="Notes on DevOps, infrastructure, and backend development.">
   <section>
     <h1>blog</h1>
-    <ul class="post-list">
+
+    <div class="search">
+      <label class="visually-hidden" for="blog-search">Search posts</label>
+      <input id="blog-search" type="search" placeholder="Search posts…  (press / to focus)" autocomplete="off" spellcheck="false" />
+      <p class="count" id="blog-count" aria-live="polite">{posts.length} {posts.length === 1 ? 'post' : 'posts'}</p>
+    </div>
+
+    {tags.length > 0 && (
+      <ul class="tag-filter" aria-label="Filter by tag">
+        {tags.map(([tag, n]) => (
+          <li><button type="button" data-tag={tag} aria-pressed="false">#{tag} <small>{n}</small></button></li>
+        ))}
+      </ul>
+    )}
+
+    <ul class="post-list" id="post-list">
       {posts.map((post) => (
-        <li>
+        <li data-search={searchText(post)} data-tags={post.data.tags.join(',')}>
           <a href={`/blog/${post.id}/`}>{post.data.title}</a>
           <p class="post-meta">
             <span class="post-date">{dateFmt(post.data.pubDate)}</span>
@@ -32,10 +56,167 @@ const dateFmt = (d: Date) =>
         </li>
       ))}
     </ul>
+
+    <p class="empty" id="blog-empty" hidden>No posts match. Try a different word, or <button type="button" id="blog-clear">clear the search</button>.</p>
   </section>
 </Base>
 
+<script>
+  function initBlogSearch() {
+    const input = document.getElementById('blog-search') as HTMLInputElement | null;
+    const count = document.getElementById('blog-count');
+    const empty = document.getElementById('blog-empty');
+    const items = Array.from(document.querySelectorAll<HTMLLIElement>('#post-list > li'));
+    const tagButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.tag-filter button'));
+    if (!input || !count || !empty) return;
+
+    let activeTag = '';
+
+    function apply() {
+      const terms = input!.value.toLowerCase().split(/\s+/).filter(Boolean);
+      let shown = 0;
+      for (const li of items) {
+        const text = li.dataset.search ?? '';
+        const okText = terms.every((t) => text.includes(t));
+        const okTag = !activeTag || (li.dataset.tags ?? '').split(',').includes(activeTag);
+        const visible = okText && okTag;
+        li.hidden = !visible;
+        if (visible) shown += 1;
+      }
+      const filtering = terms.length > 0 || activeTag !== '';
+      count!.textContent = filtering ? `${shown} of ${items.length} posts` : `${items.length} ${items.length === 1 ? 'post' : 'posts'}`;
+      empty!.hidden = shown !== 0;
+
+      const url = new URL(location.href);
+      if (input!.value.trim()) url.searchParams.set('q', input!.value.trim()); else url.searchParams.delete('q');
+      if (activeTag) url.searchParams.set('tag', activeTag); else url.searchParams.delete('tag');
+      history.replaceState(null, '', url);
+    }
+
+    function setTag(tag: string) {
+      activeTag = tag === activeTag ? '' : tag;
+      tagButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tag === activeTag)));
+      apply();
+    }
+
+    tagButtons.forEach((b) => b.addEventListener('click', () => setTag(b.dataset.tag ?? '')));
+    input.addEventListener('input', apply);
+    document.getElementById('blog-clear')?.addEventListener('click', () => {
+      input.value = '';
+      activeTag = '';
+      tagButtons.forEach((b) => b.setAttribute('aria-pressed', 'false'));
+      apply();
+      input.focus();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const el = e.target as HTMLElement;
+      const typing = el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el.isContentEditable;
+      if (e.key === '/' && !typing && !e.metaKey && !e.ctrlKey) { e.preventDefault(); input.focus(); }
+      if (e.key === 'Escape' && el === input) { input.value = ''; apply(); input.blur(); }
+    });
+
+    // Restore a shared search link such as /blog?q=oidc&tag=aws
+    const params = new URLSearchParams(location.search);
+    input.value = params.get('q') ?? '';
+    const t = params.get('tag');
+    if (t && tagButtons.some((b) => b.dataset.tag === t)) setTag(t); else apply();
+  }
+
+  initBlogSearch();
+</script>
+
 <style>
+  .search {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: var(--space-2) 0 var(--space-1);
+  }
+
+  .search input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.7rem 1rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .search input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--glow);
+  }
+
+  .count {
+    margin: 0;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+  }
+
+  .tag-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-3);
+  }
+
+  .tag-filter li {
+    margin: 0;
+  }
+
+  .tag-filter button {
+    padding: 0.2em 0.75em;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--fg-dim);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+
+  .tag-filter button small {
+    opacity: 0.7;
+  }
+
+  .tag-filter button:hover,
+  .tag-filter button:focus-visible {
+    color: var(--accent);
+    border-color: var(--accent-dim);
+  }
+
+  .tag-filter button[aria-pressed='true'] {
+    color: var(--bg);
+    background: linear-gradient(100deg, var(--accent), var(--accent-2));
+    border-color: transparent;
+  }
+
+  .empty {
+    font-family: var(--font-mono);
+    color: var(--fg-dim);
+  }
+
+  .empty button {
+    padding: 0;
+    background: none;
+    border: none;
+    color: var(--link);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
   .post-list {
     list-style: none;
     padding: 0;
@@ -46,8 +227,8 @@ const dateFmt = (d: Date) =>
     padding: var(--space-2) 0;
   }
 
-  .post-list li:first-child {
-    padding-top: 0;
+  .post-list li[hidden] {
+    display: none;
   }
 
   .post-list a {
@@ -61,6 +242,7 @@ const dateFmt = (d: Date) =>
     font-size: 0.8rem;
     color: var(--fg-dim);
     display: flex;
+    flex-wrap: wrap;
     gap: 0.75em;
     align-items: center;
   }

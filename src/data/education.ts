@@ -1,3 +1,6 @@
+import raw from './education.json';
+
+// Content lives in education.json (editable through the CMS); this file only adds types.
 export interface Education {
   degree: string;
   field: string;
@@ -6,11 +9,4 @@ export interface Education {
   grade?: string;
 }
 
-export const education: Education[] = [
-  {
-    degree: 'Bachelor of Technology (B.Tech.)',
-    field: 'Electrical, Electronic and Communications Engineering',
-    institution: 'G. Pulla Reddy Engineering College',
-    period: '2013 - 2016',
-  },
-];
+export const education: Education[] = raw as Education[];

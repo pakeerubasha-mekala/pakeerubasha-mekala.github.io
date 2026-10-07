@@ -90,7 +90,7 @@ const x = (i: number) => 50 + i * 130;
 
   .live[hidden] { display: none; }
 
-  .live i {
+  .live :global(i) {
     display: inline-block;
     width: 8px;
     height: 8px;
@@ -98,8 +98,8 @@ const x = (i: number) => 50 + i * 130;
     background: var(--fg-dim);
   }
 
-  .live i.success { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
-  .live i.failure { background: #ff5f56; box-shadow: 0 0 8px #ff5f56; }
+  .live :global(i.success) { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .live :global(i.failure) { background: #ff5f56; box-shadow: 0 0 8px #ff5f56; }
 
   .track {
     stroke: var(--border);

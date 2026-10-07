@@ -1,0 +1,49 @@
+[
+  {
+    "label": "Cloud",
+    "items": [
+      "AWS (EKS, ECS)",
+      "GCP",
+      "Azure (AKS)"
+    ]
+  },
+  {
+    "label": "Infrastructure as Code",
+    "items": [
+      "Terraform",
+      "CloudFormation",
+      "Crossplane",
+      "Ansible"
+    ]
+  },
+  {
+    "label": "Containers & Orchestration",
+    "items": [
+      "Docker",
+      "Kubernetes",
+      "Helm",
+      "ArgoCD (GitOps)"
+    ]
+  },
+  {
+    "label": "CI/CD",
+    "items": [
+      "Jenkins (Groovy DSL)",
+      "GitHub Actions",
+      "Octopus Deploy",
+      "Blue/Green and Canary deployments",
+      "SonarQube",
+      "Nexus"
+    ]
+  },
+  {
+    "label": "Observability",
+    "items": [
+      "Prometheus",
+      "Grafana",
+      "CloudWatch",
+      "ELK",
+      "PagerDuty"
+    ]
+  }
+]

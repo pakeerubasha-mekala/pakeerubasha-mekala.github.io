@@ -1,0 +1,243 @@
+# Pages CMS configuration (https://pagescms.org). Lets you edit the blog and site data from a web UI;
+# every save is a commit to this repo, which the GitHub Actions workflow then deploys.
+# See CMS.md for setup.
+
+# Images uploaded in the editor go to public/blog/ and are referenced as /blog/<file>.
+media:
+  input: public/blog
+  output: /blog
+
+content:
+  - name: posts
+    label: Blog posts
+    type: collection
+    path: src/content/blog
+    format: yaml-frontmatter
+    filename: "{primary}.md"
+    view:
+      primary: title
+      fields: [title, pubDate, draft]
+      sort: pubDate
+      order: desc
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+      - name: description
+        label: Description (shown in the blog list and link previews)
+        type: text
+        required: true
+      - name: pubDate
+        label: Publish date
+        type: date
+        required: true
+      - name: updatedDate
+        label: Updated date
+        type: date
+      - name: tags
+        label: Tags
+        type: string
+        list: true
+      - name: draft
+        label: Draft (turn on to hide the post from the live site)
+        type: boolean
+      - name: canonicalUrl
+        label: Originally published at (optional URL, e.g. Medium)
+        type: string
+      - name: body
+        label: Post
+        type: rich-text
+
+  - name: profile
+    label: Profile
+    type: file
+    path: src/data/profile.json
+    format: json
+    fields:
+      - name: name
+        label: Full name
+        type: string
+      - name: headline
+        label: Headline
+        type: string
+      - name: summary
+        label: Summary
+        type: text
+      - name: location
+        label: Location
+        type: string
+      - name: languages
+        label: Languages
+        type: string
+        list: true
+      - name: email
+        label: Email (leave empty to hide)
+        type: string
+      - name: links
+        label: Links
+        type: object
+        fields:
+          - name: linkedin
+            label: LinkedIn URL
+            type: string
+          - name: github
+            label: GitHub URL (leave empty to hide)
+            type: string
+          - name: stackoverflow
+            label: Stack Overflow URL (leave empty to hide)
+            type: string
+      - name: photo
+        label: Photo path (file in the public/ folder)
+        type: string
+      - name: repo
+        label: GitHub repo of this site (owner/name)
+        type: string
+
+  - name: experience
+    label: Experience
+    type: file
+    path: src/data/experience.json
+    format: json
+    list: true
+    fields:
+      - name: role
+        label: Role
+        type: string
+      - name: company
+        label: Company
+        type: string
+      - name: period
+        label: Period (e.g. Mar 2025 - Present)
+        type: string
+      - name: location
+        label: Location
+        type: string
+      - name: bullets
+        label: Highlights
+        type: string
+        list: true
+      - name: tech
+        label: Tools
+        type: string
+        list: true
+      - name: projects
+        label: Projects at this company (optional, newest first)
+        type: object
+        list: true
+        fields:
+          - name: name
+            label: Project name
+            type: string
+          - name: period
+            label: Period
+            type: string
+          - name: location
+            label: Location
+            type: string
+          - name: bullets
+            label: Highlights
+            type: string
+            list: true
+          - name: tech
+            label: Tools
+            type: string
+            list: true
+
+  - name: skills
+    label: Skills
+    type: file
+    path: src/data/skills.json
+    format: json
+    list: true
+    fields:
+      - name: label
+        label: Group name
+        type: string
+      - name: items
+        label: Skills
+        type: string
+        list: true
+
+  - name: education
+    label: Education
+    type: file
+    path: src/data/education.json
+    format: json
+    list: true
+    fields:
+      - name: degree
+        label: Degree
+        type: string
+      - name: field
+        label: Field of study
+        type: string
+      - name: institution
+        label: Institution
+        type: string
+      - name: period
+        label: Period
+        type: string
+      - name: grade
+        label: Grade (optional)
+        type: string
+
+  - name: projects
+    label: Projects
+    type: file
+    path: src/data/projects.json
+    format: json
+    list: true
+    fields:
+      - name: name
+        label: Name
+        type: string
+      - name: description
+        label: Description
+        type: text
+      - name: tech
+        label: Tools
+        type: string
+        list: true
+      - name: links
+        label: Links
+        type: object
+        list: true
+        fields:
+          - name: label
+            label: Label
+            type: string
+          - name: href
+            label: URL
+            type: string
+
+  - name: publications
+    label: Publications
+    type: file
+    path: src/data/publications.json
+    format: json
+    list: true
+    fields:
+      - name: title
+        label: Title
+        type: string
+      - name: venue
+        label: Venue
+        type: string
+      - name: date
+        label: Date
+        type: string
+      - name: summary
+        label: Summary
+        type: text
+      - name: links
+        label: Links
+        type: object
+        list: true
+        fields:
+          - name: label
+            label: Label
+            type: string
+          - name: href
+            label: URL
+            type: string

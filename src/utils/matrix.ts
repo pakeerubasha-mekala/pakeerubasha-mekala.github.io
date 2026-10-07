@@ -35,7 +35,7 @@ export function startMatrix(durationMs = 7000) {
     if (now - started > durationMs) return stop();
     ctx.fillStyle = 'rgba(3, 6, 10, 0.12)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#39ff88';
+    ctx.fillStyle = '#36f2a0';
     ctx.font = `${size}px ui-monospace, Menlo, monospace`;
     if (drops.length * size < canvas.width) drops = drops.concat(Array(5).fill(0));
     drops.forEach((y, i) => {

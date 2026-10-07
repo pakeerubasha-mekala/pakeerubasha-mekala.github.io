@@ -1,0 +1,16 @@
+{
+  "name": "Pakeeru Basha Mekala",
+  "headline": "DevOps Engineer · AWS, GCP, Azure · Kubernetes · GitOps",
+  "photo": "/photo.png",
+  "repo": "pakeerubasha-mekala/pakeerubasha-mekala.github.io",
+  "location": "Hyderabad, Telangana, India",
+  "languages": [
+    "English"
+  ],
+  "summary": "DevOps engineer building and running cloud platforms across AWS, GCP and Azure, with Kubernetes, GitOps and infrastructure as code. Currently a Senior DevOps Consultant at Equal Experts, after years of CI/CD, observability and platform engineering at Tata Consultancy Services in India and the UK.",
+  "email": "m.pakeerubasha@gmail.com",
+  "links": {
+    "github": "https://github.com/pakeerubasha-mekala",
+    "linkedin": "https://www.linkedin.com/in/pakeeru-basha"
+  }
+}

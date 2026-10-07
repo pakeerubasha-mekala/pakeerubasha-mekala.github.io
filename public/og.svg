@@ -8,5 +8,5 @@
     <tspan fill="#39ff88">$</tspan> whoami
   </text>
   <text x="90" y="340" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="44" fill="#d7dde3">Pakeeru Basha Mekala</text>
-  <text x="90" y="400" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="30" fill="#8a94a3">DevOps Engineer · AWS · Kubernetes · GitOps</text>
+  <text x="90" y="400" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="30" fill="#8a94a3">DevOps Engineer · AWS · GCP · Azure · Kubernetes</text>
 </svg>

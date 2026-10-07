@@ -22,7 +22,7 @@ const data = {
     role: j.role,
     company: j.company,
     period: j.period,
-    projects: (j.projects ?? []).map((p) => p.name ?? p.location ?? ''),
+    projects: (j.projects ?? []).map((p) => p.name || p.location || ''),
   })),
   skills: skills.map((g) => ({ label: g.label, items: g.items })),
   posts: posts.map((p) => ({ title: p.data.title, href: `/blog/${p.id}/` })),
@@ -279,7 +279,7 @@ const data = {
     color: #d7dde3;
     font-family: var(--font-mono);
     font-size: 0.85rem;
-    box-shadow: var(--shadow), 0 0 0 1px rgba(57, 255, 136, 0.05);
+    box-shadow: var(--shadow), 0 0 0 1px rgba(54, 242, 160, 0.05);
     overflow: hidden;
   }
 
@@ -317,10 +317,10 @@ const data = {
   }
 
   .screen :global(.dim) { color: #6b7686; }
-  .screen :global(.ok) { color: #39ff88; }
+  .screen :global(.ok) { color: #36f2a0; }
   .screen :global(.err) { color: #ff6b6b; }
   .screen :global(.cmd) { color: #8fd1ff; }
-  .screen :global(a) { color: #39ff88; text-underline-offset: 3px; }
+  .screen :global(a) { color: #36f2a0; text-underline-offset: 3px; }
 
   form {
     display: flex;
@@ -331,7 +331,7 @@ const data = {
   }
 
   label { white-space: nowrap; color: #6b7686; }
-  .u { color: #39ff88; }
+  .u { color: #36f2a0; }
   .p { color: #8fd1ff; }
 
   input {
@@ -342,7 +342,7 @@ const data = {
     outline: none;
     color: #d7dde3;
     font: inherit;
-    caret-color: #39ff88;
+    caret-color: #36f2a0;
   }
 
   input::placeholder { color: #3b4655; }

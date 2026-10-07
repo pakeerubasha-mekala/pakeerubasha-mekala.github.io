@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
 import { readingTime } from '../../utils/readingTime';
+import Comments from '../../components/Comments.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft);
@@ -41,6 +42,7 @@ const dateFmt = (d: Date) =>
       <Content />
     </div>
     <p><a href="/blog">← back to blog</a></p>
+    <Comments />
   </article>
 </Base>
 

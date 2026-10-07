@@ -1,3 +1,7 @@
+import raw from './publications.json';
+
+// Content lives in publications.json (editable through the CMS); this file only adds types.
+// The Publications section is hidden while the list is empty.
 export interface Publication {
   title: string;
   venue: string;
@@ -6,5 +10,4 @@ export interface Publication {
   links?: { label: string; href: string }[];
 }
 
-// TODO: add publications if any; the section is hidden while this is empty.
-export const publications: Publication[] = [];
+export const publications: Publication[] = raw as Publication[];

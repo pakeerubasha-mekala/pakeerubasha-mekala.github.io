@@ -1,19 +1,21 @@
-export const profile = {
-  name: 'Pakeeru Basha Mekala',
-  headline: 'DevOps Engineer · AWS, Kubernetes, GitOps · HashiCorp Certified',
-  photo: '/photo.png',
+import raw from './profile.json';
+
+// Content lives in profile.json (editable through the CMS); this file only adds types.
+export interface Profile {
+  name: string;
+  headline: string;
+  photo: string;
   /** GitHub repo that builds and hosts this site; used for the live deploy status. */
-  repo: 'pakeerubasha-mekala/pakeerubasha-mekala.github.io',
-  location: 'Hyderabad, Telangana, India',
-  languages: ['English'],
-  summary:
-    'DevOps engineer working across cloud infrastructure, Kubernetes and GitOps. Currently a ' +
-    'Senior DevOps Consultant at Equal Experts, after years of building CI/CD, observability and ' +
-    'cloud platforms on AWS at Tata Consultancy Services in India and the UK.',
-  email: 'm.pakeerubasha@gmail.com' as string | undefined,
+  repo: string;
+  location: string;
+  languages: string[];
+  summary: string;
+  email?: string;
   links: {
-    github: 'https://github.com/pakeerubasha-mekala' as string | undefined,
-    linkedin: 'https://www.linkedin.com/in/pakeeru-basha',
-    stackoverflow: undefined as string | undefined,
-  },
-};
+    github?: string;
+    linkedin: string;
+    stackoverflow?: string;
+  };
+}
+
+export const profile: Profile = raw;

@@ -1,28 +1,12 @@
+import raw from './skills.json';
+
+// Content lives in skills.json (editable through the CMS); this file only adds types.
 export interface SkillGroup {
   label: string;
   items: string[];
 }
 
-// Derived from the technologies named in the experience section; edit to taste.
-export const skills: SkillGroup[] = [
-  {
-    label: 'Cloud',
-    items: ['AWS (EKS, ECS)', 'GCP', 'Azure Kubernetes Service'],
-  },
-  {
-    label: 'Infrastructure as Code',
-    items: ['Terraform', 'CloudFormation', 'Crossplane', 'Ansible'],
-  },
-  {
-    label: 'Containers & Orchestration',
-    items: ['Docker', 'Kubernetes', 'Helm', 'ArgoCD (GitOps)'],
-  },
-  {
-    label: 'CI/CD',
-    items: ['Jenkins (Groovy DSL)', 'GitHub Actions', 'Octopus Deploy', 'Blue/Green and Canary deployments', 'SonarQube', 'Nexus'],
-  },
-  {
-    label: 'Observability',
-    items: ['Prometheus', 'Grafana', 'CloudWatch', 'ELK', 'PagerDuty'],
-  },
-];
+export const skills: SkillGroup[] = (raw as SkillGroup[]).map((g) => ({
+  ...g,
+  items: g.items.filter((s) => s.trim() !== ''),
+}));

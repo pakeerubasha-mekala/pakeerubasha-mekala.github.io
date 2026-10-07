@@ -11,6 +11,8 @@ interface Item {
   label: string;
   href: string;
   hint?: string;
+  /** Extra words that match in search but are not shown. */
+  keywords?: string;
 }
 
 const items: Item[] = [
@@ -23,7 +25,12 @@ const items: Item[] = [
   { group: 'Pages', label: 'Blog', href: '/blog' },
   { group: 'Pages', label: 'Resume', href: '/resume' },
   { group: 'Pages', label: 'Download resume (PDF)', href: '/pakeeru-basha-mekala-resume.pdf' },
-  ...posts.map((p) => ({ group: 'Posts', label: p.data.title, href: `/blog/${p.id}/` })),
+  ...posts.map((p) => ({
+    group: 'Posts',
+    label: p.data.title,
+    href: `/blog/${p.id}/`,
+    keywords: `${p.data.description} ${p.data.tags.join(' ')}`,
+  })),
   { group: 'Links', label: 'LinkedIn', href: profile.links.linkedin, hint: 'external' },
   ...(profile.links.github ? [{ group: 'Links', label: 'GitHub', href: profile.links.github, hint: 'external' }] : []),
   ...(profile.email ? [{ group: 'Links', label: 'Email', href: `mailto:${profile.email}`, hint: profile.email }] : []),
@@ -40,7 +47,7 @@ const items: Item[] = [
 </dialog>
 
 <script>
-  interface PaletteItem { group: string; label: string; href: string; hint?: string }
+  interface PaletteItem { group: string; label: string; href: string; hint?: string; keywords?: string }
 
   function initPalette() {
     const dialog = document.getElementById('palette') as HTMLDialogElement | null;
@@ -55,7 +62,7 @@ const items: Item[] = [
 
     function render() {
       const q = input!.value.trim().toLowerCase();
-      visible = items.filter((i) => !q || `${i.group} ${i.label}`.toLowerCase().includes(q));
+      visible = items.filter((i) => !q || `${i.group} ${i.label} ${i.keywords ?? ''}`.toLowerCase().includes(q));
       active = Math.min(active, Math.max(visible.length - 1, 0));
       list!.replaceChildren();
       let lastGroup = '';
@@ -139,7 +146,7 @@ const items: Item[] = [
     border-radius: var(--radius);
     background: #070b10;
     color: #d7dde3;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(57, 255, 136, 0.08);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(54, 242, 160, 0.08);
     font-family: var(--font-mono);
   }
 
@@ -199,8 +206,8 @@ const items: Item[] = [
   }
 
   .item.active {
-    background: rgba(57, 255, 136, 0.12);
-    color: #39ff88;
+    background: rgba(54, 242, 160, 0.12);
+    color: #36f2a0;
   }
 
   .foot {

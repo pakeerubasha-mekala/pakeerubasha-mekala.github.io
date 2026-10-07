@@ -20,9 +20,13 @@ Client-side JavaScript is used for the interactive extras only: boot sequence (`
 
 ## Content
 
-- `src/data/*.ts`: typed objects consumed by `src/pages/index.astro` (`profile`, `experience`, `skills`, `projects`, `education`, `publications`). Empty `projects` or `publications` hide their section. `email` and the GitHub/Stack Overflow links are optional.
+- `src/data/*.json`: the editable content (`profile`, `experience`, `skills`, `education`, `projects`, `publications`, `comments`). The matching `src/data/*.ts` files only add TypeScript types and tidy empty list items, and are what pages import. Edit the JSON, not the `.ts`. Empty `projects` or `publications` hide their section; `email` and the GitHub/Stack Overflow links are optional (an empty string hides them).
 - `src/content/blog/*.md`: Astro content collection. Frontmatter: `title`, `description`, `pubDate`, `updatedDate?`, `tags[]`, `draft` (default `false`). The filename is the URL slug. Post images live in `public/blog/`.
 - `src/pages/rss.xml.ts` and `@astrojs/sitemap` both read the non-draft blog posts, newest first.
+
+## CMS and comments
+
+`.pages.yml` configures Pages CMS (blog posts and the JSON data files); keep its field names in sync with the JSON and the blog schema in `src/content.config.ts`. Comments are giscus (`src/components/Comments.astro`, config in `src/data/comments.json`). See `CMS.md`.
 
 ## Layout
 
