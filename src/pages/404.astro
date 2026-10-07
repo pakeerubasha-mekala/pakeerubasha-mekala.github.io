@@ -4,9 +4,13 @@ import Base from '../layouts/Base.astro';
 
 <Base title="404" description="Page not found.">
   <section class="not-found">
-    <p class="prompt">$ cd {Astro.url.pathname}</p>
-    <p>-bash: cd: {Astro.url.pathname}: No such file or directory</p>
-    <p><a href="/">← back home</a></p>
+    <p class="prompt">$ kubectl get pods -n {Astro.url.pathname}</p>
+    <pre>NAME                 READY   STATUS             RESTARTS   AGE
+this-page-7d9f8c     0/1     CrashLoopBackOff   42         ∞
+
+Error from server (NotFound): page "{Astro.url.pathname}" not found
+Back-off restarting failed container. Nothing here to deploy.</pre>
+    <p><a href="/">← kubectl rollout undo (back home)</a></p>
   </section>
 </Base>
 
@@ -17,10 +21,11 @@ import Base from '../layouts/Base.astro';
 
   .not-found .prompt {
     font-family: var(--font-mono);
+    color: var(--accent);
   }
 
-  .not-found p:nth-child(2) {
-    font-family: var(--font-mono);
-    color: var(--fg-dim);
+  pre {
+    color: #ff8a8a;
+    overflow-x: auto;
   }
 </style>

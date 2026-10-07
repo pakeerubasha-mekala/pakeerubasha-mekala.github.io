@@ -1,0 +1,221 @@
+---
+import { getCollection } from 'astro:content';
+import { profile } from '../data/profile';
+
+const posts = (await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+interface Item {
+  group: string;
+  label: string;
+  href: string;
+  hint?: string;
+}
+
+const items: Item[] = [
+  { group: 'Go to', label: 'About', href: '/#about' },
+  { group: 'Go to', label: 'Experience', href: '/#experience' },
+  { group: 'Go to', label: 'Skills', href: '/#skills' },
+  { group: 'Go to', label: 'Terminal', href: '/#terminal' },
+  { group: 'Go to', label: 'Education', href: '/#education' },
+  { group: 'Go to', label: 'Contact', href: '/#contact' },
+  { group: 'Pages', label: 'Blog', href: '/blog' },
+  { group: 'Pages', label: 'Resume', href: '/resume' },
+  { group: 'Pages', label: 'Download resume (PDF)', href: '/pakeeru-basha-mekala-resume.pdf' },
+  ...posts.map((p) => ({ group: 'Posts', label: p.data.title, href: `/blog/${p.id}/` })),
+  { group: 'Links', label: 'LinkedIn', href: profile.links.linkedin, hint: 'external' },
+  ...(profile.links.github ? [{ group: 'Links', label: 'GitHub', href: profile.links.github, hint: 'external' }] : []),
+  ...(profile.email ? [{ group: 'Links', label: 'Email', href: `mailto:${profile.email}`, hint: profile.email }] : []),
+];
+---
+
+<dialog id="palette" class="palette" aria-label="Command palette">
+  <div class="box">
+    <input id="palette-input" type="text" placeholder="Jump to…  (try: blog, resume, github)" autocomplete="off" spellcheck="false" aria-label="Search commands" />
+    <ul id="palette-list" role="listbox"></ul>
+    <p class="foot"><kbd>↑</kbd><kbd>↓</kbd> navigate · <kbd>Enter</kbd> open · <kbd>Esc</kbd> close</p>
+  </div>
+  <script id="palette-data" type="application/json" is:inline set:html={JSON.stringify(items).replace(/</g, '\\u003c')} />
+</dialog>
+
+<script>
+  interface PaletteItem { group: string; label: string; href: string; hint?: string }
+
+  function initPalette() {
+    const dialog = document.getElementById('palette') as HTMLDialogElement | null;
+    const input = document.getElementById('palette-input') as HTMLInputElement | null;
+    const list = document.getElementById('palette-list');
+    const raw = document.getElementById('palette-data')?.textContent;
+    if (!dialog || !input || !list || !raw) return;
+
+    const items: PaletteItem[] = JSON.parse(raw);
+    let visible: PaletteItem[] = [];
+    let active = 0;
+
+    function render() {
+      const q = input!.value.trim().toLowerCase();
+      visible = items.filter((i) => !q || `${i.group} ${i.label}`.toLowerCase().includes(q));
+      active = Math.min(active, Math.max(visible.length - 1, 0));
+      list!.replaceChildren();
+      let lastGroup = '';
+      visible.forEach((item, idx) => {
+        if (item.group !== lastGroup) {
+          lastGroup = item.group;
+          const h = document.createElement('li');
+          h.className = 'group';
+          h.textContent = item.group;
+          list!.appendChild(h);
+        }
+        const li = document.createElement('li');
+        li.className = 'item' + (idx === active ? ' active' : '');
+        li.setAttribute('role', 'option');
+        const label = document.createElement('span');
+        label.textContent = item.label;
+        li.appendChild(label);
+        if (item.hint) {
+          const hint = document.createElement('small');
+          hint.textContent = item.hint;
+          li.appendChild(hint);
+        }
+        li.addEventListener('mousemove', () => { active = idx; mark(); });
+        li.addEventListener('click', () => go(item));
+        list!.appendChild(li);
+      });
+      if (visible.length === 0) {
+        const none = document.createElement('li');
+        none.className = 'group';
+        none.textContent = 'No matches';
+        list!.appendChild(none);
+      }
+    }
+
+    function mark() {
+      list!.querySelectorAll('.item').forEach((el, i) => el.classList.toggle('active', i === active));
+      list!.querySelectorAll('.item')[active]?.scrollIntoView({ block: 'nearest' });
+    }
+
+    function go(item: PaletteItem) {
+      dialog!.close();
+      if (item.href.startsWith('http')) window.open(item.href, '_blank', 'noopener');
+      else location.href = item.href;
+    }
+
+    function open() {
+      input!.value = '';
+      active = 0;
+      render();
+      if (!dialog!.open) dialog!.showModal();
+      input!.focus();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (dialog.open) dialog.close();
+        else open();
+      }
+    });
+    document.querySelectorAll('[data-open-palette]').forEach((b) => b.addEventListener('click', open));
+
+    input.addEventListener('input', () => { active = 0; render(); });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(active + 1, visible.length - 1); mark(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); mark(); }
+      else if (e.key === 'Enter' && visible[active]) { e.preventDefault(); go(visible[active]); }
+    });
+    dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+  }
+
+  initPalette();
+</script>
+
+<style>
+  .palette {
+    width: min(36rem, calc(100vw - 2rem));
+    margin: 12vh auto auto;
+    padding: 0;
+    border: 1px solid var(--accent-dim);
+    border-radius: var(--radius);
+    background: #070b10;
+    color: #d7dde3;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(57, 255, 136, 0.08);
+    font-family: var(--font-mono);
+  }
+
+  .palette::backdrop {
+    background: rgba(2, 5, 8, 0.7);
+    backdrop-filter: blur(3px);
+  }
+
+  .box {
+    display: flex;
+    flex-direction: column;
+    max-height: 70vh;
+  }
+
+  input {
+    padding: 0.95rem 1.1rem;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #1c2530;
+    color: #d7dde3;
+    font: inherit;
+    font-size: 0.95rem;
+    outline: none;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0.4rem;
+    overflow-y: auto;
+  }
+
+  li {
+    margin: 0;
+  }
+
+  .group {
+    padding: 0.5rem 0.7rem 0.2rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #6b7686;
+  }
+
+  .item {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    cursor: pointer;
+  }
+
+  .item small {
+    color: #6b7686;
+  }
+
+  .item.active {
+    background: rgba(57, 255, 136, 0.12);
+    color: #39ff88;
+  }
+
+  .foot {
+    margin: 0;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid #1c2530;
+    font-size: 0.72rem;
+    color: #6b7686;
+  }
+
+  kbd {
+    padding: 0 0.35em;
+    margin-right: 0.2em;
+    border: 1px solid #2a3542;
+    border-radius: 4px;
+    font-family: inherit;
+  }
+</style>

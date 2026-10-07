@@ -1,0 +1,381 @@
+---
+import { getCollection } from 'astro:content';
+import { profile } from '../data/profile';
+import { experience } from '../data/experience';
+import { skills } from '../data/skills';
+
+const posts = (await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const data = {
+  name: profile.name,
+  headline: profile.headline,
+  location: profile.location,
+  summary: profile.summary,
+  email: profile.email ?? null,
+  github: profile.links.github ?? null,
+  linkedin: profile.links.linkedin,
+  repo: profile.repo,
+  careerStart: '2016-11-01',
+  jobs: experience.map((j) => ({
+    role: j.role,
+    company: j.company,
+    period: j.period,
+    projects: (j.projects ?? []).map((p) => p.name ?? p.location ?? ''),
+  })),
+  skills: skills.map((g) => ({ label: g.label, items: g.items })),
+  posts: posts.map((p) => ({ title: p.data.title, href: `/blog/${p.id}/` })),
+};
+---
+
+<section id="terminal" class="fx">
+  <h2>terminal</h2>
+  <div class="term" id="term">
+    <div class="bar" aria-hidden="true">
+      <span class="d r"></span><span class="d y"></span><span class="d g"></span>
+      <span class="title">pakeeru@portfolio: ~</span>
+    </div>
+    <div class="screen" id="term-screen" role="log" aria-live="polite"></div>
+    <form id="term-form" autocomplete="off">
+      <label for="term-input"><span class="u">pakeeru@portfolio</span>:<span class="p">~</span>$</label>
+      <input id="term-input" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Terminal input" placeholder="type a command, e.g. help" />
+    </form>
+  </div>
+  <p class="chips">
+    Try:
+    {['help', 'whoami', 'skills', 'neofetch', 'kubectl get pods', 'sudo hire pakeeru'].map((c) => (
+      <button type="button" data-cmd={c}>{c}</button>
+    ))}
+  </p>
+  <script id="term-data" type="application/json" is:inline set:html={JSON.stringify(data).replace(/</g, '\\u003c')} />
+</section>
+
+<script>
+  import { getCommits, getDeploy } from '../utils/liveStatus';
+  import { startMatrix } from '../utils/matrix';
+
+  type Part = string | { text: string; href: string };
+  interface TermData {
+    name: string; headline: string; location: string; summary: string;
+    email: string | null; github: string | null; linkedin: string;
+    repo: string;
+    careerStart: string;
+    jobs: { role: string; company: string; period: string; projects: string[] }[];
+    skills: { label: string; items: string[] }[];
+    posts: { title: string; href: string }[];
+  }
+
+  function initTerminal() {
+    const raw = document.getElementById('term-data')?.textContent;
+    const screen = document.getElementById('term-screen');
+    const form = document.getElementById('term-form') as HTMLFormElement | null;
+    const input = document.getElementById('term-input') as HTMLInputElement | null;
+    const box = document.getElementById('term');
+    if (!raw || !screen || !form || !input || !box) return;
+    const d: TermData = JSON.parse(raw);
+
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    let busy = false;
+    const history: string[] = [];
+    let hIdx = 0;
+
+    function out(parts: Part | Part[], cls = '') {
+      const line = document.createElement('div');
+      line.className = 'line ' + cls;
+      for (const part of Array.isArray(parts) ? parts : [parts]) {
+        if (typeof part === 'string') line.appendChild(document.createTextNode(part));
+        else {
+          const a = document.createElement('a');
+          a.textContent = part.text;
+          a.href = part.href;
+          if (part.href.startsWith('http')) { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
+          line.appendChild(a);
+        }
+      }
+      screen!.appendChild(line);
+      screen!.scrollTop = screen!.scrollHeight;
+    }
+
+    function uptime() {
+      const s = new Date(d.careerStart);
+      const n = new Date();
+      const months = (n.getFullYear() - s.getFullYear()) * 12 + n.getMonth() - s.getMonth();
+      return `${Math.floor(months / 12)} years, ${months % 12} months`;
+    }
+
+    const contact = () => {
+      if (d.email) out(['  email     ', { text: d.email, href: `mailto:${d.email}` }]);
+      out(['  linkedin  ', { text: d.linkedin.replace('https://www.', ''), href: d.linkedin }]);
+      if (d.github) out(['  github    ', { text: d.github.replace('https://', ''), href: d.github }]);
+    };
+
+    const help: [string, string][] = [
+      ['help', 'list commands'],
+      ['whoami', 'who is this?'],
+      ['about', 'short summary'],
+      ['experience', 'where I have worked'],
+      ['skills', 'tools of the trade'],
+      ['kubectl get pods', 'skills, but as pods'],
+      ['blog', 'latest posts'],
+      ['contact', 'get in touch'],
+      ['resume', 'open the resume page'],
+      ['neofetch', 'system info'],
+      ['uptime', 'time in production'],
+      ['git log', 'my real recent commits (live)'],
+      ['status', 'live deploy status of this site'],
+      ['matrix', 'take the red pill'],
+      ['history', 'what you typed so far'],
+      ['ls / pwd / date', 'the classics'],
+      ['clear', 'clear the screen'],
+    ];
+
+    const commands: Record<string, (args: string[]) => Promise<void> | void> = {
+      help() {
+        out('Available commands:', 'dim');
+        help.forEach(([c, t]) => out(`  ${c.padEnd(18)} ${t}`));
+        out('Tip: Tab autocompletes, ↑/↓ browse history, Ctrl+K opens the palette.', 'dim');
+      },
+      whoami() { out(d.name); out(d.headline, 'dim'); out(d.location, 'dim'); },
+      about() { out(d.summary); },
+      experience() {
+        d.jobs.forEach((j) => {
+          out([`${j.role} @ ${j.company}`, '  ', j.period], '');
+          j.projects.forEach((p) => out(`    └─ ${p}`, 'dim'));
+        });
+      },
+      skills() { d.skills.forEach((g) => out(`${g.label.padEnd(28)} ${g.items.join(', ')}`)); },
+      blog() {
+        if (!d.posts.length) return out('No posts yet.', 'dim');
+        d.posts.forEach((p) => out(['  ', { text: p.title, href: p.href }]));
+      },
+      contact() { out('Reach me at:', 'dim'); contact(); },
+      resume() {
+        out(['Opening ', { text: '/resume', href: '/resume' }, ' ...'], 'dim');
+        setTimeout(() => { location.href = '/resume'; }, 500);
+      },
+      uptime() { out(`up ${uptime()} in production, 0 incidents (that I will admit to)`); },
+      neofetch() {
+        const pick = (label: string) => d.skills.find((g) => g.label === label)?.items.join(', ') ?? '-';
+        out(`${d.name.split(' ')[0].toLowerCase()}@portfolio`, 'ok');
+        out('------------------');
+        out(`Role:      ${d.headline.split(' · ')[0]}`);
+        out(`Location:  ${d.location}`);
+        out(`Uptime:    ${uptime()}`);
+        out(`Cloud:     ${pick('Cloud')}`);
+        out(`Orchestr.: ${pick('Containers & Orchestration')}`);
+        out(`IaC:       ${pick('Infrastructure as Code')}`);
+        out('Shell:     zsh (with too many aliases)');
+      },
+      ls() { out('experience/  skills/  blog/  resume.pdf  contact.txt'); },
+      pwd() { out('/home/pakeeru'); },
+      date() { out(new Date().toString()); },
+      echo(args) { out(args.join(' ')); },
+      cat(args) {
+        if (args[0] === 'resume.pdf') out('binary file. Try: resume', 'dim');
+        else if (args[0] === 'contact.txt') contact();
+        else out(`cat: ${args[0] ?? ''}: No such file or directory`, 'err');
+      },
+      clear() { screen!.replaceChildren(); },
+      history() {
+        if (!history.length) return out('no history yet.', 'dim');
+        history.forEach((h, i) => out(`${String(i + 1).padStart(4)}  ${h}`));
+      },
+      matrix() {
+        out('Wake up, Neo... (click or press any key to stop)', 'ok');
+        startMatrix();
+      },
+      async git(args) {
+        if (args[0] !== 'log') return out('Try: git log', 'dim');
+        out('fetching commits from api.github.com ...', 'dim');
+        const commits = await getCommits(d.repo);
+        if (!commits) return out('could not reach the GitHub API (offline or rate-limited).', 'err');
+        commits.forEach((c) =>
+          out([{ text: c.sha, href: `https://github.com/${d.repo}/commit/${c.sha}` }, `  ${c.message}  (${c.ago})`])
+        );
+      },
+      async status() {
+        out('asking GitHub Actions ...', 'dim');
+        const info = await getDeploy(d.repo);
+        if (!info) return out('could not reach the GitHub API (offline or rate-limited).', 'err');
+        out(`last deploy: ${info.state} ${info.ago} (${info.sha})`, info.state === 'success' ? 'ok' : 'err');
+      },
+      exit() { out('logout: this is a website, there is nowhere to go. Try: help', 'dim'); },
+      rm() { out('rm: nice try. Everything here is managed by Terraform.', 'err'); },
+      async kubectl(args) {
+        if (args.join(' ') !== 'get pods') return out('Try: kubectl get pods', 'dim');
+        const names = d.skills.map((g) => g.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '') + '-7d9f8c6b5');
+        const w = Math.max(...names.map((n) => n.length), 4) + 3;
+        out('# decorative: not a real cluster. For real data, try: status', 'dim');
+        out('NAME'.padEnd(w) + 'READY  STATUS    RESTARTS', 'dim');
+        names.forEach((n) => out(`${n.padEnd(w)}1/1    Running   0`));
+      },
+      async sudo(args) {
+        if (args.join(' ') !== 'hire pakeeru') {
+          return out('pakeeru is not in the sudoers file. This incident will be reported.', 'err');
+        }
+        busy = true;
+        out('[sudo] password for recruiter: ********', 'dim');
+        await sleep(500);
+        out('Verifying credentials ........ ok', 'dim');
+        await sleep(450);
+        out('Provisioning offer ........... ok', 'dim');
+        await sleep(450);
+        out('Access granted. Excellent choice.', 'ok');
+        contact();
+        busy = false;
+      },
+    };
+
+    async function run(line: string) {
+      const trimmed = line.trim();
+      if (!trimmed) return;
+      out([`$ ${trimmed}`], 'cmd');
+      history.push(trimmed);
+      hIdx = history.length;
+      const [name, ...args] = trimmed.split(/\s+/);
+      const fn = Object.prototype.hasOwnProperty.call(commands, name) ? commands[name] : undefined;
+      if (!fn) return out(`${name}: command not found. Try 'help'.`, 'err');
+      await fn(args);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (busy) return;
+      const v = input.value;
+      input.value = '';
+      await run(v);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp') { e.preventDefault(); if (hIdx > 0) input.value = history[--hIdx]; }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); input.value = hIdx < history.length - 1 ? history[++hIdx] : ((hIdx = history.length), ''); }
+      else if (e.key === 'Tab') {
+        e.preventDefault();
+        const hits = Object.keys(commands).filter((c) => c.startsWith(input.value.trim()));
+        if (hits.length === 1) input.value = hits[0];
+      } else if (e.key === 'l' && e.ctrlKey) { e.preventDefault(); screen.replaceChildren(); }
+    });
+
+    box.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) return;
+      if (!window.getSelection()?.toString()) input.focus();
+    });
+    document.querySelectorAll<HTMLButtonElement>('#terminal [data-cmd]').forEach((b) =>
+      b.addEventListener('click', () => { if (!busy) run(b.dataset.cmd ?? ''); })
+    );
+
+    out(`Welcome to ${d.name.split(' ')[0]}'s portfolio shell. Type 'help' to get started.`, 'dim');
+  }
+
+  initTerminal();
+</script>
+
+<style>
+  .term {
+    border: 1px solid #1c2530;
+    border-radius: var(--radius);
+    background: #05080c;
+    color: #d7dde3;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    box-shadow: var(--shadow), 0 0 0 1px rgba(57, 255, 136, 0.05);
+    overflow: hidden;
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.55rem 0.8rem;
+    background: #0b1118;
+    border-bottom: 1px solid #1c2530;
+  }
+
+  .d { width: 11px; height: 11px; border-radius: 50%; }
+  .r { background: #ff5f56; }
+  .y { background: #ffbd2e; }
+  .g { background: #27c93f; }
+
+  .title {
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    color: #6b7686;
+  }
+
+  .screen {
+    height: 17rem;
+    overflow-y: auto;
+    padding: 0.8rem 1rem;
+    line-height: 1.5;
+  }
+
+  .screen :global(.line) {
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 1.2em;
+  }
+
+  .screen :global(.dim) { color: #6b7686; }
+  .screen :global(.ok) { color: #39ff88; }
+  .screen :global(.err) { color: #ff6b6b; }
+  .screen :global(.cmd) { color: #8fd1ff; }
+  .screen :global(a) { color: #39ff88; text-underline-offset: 3px; }
+
+  form {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 1rem;
+    border-top: 1px solid #1c2530;
+  }
+
+  label { white-space: nowrap; color: #6b7686; }
+  .u { color: #39ff88; }
+  .p { color: #8fd1ff; }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #d7dde3;
+    font: inherit;
+    caret-color: #39ff88;
+  }
+
+  input::placeholder { color: #3b4655; }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0.8rem 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+  }
+
+  .chips button {
+    padding: 0.2em 0.7em;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    color: var(--fg-dim);
+    font: inherit;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .chips button:hover,
+  .chips button:focus-visible {
+    color: var(--accent);
+    border-color: var(--accent-dim);
+  }
+
+  @media (max-width: 560px) {
+    label .u { display: none; }
+  }
+</style>

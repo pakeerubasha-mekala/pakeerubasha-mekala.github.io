@@ -16,7 +16,7 @@ There is no test suite and no linter. `astro check` (part of `npm run build`) ty
 
 Static Astro site (`output: 'static'`) deployed to GitHub Pages from `main` by `.github/workflows/deploy.yml`. `astro.config.mjs` sets `site: 'https://pakeerubasha-mekala.github.io'`; keep it in sync with the real URL, since canonical, sitemap and RSS links derive from it.
 
-The site ships no client-side JavaScript by design. Reconsider any feature that seems to need it.
+Client-side JavaScript is used for the interactive extras only: boot sequence (`BootScreen.astro`), terminal (`Terminal.astro`), command palette (`CommandPalette.astro`) and the recruiter-mode toggle (`Header.astro`, state in `localStorage` key `mode`). Content pages must stay readable without it. Decorative elements carry the `fx` class and are hidden by `html[data-mode="clean"]`.
 
 ## Content
 

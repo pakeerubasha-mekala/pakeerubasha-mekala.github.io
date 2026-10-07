@@ -5,7 +5,8 @@ import { spawn, spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 
 const PORT = 4399;
-const OUT = 'public/pakeeru-basha-mekala-resume.pdf';
+// Usage: node scripts/make-pdf.mjs [output.pdf]   (CI writes into dist/ so the deployed PDF is always fresh)
+const OUT = process.argv[2] ?? 'public/pakeeru-basha-mekala-resume.pdf';
 
 const candidates = [
   process.env.CHROME_PATH,
@@ -45,6 +46,7 @@ try {
     [
       '--headless=new',
       '--disable-gpu',
+      ...(process.env.CI ? ['--no-sandbox'] : []),
       '--no-pdf-header-footer',
       `--print-to-pdf=${OUT}`,
       `http://localhost:${PORT}/resume/`,

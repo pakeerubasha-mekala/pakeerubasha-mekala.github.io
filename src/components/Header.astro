@@ -21,8 +21,52 @@ const nav = [
         ))}
       </ul>
     </nav>
+    <div class="tools">
+      <button type="button" class="tool" data-open-palette aria-label="Open command palette">
+        <kbd id="kbd-hint">Ctrl K</kbd>
+      </button>
+      <button type="button" class="tool" id="mode-toggle" aria-pressed="false" title="Switch between the hacker look and a clean look">
+        <span id="mode-label">recruiter mode</span>
+      </button>
+    </div>
   </div>
 </header>
+
+<script>
+  import { startMatrix } from '../utils/matrix';
+
+  const root = document.documentElement;
+  const toggle = document.getElementById('mode-toggle');
+  const label = document.getElementById('mode-label');
+  const hint = document.getElementById('kbd-hint');
+
+  if (hint && /Mac|iPhone|iPad/.test(navigator.platform)) hint.textContent = '⌘ K';
+
+  function sync() {
+    const clean = root.dataset.mode === 'clean';
+    if (label) label.textContent = clean ? 'hacker mode' : 'recruiter mode';
+    toggle?.setAttribute('aria-pressed', String(clean));
+  }
+
+  toggle?.addEventListener('click', () => {
+    const clean = root.dataset.mode !== 'clean';
+    if (clean) root.dataset.mode = 'clean';
+    else delete root.dataset.mode;
+    root.classList.remove('booting');
+    try { localStorage.setItem('mode', clean ? 'clean' : 'hacker'); } catch {}
+    sync();
+  });
+
+  sync();
+
+  // Konami code: up up down down left right left right b a
+  const code = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+  let pos = 0;
+  document.addEventListener('keydown', (e) => {
+    pos = e.key === code[pos] ? pos + 1 : e.key === code[0] ? 1 : 0;
+    if (pos === code.length) { pos = 0; startMatrix(); }
+  });
+</script>
 
 <style>
   .site-header {
@@ -36,7 +80,7 @@ const nav = [
   }
 
   .inner {
-    max-width: var(--measure);
+    max-width: calc(var(--measure) + 10rem);
     margin: 0 auto;
     padding: 0.8rem var(--space-2);
     display: flex;
@@ -92,6 +136,33 @@ const nav = [
   nav a:focus-visible {
     color: var(--accent);
     border-bottom-color: var(--accent);
+  }
+
+  .tools {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .tool {
+    padding: 0.2em 0.7em;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    color: var(--fg-dim);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .tool:hover,
+  .tool:focus-visible {
+    color: var(--accent);
+    border-color: var(--accent-dim);
+  }
+
+  .tool kbd {
+    font-family: inherit;
   }
 
   @media (prefers-reduced-motion: reduce) {

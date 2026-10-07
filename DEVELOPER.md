@@ -52,15 +52,18 @@ This creates `src/content/blog/<slug>.md` with the frontmatter filled in and `dr
 
 Reading time is calculated automatically. `canonicalUrl` adds an "Also published on ..." link to the post.
 
-## Update the resume PDF
+## Resume PDF
 
-The resume page (`/resume`) is built from the same data files as the home page (`src/data/*.ts`). After changing them, regenerate the PDF and commit it:
+The resume page (`/resume`) and the PDF are built from the same data files as the home page (`src/data/*.ts`).
 
-```sh
-npm run pdf
-```
+- **On deploy:** the GitHub Actions workflow builds the site and then regenerates the PDF into `dist/`, so the live PDF always matches your data. You don't need to do anything.
+- **Locally:** `npm run pdf` rebuilds the site and writes `public/pakeeru-basha-mekala-resume.pdf`, which is what the dev server serves for the Download button. It uses a locally installed Chromium-based browser (Chrome, Brave, Edge or Chromium; set `CHROME_PATH` to choose one).
 
-This builds the site, renders `/resume` with a locally installed Chromium-based browser (Chrome, Brave, Edge or Chromium; set `CHROME_PATH` to choose one) and writes `public/pakeeru-basha-mekala-resume.pdf`.
+## Interactive extras
+
+- **Terminal, command palette (Ctrl/⌘ + K), boot sequence, Konami code:** try `help` in the terminal on the home page.
+- **Live data:** the pipeline status line, the `site-deploy` row, and the terminal commands `git log` and `status` read the public GitHub API for `profile.repo` (set in `src/data/profile.ts`). If you rename the repo, update it there.
+- **Recruiter mode:** the header button switches off the effects and shows the clean layout. Decorative elements carry the `fx` class.
 
 ## Deploy
 

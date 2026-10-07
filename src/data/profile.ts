@@ -2,6 +2,8 @@ export const profile = {
   name: 'Pakeeru Basha Mekala',
   headline: 'DevOps Engineer · AWS, Kubernetes, GitOps · HashiCorp Certified',
   photo: '/photo.png',
+  /** GitHub repo that builds and hosts this site; used for the live deploy status. */
+  repo: 'pakeerubasha-mekala/pakeerubasha-mekala.github.io',
   location: 'Hyderabad, Telangana, India',
   languages: ['English'],
   summary:

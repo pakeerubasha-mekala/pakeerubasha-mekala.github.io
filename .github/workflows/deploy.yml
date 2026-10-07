@@ -19,9 +19,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: withastro/action@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # Rebuild the resume PDF from the current data so it never goes stale.
+      - run: node scripts/make-pdf.mjs dist/pakeeru-basha-mekala-resume.pdf
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
 
   deploy:
     needs: build

@@ -1,5 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
+import BootScreen from '../components/BootScreen.astro';
+import Pipeline from '../components/Pipeline.astro';
+import Terminal from '../components/Terminal.astro';
 import { profile } from '../data/profile';
 import { experience } from '../data/experience';
 import { skills } from '../data/skills';
@@ -20,12 +23,13 @@ const stats = [
 ---
 
 <Base title="Pakeeru Basha Mekala" description={profile.summary}>
+  <BootScreen />
   <section id="about" class="hero">
     <img class="avatar" src={profile.photo} alt={profile.name} width="132" height="132" />
     <div class="hero-text">
       <p class="whoami" aria-hidden="true">$ whoami</p>
       <p class="eyebrow"><span class="dot"></span>DevOps · Cloud · Kubernetes</p>
-      <h1>{profile.name}</h1>
+      <h1 class="glitch" data-text={profile.name}>{profile.name}</h1>
       <p class="headline">{profile.headline}</p>
       <p class="meta">{profile.location}</p>
     </div>
@@ -49,6 +53,10 @@ const stats = [
       </li>
     ))}
   </ul>
+
+  <Pipeline />
+
+  <Terminal />
 
   <section id="experience">
     <h2>experience</h2>
@@ -86,6 +94,24 @@ const stats = [
 
   <section id="skills">
     <h2>skills</h2>
+    <div class="pods fx" role="table" aria-label="Skills">
+      <div class="pod head" role="row"><span>NAME</span><span>READY</span><span>STATUS</span><span>TOOLS</span></div>
+      <div class="pod live-row" id="pod-live" role="row" hidden>
+        <span class="name">site-deploy</span>
+        <span>1/1</span>
+        <span class="run"><i></i><b class="state">Succeeded</b></span>
+        <span class="tools"></span>
+      </div>
+      {skills.map((group) => (
+        <div class="pod" role="row">
+          <span class="name">{group.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '')}</span>
+          <span>1/1</span>
+          <span class="run"><i></i>Running</span>
+          <span class="tools">{group.items.join(', ')}</span>
+        </div>
+      ))}
+      <p class="foot">Skill rows are decorative (no cluster behind them). The <b>site-deploy</b> row is live from GitHub Actions.</p>
+    </div>
     <div class="skills-grid">
       {skills.map((group) => (
         <div class="skill-group card">
@@ -170,6 +196,107 @@ const stats = [
 </Base>
 
 <style>
+  .pods {
+    padding: var(--space-2);
+    background: #05080c;
+    color: #d7dde3;
+    border: 1px solid #1c2530;
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    overflow-x: auto;
+  }
+
+  .pod {
+    display: grid;
+    grid-template-columns: 15rem 3.5rem 7.5rem 1fr;
+    gap: 0.4rem 1rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px dashed #17202a;
+    min-width: 40rem;
+  }
+
+  .pod[hidden] { display: none; }
+  .pod.live-row .name { color: #ffd479; }
+  .pod.live-row.failure .run { color: #ff6b6b; }
+  .pod.live-row.failure .run i { background: #ff6b6b; box-shadow: 0 0 8px #ff6b6b; }
+
+  .pods .foot {
+    margin: 0.6rem 0 0;
+    font-size: 0.72rem;
+    color: #6b7686;
+  }
+
+  .pods .foot b { color: #ffd479; font-weight: 500; }
+  .pod.head { color: #6b7686; }
+  .pod .name { color: #8fd1ff; }
+  .pod .tools { color: #9aa6b6; }
+
+  .run {
+    color: #39ff88;
+  }
+
+  .run i {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 0.5ch;
+    border-radius: 50%;
+    background: #39ff88;
+    box-shadow: 0 0 8px #39ff88;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    50% { opacity: 0.35; }
+  }
+
+  :global(html:not([data-mode="clean"])) .skills-grid {
+    display: none;
+  }
+
+  :global(html:not([data-mode="clean"])) .hero-text h1.glitch {
+    position: relative;
+  }
+
+  :global(html:not([data-mode="clean"])) h1.glitch::before,
+  :global(html:not([data-mode="clean"])) h1.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: none;
+    pointer-events: none;
+  }
+
+  :global(html:not([data-mode="clean"])) h1.glitch::before {
+    -webkit-text-fill-color: #5ab0ff;
+  }
+
+  :global(html:not([data-mode="clean"])) h1.glitch::after {
+    -webkit-text-fill-color: #ff4d8d;
+  }
+
+  :global(html:not([data-mode="clean"])) h1.glitch:hover::before {
+    opacity: 0.8;
+    animation: glitch-a 0.45s steps(2) infinite;
+  }
+
+  :global(html:not([data-mode="clean"])) h1.glitch:hover::after {
+    opacity: 0.8;
+    animation: glitch-b 0.45s steps(2) infinite;
+  }
+
+  @keyframes glitch-a {
+    0% { transform: translate(-3px, 0); clip-path: inset(0 0 60% 0); }
+    100% { transform: translate(2px, 1px); clip-path: inset(40% 0 20% 0); }
+  }
+
+  @keyframes glitch-b {
+    0% { transform: translate(3px, 0); clip-path: inset(55% 0 0 0); }
+    100% { transform: translate(-2px, -1px); clip-path: inset(10% 0 55% 0); }
+  }
+
   .hero {
     display: flex;
     align-items: center;
@@ -200,8 +327,9 @@ const stats = [
   }
 
   .whoami {
-    display: inline-block;
-    margin: 0 0 0.4rem;
+    display: block;
+    width: 10ch;
+    margin: 0 0 0.5rem;
     font-family: var(--font-mono);
     font-size: 0.8rem;
     color: var(--fg-dim);

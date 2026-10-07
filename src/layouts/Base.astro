@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import CommandPalette from '../components/CommandPalette.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -24,6 +25,21 @@ const pageTitle = title === siteTitle ? title : `${title} · ${siteTitle}`;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark light" />
+    <script is:inline>
+      // Runs before first paint: restore recruiter/clean mode and decide whether to play the boot sequence.
+      (function () {
+        try {
+          var d = document.documentElement;
+          if (localStorage.getItem('mode') === 'clean') d.dataset.mode = 'clean';
+          if (
+            location.pathname === '/' &&
+            d.dataset.mode !== 'clean' &&
+            !sessionStorage.getItem('booted') &&
+            !matchMedia('(prefers-reduced-motion: reduce)').matches
+          ) d.classList.add('booting');
+        } catch (e) {}
+      })();
+    </script>
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
@@ -52,5 +68,6 @@ const pageTitle = title === siteTitle ? title : `${title} · ${siteTitle}`;
       <slot />
     </main>
     <Footer />
+    <CommandPalette />
   </body>
 </html>
