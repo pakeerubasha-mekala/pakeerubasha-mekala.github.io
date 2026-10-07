@@ -82,14 +82,14 @@ const contact = [
 
     <section>
       <h2>Skills</h2>
-      <dl class="skills">
+      <div class="skills">
         {skills.map((g) => (
-          <>
-            <dt>{g.label}</dt>
-            <dd>{g.items.join(' · ')}</dd>
-          </>
+          <div class="skill">
+            <h4>{g.label}</h4>
+            <p class="chips">{g.items.map((item) => <span>{item}</span>)}</p>
+          </div>
         ))}
-      </dl>
+      </div>
     </section>
 
     {projects.length > 0 && (
@@ -358,20 +358,25 @@ const contact = [
 
   .skills {
     display: grid;
-    grid-template-columns: 11.5rem 1fr;
-    gap: 0.4rem 1.2rem;
-    margin: 0;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.7rem;
   }
 
-  .skills dt {
-    font-weight: 600;
-    color: var(--ink);
+  .skill {
+    padding: 0.65rem 0.8rem 0.7rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--brand);
+    border-radius: 10px;
+    break-inside: avoid;
   }
 
-  .skills dd {
-    margin: 0;
-    color: var(--muted);
-    font-size: 0.88rem;
+  .skill h4 {
+    margin: 0 0 0.1rem;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--brand);
   }
 
   .desc {
@@ -394,10 +399,6 @@ const contact = [
     }
     .skills {
       grid-template-columns: 1fr;
-      gap: 0;
-    }
-    .skills dd {
-      margin-bottom: 0.5rem;
     }
     .entry-head {
       flex-direction: column;
