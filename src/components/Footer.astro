@@ -1,0 +1,44 @@
+---
+import { profile } from '../data/profile';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <p class="links">
+    {profile.email && <><a href={`mailto:${profile.email}`}>email</a> · </>}
+    {profile.links.github && <><a href={profile.links.github}>github</a> · </>}
+    <a href={profile.links.linkedin}>linkedin</a>
+    {profile.links.stackoverflow && <> · <a href={profile.links.stackoverflow}>stackoverflow</a></>}
+  </p>
+  <p class="copyright">© {year} {profile.name}</p>
+</footer>
+
+<style>
+  .site-footer {
+    max-width: var(--measure);
+    margin: var(--space-4) auto 0;
+    padding: var(--space-2);
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+    color: var(--fg-dim);
+  }
+
+  .site-footer p {
+    margin: 0.4em 0;
+  }
+
+  .links a {
+    color: var(--fg-dim);
+  }
+
+  .links a:hover,
+  .links a:focus-visible {
+    color: var(--accent);
+  }
+
+  .copyright {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+</style>

@@ -1,0 +1,424 @@
+---
+import Base from '../layouts/Base.astro';
+import { profile } from '../data/profile';
+import { experience } from '../data/experience';
+import { skills } from '../data/skills';
+import { projects } from '../data/projects';
+import { education } from '../data/education';
+import { publications } from '../data/publications';
+
+// Career started Nov 2016 (first role on LinkedIn).
+const careerStart = new Date(2016, 10, 1);
+const years = Math.floor((Date.now() - careerStart.getTime()) / (365.25 * 24 * 3600 * 1000));
+const employers = new Set(experience.map((job) => job.company)).size;
+
+const stats = [
+  { value: `${years}+`, label: 'years in DevOps' },
+  { value: '150+', label: 'microservices monitored' },
+  { value: String(employers), label: 'employers' },
+];
+---
+
+<Base title="Pakeeru Basha Mekala" description={profile.summary}>
+  <section id="about" class="hero">
+    <img class="avatar" src={profile.photo} alt={profile.name} width="132" height="132" />
+    <div class="hero-text">
+      <p class="eyebrow"><span class="dot"></span>DevOps · Cloud · Kubernetes</p>
+      <h1>{profile.name}</h1>
+      <p class="headline">{profile.headline}</p>
+      <p class="meta">{profile.location}</p>
+    </div>
+  </section>
+
+  <p class="summary">{profile.summary}</p>
+
+  <p class="cta">
+    <a class="btn primary" href={profile.links.linkedin}>Connect on LinkedIn</a>
+    {profile.email && <a class="btn" href={`mailto:${profile.email}`}>Email me</a>}
+    {profile.links.github && <a class="btn" href={profile.links.github}>GitHub</a>}
+    <a class="btn" href="#experience">View experience</a>
+  </p>
+
+  <ul class="stats">
+    {stats.map((s) => (
+      <li>
+        <strong>{s.value}</strong>
+        <span>{s.label}</span>
+      </li>
+    ))}
+  </ul>
+
+  <section id="experience">
+    <h2>experience</h2>
+    <div class="timeline">
+      {experience.map((job) => (
+        <article class="job card">
+          <h3>{job.role} <span class="at">@ {job.company}</span></h3>
+          <p class="period">{job.period}{job.location && ` · ${job.location}`}</p>
+          {job.bullets.length > 0 && (
+            <ul class="bullets">
+              {job.bullets.map((bullet) => <li>{bullet}</li>)}
+            </ul>
+          )}
+          {job.tech.length > 0 && (
+            <ul class="tag-list">
+              {job.tech.map((t) => <li>{t}</li>)}
+            </ul>
+          )}
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section id="skills">
+    <h2>skills</h2>
+    <div class="skills-grid">
+      {skills.map((group) => (
+        <div class="skill-group card">
+          <h3>{group.label}</h3>
+          <ul class="tag-list">
+            {group.items.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  {projects.length > 0 && (
+    <section id="projects">
+      <h2>projects</h2>
+      {projects.map((project) => (
+        <article class="project card">
+          <h3>{project.name}</h3>
+          <p>{project.description}</p>
+          <ul class="tag-list">
+            {project.tech.map((t) => <li>{t}</li>)}
+          </ul>
+          {project.links && (
+            <p class="project-links">
+              {project.links.map((link, i) => (
+                <>
+                  {i > 0 && ' · '}
+                  <a href={link.href}>{link.label}</a>
+                </>
+              ))}
+            </p>
+          )}
+        </article>
+      ))}
+    </section>
+  )}
+
+  <section id="education">
+    <h2>education</h2>
+    {education.map((item) => (
+      <article class="edu card">
+        <h3>{item.field}</h3>
+        <p class="period">{item.degree} · {item.institution} · {item.period}{item.grade && ` · ${item.grade}`}</p>
+      </article>
+    ))}
+  </section>
+
+  {publications.length > 0 && (
+    <section id="publications">
+      <h2>publications</h2>
+      {publications.map((pub) => (
+        <article class="pub card">
+          <h3>{pub.title}</h3>
+          <p class="period">{pub.venue} · {pub.date}</p>
+          <p>{pub.summary}</p>
+          {pub.links && (
+            <p class="project-links">
+              {pub.links.map((link, i) => (
+                <>
+                  {i > 0 && ' · '}
+                  <a href={link.href}>{link.label}</a>
+                </>
+              ))}
+            </p>
+          )}
+        </article>
+      ))}
+    </section>
+  )}
+
+  <section id="contact">
+    <h2>contact</h2>
+    <div class="card contact-card">
+      <p>
+        {profile.email && <>Reach me at <a href={`mailto:${profile.email}`}>{profile.email}</a> or find me on </>}
+        {!profile.email && <>Let's connect — find me on </>}
+        <a href={profile.links.linkedin}>LinkedIn</a>.
+      </p>
+      <a class="btn primary" href={profile.links.linkedin}>Say hello</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+  }
+
+  .avatar {
+    flex: none;
+    width: 132px;
+    height: 132px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--bg);
+    box-shadow:
+      0 0 0 2px var(--accent),
+      0 0 0 6px var(--glow),
+      var(--shadow);
+  }
+
+  .hero-text h1 {
+    font-size: clamp(1.7rem, 4.5vw, 2.4rem);
+    margin: 0.1em 0 0.15em;
+    background: linear-gradient(90deg, var(--fg), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5ch;
+    margin: 0;
+    padding: 0.15em 0.7em;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+    border-radius: 999px;
+    background: var(--glow);
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  .headline {
+    font-family: var(--font-mono);
+    color: var(--fg);
+    margin: 0 0 0.25em;
+  }
+
+  .meta {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--fg-dim);
+    margin: 0;
+  }
+
+  .summary {
+    font-size: 1.08rem;
+    color: var(--fg-dim);
+    margin-top: var(--space-3);
+    max-width: 62ch;
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: var(--space-2) 0 var(--space-3);
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 0.5em 1.1em;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: transform 0.15s, border-color 0.15s, color 0.15s;
+  }
+
+  .btn:hover,
+  .btn:focus-visible {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+  }
+
+  .btn.primary:hover,
+  .btn.primary:focus-visible {
+    color: var(--bg);
+    box-shadow: 0 0 0 4px var(--glow);
+  }
+
+  .stats {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-2);
+  }
+
+  .stats li {
+    margin: 0;
+    padding: var(--space-2);
+    text-align: center;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .stats strong {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 1.7rem;
+    color: var(--accent);
+  }
+
+  .stats span {
+    font-size: 0.8rem;
+    color: var(--fg-dim);
+  }
+
+  .card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-2) var(--space-3);
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-dim);
+    box-shadow: var(--shadow);
+  }
+
+  .card h3 {
+    margin-top: 0;
+  }
+
+  .timeline {
+    position: relative;
+    display: grid;
+    gap: var(--space-2);
+    padding-left: var(--space-3);
+  }
+
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 0.45rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 2px;
+    background: linear-gradient(var(--accent), var(--border));
+  }
+
+  .job {
+    position: relative;
+  }
+
+  .job::before {
+    content: "";
+    position: absolute;
+    left: calc(-1 * var(--space-3) + 0.1rem);
+    top: 1.35rem;
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent);
+  }
+
+  .job .at {
+    color: var(--fg-dim);
+    font-weight: 400;
+    font-size: 0.85em;
+  }
+
+  .period {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--fg-dim);
+    margin: -0.3em 0 0.8em;
+  }
+
+  .bullets {
+    margin: 0 0 var(--space-1);
+    font-size: 0.95rem;
+  }
+
+  .bullets li::marker {
+    color: var(--accent);
+  }
+
+  .project + .project,
+  .edu + .edu,
+  .pub + .pub {
+    margin-top: var(--space-2);
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--space-2);
+  }
+
+  .skill-group h3 {
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 0;
+  }
+
+  .project-links {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+  }
+
+  .contact-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .contact-card p {
+    margin: 0;
+  }
+
+  @media (max-width: 560px) {
+    .hero {
+      flex-direction: column;
+      text-align: center;
+    }
+    .timeline {
+      padding-left: var(--space-2);
+    }
+    .job::before {
+      display: none;
+    }
+    .timeline::before {
+      display: none;
+    }
+  }
+</style>

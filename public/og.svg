@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0b0f14" />
+  <rect x="40" y="40" width="1120" height="550" rx="16" fill="none" stroke="#232b36" stroke-width="2" />
+  <circle cx="84" cy="84" r="8" fill="#ff5f56" />
+  <circle cx="110" cy="84" r="8" fill="#ffbd2e" />
+  <circle cx="136" cy="84" r="8" fill="#27c93f" />
+  <text x="90" y="260" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="56" fill="#d7dde3">
+    <tspan fill="#39ff88">$</tspan> whoami
+  </text>
+  <text x="90" y="340" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="44" fill="#d7dde3">Pakeeru Basha Mekala</text>
+  <text x="90" y="400" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="30" fill="#8a94a3">DevOps Engineer · AWS · Kubernetes · GitOps</text>
+</svg>

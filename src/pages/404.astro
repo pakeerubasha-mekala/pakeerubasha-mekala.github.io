@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="404" description="Page not found.">
+  <section class="not-found">
+    <p class="prompt">$ cd {Astro.url.pathname}</p>
+    <p>-bash: cd: {Astro.url.pathname}: No such file or directory</p>
+    <p><a href="/">← back home</a></p>
+  </section>
+</Base>
+
+<style>
+  .not-found {
+    margin-top: var(--space-4);
+  }
+
+  .not-found .prompt {
+    font-family: var(--font-mono);
+  }
+
+  .not-found p:nth-child(2) {
+    font-family: var(--font-mono);
+    color: var(--fg-dim);
+  }
+</style>
