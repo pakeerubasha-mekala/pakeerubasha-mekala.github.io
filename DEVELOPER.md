@@ -2,30 +2,37 @@
 
 ## Run locally (dev mode)
 
+Run these from the project folder.
+
 ```sh
 cd ~/Work/personal/snigji.com
+git pull           # the CMS commits straight to main, so get its changes first
 npm install        # first time only
 npm run dev
 ```
 
 The site is served at http://localhost:4321 and reloads when you edit a file. Press `Ctrl+C` to stop it.
 
-If the port is already taken by a background dev server, stop it first:
+### Stop, start and restart
 
-```sh
-npx astro dev stop
-```
+| Goal | Command |
+|---|---|
+| Start in the foreground (stop with `Ctrl+C`) | `npm run dev` |
+| Start in the background (terminal stays free) | `npx astro dev --background` |
+| Check whether it is running | `npx astro dev status` |
+| See its output and errors | `npx astro dev logs` |
+| Stop the background server | `npx astro dev stop` |
+| Restart | `npx astro dev stop` then `npx astro dev --background` (or `npm run dev`) |
 
-### Run the dev server in the background
+If `npm run dev` says the port is already in use, a background server is still running. Stop it with `npx astro dev stop`.
 
-```sh
-npx astro dev --background   # start
-npx astro dev status         # check
-npx astro dev logs           # see output
-npx astro dev stop           # stop
-```
+### When to restart
 
-If a blog post or file doesn't show up after you add or delete it, restart the dev server.
+The dev server sometimes keeps old files in its cache. Restart it if:
+
+- the page looks unstyled or out of date,
+- a new or deleted file (a blog post, a component) doesn't show up,
+- you see a 500 error after adding or deleting files.
 
 ## Test the production build locally
 
