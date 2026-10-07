@@ -6,6 +6,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # @astrojs/check only supports TypeScript up to 6.x (TypeScript 7 fails `npm ci` with ERESOLVE).
+      # Remove this once Astro's tooling supports TypeScript 7.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
