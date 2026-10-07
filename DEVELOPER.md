@@ -70,3 +70,5 @@ The resume page (`/resume`) and the PDF are built from the same data files as th
 Pushing to `main` builds and deploys the site to GitHub Pages through `.github/workflows/deploy.yml`.
 
 Live site: https://pakeerubasha-mekala.github.io
+
+Planning to move to Cloudflare later? See [CLOUDFLARE_MIGRATION.md](./CLOUDFLARE_MIGRATION.md).
