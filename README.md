@@ -12,6 +12,7 @@ npm run preview                          # serve ./dist locally
 npm run new:post -- "My post title"      # create a new blog post (see below)
 npm run pdf                              # rebuild both resume PDFs locally (designed + ATS-friendly)
 npm run og                               # render the link-preview PNGs locally
+npm run test:smoke                       # build, then run the browser smoke tests
 ```
 
 Pushing to `main` builds and deploys the site (and regenerates the resume PDFs and link-preview images) through `.github/workflows/deploy.yml`. `.github/workflows/quality.yml` checks links, accessibility, SEO and performance.

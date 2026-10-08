@@ -1,6 +1,54 @@
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/inter-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url('/fonts/inter-latin-500-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url('/fonts/inter-latin-600-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url('/fonts/inter-latin-700-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url('/fonts/jetbrains-mono-latin-600-normal.woff2') format('woff2');
+}
+
 :root {
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 
   /* Colours use light-dark(): the first value is for light mode, the second for dark mode.
      Light/dark follows the system unless html[data-scheme] is set (header toggle, terminal `theme`). */
@@ -18,7 +66,9 @@
   --glow: light-dark(rgba(10, 125, 82, 0.10), rgba(54, 242, 160, 0.10));
   --glow-2: light-dark(rgba(10, 111, 168, 0.10), rgba(76, 201, 240, 0.10));
   --glow-3: light-dark(rgba(109, 79, 214, 0.07), rgba(167, 139, 250, 0.08));
-  --shadow: light-dark(0 10px 30px rgba(20, 30, 50, 0.10), 0 10px 30px rgba(0, 0, 0, 0.4));
+  /* light-dark() only accepts colours, so only the shadow colour switches; the rest is a normal value. */
+  --shadow-color: light-dark(rgba(20, 30, 50, 0.10), rgba(0, 0, 0, 0.4));
+  --shadow: 0 10px 30px var(--shadow-color);
   --radius: 14px;
 
   --measure: 52rem;

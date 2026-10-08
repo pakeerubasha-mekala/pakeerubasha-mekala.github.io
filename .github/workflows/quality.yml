@@ -25,6 +25,10 @@ jobs:
       - run: npm ci
       - run: npm run build
 
+      # Browser smoke tests: pages load without errors, terminal, palette, themes and blog search work.
+      - name: Smoke tests
+        run: node scripts/smoke-test.mjs
+
       # Internal links, images and anchors must resolve (fails the job when broken).
       - name: Check internal links
         uses: lycheeverse/lychee-action@v2

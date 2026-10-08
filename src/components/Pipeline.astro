@@ -12,7 +12,8 @@ const x = (i: number) => 50 + i * 130;
     <circle class="packet" r="5" cx="0" cy="0" />
     {stages.map((label, i) => (
       <g class="stage" style={`--i:${i}`}>
-        <circle cx={x(i)} cy="34" r="13" />
+        <circle class="base" cx={x(i)} cy="34" r="13" />
+        <circle class="lit" cx={x(i)} cy="34" r="13" />
         <text class="tick" x={x(i)} y="39" text-anchor="middle">✓</text>
         <text class="lbl" x={x(i)} y="72" text-anchor="middle">{label}</text>
       </g>
@@ -120,7 +121,10 @@ const x = (i: number) => 50 + i * 130;
 
   .packet {
     fill: var(--accent);
-    filter: drop-shadow(0 0 6px var(--accent));
+    /* A translucent ring instead of a CSS filter: same glow, no rendering quirks on the moving dot. */
+    stroke: var(--accent);
+    stroke-opacity: 0.3;
+    stroke-width: 8;
     offset-path: path('M50 34 L700 34');
     animation: travel 4.8s linear infinite;
   }
@@ -130,11 +134,20 @@ const x = (i: number) => 50 + i * 130;
     to { offset-distance: 100%; }
   }
 
-  .stage circle {
+  /* Nodes keep fixed colours; only the opacity of the highlight ring is animated (animating colours that use
+     light-dark() is unreliable in some browsers). */
+  .stage circle.base {
     fill: var(--bg);
     stroke: var(--border);
     stroke-width: 2;
-    animation: stage 4.8s linear infinite;
+  }
+
+  .stage circle.lit {
+    fill: var(--glow);
+    stroke: var(--accent);
+    stroke-width: 2;
+    opacity: 0;
+    animation: lit 4.8s linear infinite;
     animation-delay: calc(var(--i) * 0.96s);
   }
 
@@ -152,10 +165,9 @@ const x = (i: number) => 50 + i * 130;
     font-size: 12px;
   }
 
-  /* Each stage lights up as the packet passes it (packet takes 4.8s end to end, 0.96s per stage). */
-  @keyframes stage {
-    0%, 22% { stroke: var(--accent); fill: var(--glow); }
-    32%, 100% { stroke: var(--border); fill: var(--bg); }
+  @keyframes lit {
+    0%, 22% { opacity: 1; }
+    32%, 100% { opacity: 0; }
   }
 
   @keyframes tick {

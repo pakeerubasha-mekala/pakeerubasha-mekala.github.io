@@ -30,6 +30,7 @@ const related = all
   .map((r) => r.post);
 
 const url = new URL(`/blog/${post.id}/`, Astro.site).href;
+const editUrl = `https://github.com/${profile.repo}/edit/main/src/content/blog/${post.id}.md`;
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
@@ -47,6 +48,7 @@ const dateFmt = (d: Date) =>
 ---
 
 <Base title={post.data.title} description={post.data.description} ogType="article" jsonLd={jsonLd} image={`/og/post-${post.id}.png`}>
+  <div class="progress no-print" aria-hidden="true"><div id="progress-bar"></div></div>
   <article>
     <header class="post-header">
       <h1>{post.data.title}</h1>
@@ -78,7 +80,10 @@ const dateFmt = (d: Date) =>
     <div class="prose">
       <Content />
     </div>
-    <p><a href="/blog">← back to blog</a></p>
+    <p class="post-footer">
+      <a href="/blog">← back to blog</a>
+      <a href={editUrl} rel="noopener noreferrer" target="_blank">edit on GitHub</a>
+    </p>
     {related.length > 0 && (
       <section class="related" aria-label="Related posts">
         <h2>related</h2>
@@ -97,6 +102,20 @@ const dateFmt = (d: Date) =>
 </Base>
 
 <script>
+  // Reading progress bar along the top of the page.
+  const bar = document.getElementById('progress-bar');
+  if (bar) {
+    let ticking = false;
+    const update = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.width = `${max > 0 ? Math.min(100, (window.scrollY / max) * 100) : 0}%`;
+      ticking = false;
+    };
+    window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  }
+
   // Add a "copy" button to every code block in the post.
   document.querySelectorAll<HTMLPreElement>('.prose pre').forEach((pre) => {
     const code = pre.querySelector('code');
@@ -121,6 +140,31 @@ const dateFmt = (d: Date) =>
 </script>
 
 <style>
+  .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 20;
+    background: transparent;
+  }
+
+  #progress-bar {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  }
+
+  .post-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+
   .post-header {
     margin-bottom: var(--space-3);
   }

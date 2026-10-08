@@ -28,7 +28,12 @@ export function startServer(root, port) {
       if (file !== base && !file.startsWith(base + sep)) { res.writeHead(403).end('forbidden'); return; }
       let info = await stat(file).catch(() => null);
       if (info?.isDirectory()) { file = join(file, 'index.html'); info = await stat(file).catch(() => null); }
-      if (!info) { res.writeHead(404, { 'content-type': 'text/plain' }).end('not found'); return; }
+      if (!info) {
+        // Like GitHub Pages: unknown addresses get the site's own 404 page with a 404 status.
+        const notFound = await readFile(join(base, '404.html')).catch(() => null);
+        res.writeHead(404, { 'content-type': notFound ? TYPES['.html'] : 'text/plain' }).end(notFound ?? 'not found');
+        return;
+      }
       res.writeHead(200, { 'content-type': TYPES[extname(file)] ?? 'application/octet-stream' });
       res.end(await readFile(file));
     } catch {

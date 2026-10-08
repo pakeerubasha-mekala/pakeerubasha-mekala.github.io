@@ -61,19 +61,23 @@ This creates `src/content/blog/<slug>.md` with the frontmatter filled in and `dr
 3. Drafts show in `npm run dev` only. Set `draft: false` when ready.
 4. Commit and push to `main` to publish.
 
-Reading time is calculated automatically. The blog page has a search box (press `/` to focus) that matches title, description, tags and the full post text, plus tag filters; the command palette (Ctrl/⌘ + K) also finds posts by tag and description. Share a filtered view with `/blog?q=oidc&tag=aws`. `canonicalUrl` adds an "Also published on ..." link to the post.
+Reading time is calculated automatically. Posts also show a reading-progress bar, a table of contents, copy buttons on code blocks and an "edit on GitHub" link. The blog page has a search box (press `/` to focus) that matches title, description, tags and the full post text, plus tag filters; the command palette (Ctrl/⌘ + K) also finds posts by tag and description. Share a filtered view with `/blog?q=oidc&tag=aws`. `canonicalUrl` adds an "Also published on ..." link to the post.
 
 ## Resume
 
 Two versions, both built from the same data files (`src/data/*.json`):
 
-- **Designed resume** (`/resume`): one page, dark terminal-style sidebar, Inter font (bundled in `public/fonts/`, so it looks the same on every machine), QR code to the site.
+- **Designed resume** (`/resume`): one page, dark terminal-style sidebar, Inter font, QR code to the site.
 - **ATS-friendly resume** (`/resume-ats`): one page, plain single column in Arial with standard headings, for applicant tracking systems. Not indexed by search engines.
 
 Both use the short `resumeBullets` of each role in `experience.json` (falling back to the full `bullets`), so the website keeps the detail and the resumes stay on one page. Edit them in the CMS under Experience, or in the JSON.
 
 - **On deploy:** GitHub Actions rebuilds both PDFs from the current data (`node scripts/make-pdf.mjs dist`). You don't need to do anything.
 - **Locally:** `npm run pdf` rebuilds the site and writes `public/pakeeru-basha-mekala-resume.pdf` and `public/pakeeru-basha-mekala-resume-ats.pdf` (what the dev server serves for the Download buttons). It uses a locally installed Chromium-based browser (Chrome, Brave, Edge or Chromium; set `CHROME_PATH` to choose one). If a PDF spills onto a second page after you add content, shorten the `resumeBullets`.
+
+## Fonts and icons
+
+Inter and JetBrains Mono are bundled in `public/fonts/` (licences in `LICENSE.md` there) and loaded site-wide, so every device and the PDFs look the same. The two most used faces are preloaded in `Base.astro`. Touch icons (`apple-touch-icon.png`, `icon-192.png`, `icon-512.png`), the web manifest and the theme-colour tags are in `public/` and `Base.astro`.
 
 ## Link previews
 
@@ -82,6 +86,10 @@ Every page and post gets a 1200x630 PNG preview card for LinkedIn, Slack and so 
 ## Quality gates
 
 `.github/workflows/quality.yml` runs on pushes to main, pull requests and weekly: internal link check (fails), external link check (warning only), and Lighthouse on the main pages (accessibility and SEO must stay at 90+; performance and best practices only warn, thresholds in `lighthouserc.json`). `.github/dependabot.yml` opens weekly pull requests for outdated npm packages and GitHub Actions.
+
+**Smoke tests** (`scripts/smoke-test.mjs`, also run by the quality workflow): a real browser loads every page and checks there are no script errors, then tries the terminal, the command palette, the light/dark toggle, recruiter mode and the blog search. Run it locally with `npm run test:smoke`. It uses the same headless Chromium as the PDF step, so there is no test library to install.
+
+**One-page guard:** `scripts/make-pdf.mjs` fails (and so does the deploy) if either resume PDF is not exactly one page. If that happens after you add content, shorten the `resumeBullets` in `experience.json`.
 
 To run Lighthouse yourself: `npm run build`, serve `dist/`, then `CHROME_PATH="/path/to/chrome" npx lighthouse@12 http://localhost:PORT/ --chrome-flags="--headless=new"`.
 

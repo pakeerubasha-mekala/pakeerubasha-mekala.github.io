@@ -31,9 +31,13 @@ Client-side JavaScript is used for the interactive extras only: the boot sequenc
 
 ## Resume, PDFs and previews
 
-`/resume` (designed, one page, Inter font bundled in `public/fonts/`) and `/resume-ats` (plain Arial, one page) both print `resumeBullets` from `experience.json` (fallback `bullets`). `scripts/make-pdf.mjs <dir>` and `scripts/make-og.mjs <dir>` render PDFs and PNG link previews with headless Chromium through `scripts/static-server.mjs` (a built-in static server, so nothing is left running); the deploy workflow runs both into `dist/`. Keep the PDFs at one page each after content changes.
+`/resume` (designed, one page, Inter font bundled in `public/fonts/`) and `/resume-ats` (plain Arial, one page) both print `resumeBullets` from `experience.json` (fallback `bullets`). `scripts/make-pdf.mjs <dir>` and `scripts/make-og.mjs <dir>` render PDFs and PNG link previews with headless Chromium through `scripts/static-server.mjs` (a built-in static server, so nothing is left running); the deploy workflow runs both into `dist/`. Keep the PDFs at one page each after content changes: `make-pdf.mjs` fails the deploy otherwise.
 
 ## Quality
+
+`scripts/smoke-test.mjs` runs browser smoke tests against `dist/` (headless Chromium over the DevTools protocol, no test library). Run it after UI changes: `npm run test:smoke`.
+
+CSS gotchas learned the hard way: `light-dark()` only accepts colours, so never put a whole `box-shadow` or other non-colour value in it (the declaration silently becomes `none`; split out a colour variable instead). Do not animate colours that come from `light-dark()` variables in `@keyframes`; some browsers resolve them in the wrong scheme. Animate opacity or transforms instead.
 
 `.github/workflows/quality.yml` (link check, Lighthouse via `lighthouserc.json`) and `.github/dependabot.yml`. Colours use CSS `light-dark()` tokens in `src/styles/global.css`; light/dark and accent themes are set with `html[data-scheme]` and `html[data-accent]` (`src/utils/theme.ts`).
 

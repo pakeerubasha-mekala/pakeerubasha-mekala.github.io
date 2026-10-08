@@ -7,6 +7,7 @@
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync } from 'node:fs';
 import { startServer } from './static-server.mjs';
+import { countPages } from './pdf-pages.mjs';
 
 const PORT = 4399;
 const OUT_DIR = process.argv[2] ?? 'public';
@@ -64,8 +65,13 @@ try {
         `http://127.0.0.1:${PORT}${path}`,
       ],
     );
-    if (code === 0 && existsSync(out)) console.log(`Wrote ${out}`);
-    else { console.error(`PDF generation failed for ${path}`); status = 1; }
+    if (code !== 0 || !existsSync(out)) { console.error(`PDF generation failed for ${path}`); status = 1; continue; }
+    // Both resumes are meant to be exactly one page. Fail loudly (and fail the deploy) if one spills over.
+    const pages = countPages(out);
+    if (pages !== 1) {
+      console.error(`${out} has ${pages} pages, expected 1. Shorten the resume highlights in src/data/experience.json.`);
+      status = 1;
+    } else console.log(`Wrote ${out} (1 page)`);
   }
 } finally {
   server.close();

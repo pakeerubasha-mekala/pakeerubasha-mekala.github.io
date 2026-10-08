@@ -2,11 +2,11 @@
     <rect width="24" height="24" rx="4" class="bg" />
     <text x="3" y="17" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="600" class="fg">&gt;_</text>
     <style>
-        .bg { fill: #0b0f14; }
-        .fg { fill: #39ff88; }
+        .bg { fill: #070b12; }
+        .fg { fill: #36f2a0; }
         @media (prefers-color-scheme: light) {
-            .bg { fill: #f4f4f0; }
-            .fg { fill: #0f7a3a; }
+            .bg { fill: #f5f7fa; }
+            .fg { fill: #0a7d52; }
         }
     </style>
 </svg>
