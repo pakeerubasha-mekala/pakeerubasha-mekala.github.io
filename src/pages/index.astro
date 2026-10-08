@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import BootScreen from '../components/BootScreen.astro';
 import Pipeline from '../components/Pipeline.astro';
 import Terminal from '../components/Terminal.astro';
+import Subscribe from '../components/Subscribe.astro';
 import { getCollection } from 'astro:content';
 import { profile } from '../data/profile';
 import { experience } from '../data/experience';
@@ -10,8 +11,13 @@ import { skills } from '../data/skills';
 import { projects } from '../data/projects';
 import { education } from '../data/education';
 import { publications } from '../data/publications';
+import { offerings } from '../data/offerings';
+import { testimonials } from '../data/testimonials';
 
 const workIds = new Set((await getCollection('work')).map((w) => w.id));
+// Home shows the short highlights; the full detail lives on the case-study pages and the website data.
+const pick = (short?: string[], full: string[] = []) => (short && short.length > 0 ? short : full);
+
 const caseStudy = (name?: string) => {
   const id = (name ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   return workIds.has(id) ? `/work/${id}/` : null;
@@ -37,7 +43,6 @@ const stats = [
   { value: `${years}+`, label: 'years in DevOps' },
   { value: '150+', label: 'microservices monitored' },
   { value: '3', label: 'clouds: AWS, GCP, Azure' },
-  { value: '24/7', label: 'on-call experience' },
 ];
 ---
 
@@ -60,10 +65,6 @@ const stats = [
     <a class="btn primary" href="#contact">Hire me</a>
     <a class="btn" href="/pakeeru-basha-mekala-resume.pdf" download>Download resume</a>
     {profile.bookingUrl && <a class="btn" href={profile.bookingUrl}>Book a call</a>}
-    <a class="btn" href="/work">Case studies</a>
-    <a class="btn" href="/blog">Read my blog</a>
-    <a class="btn" href={profile.links.linkedin}>LinkedIn</a>
-    {profile.links.github && <a class="btn" href={profile.links.github}>GitHub</a>}
   </p>
 
   <ul class="stats">
@@ -74,6 +75,20 @@ const stats = [
       </li>
     ))}
   </ul>
+
+  <section id="what-i-do">
+    <h2>what I do</h2>
+    <div class="offers">
+      {offerings.map((o) => (
+        <article class="offer card">
+          <h3>{o.title}</h3>
+          <p>{o.text}</p>
+          {o.href && <p class="offer-link"><a href={o.href}>{o.linkLabel ?? 'learn more'} →</a></p>}
+        </article>
+      ))}
+    </div>
+    <p class="offers-more"><a href="/work">See the case studies →</a></p>
+  </section>
 
   <Pipeline />
 
@@ -86,9 +101,9 @@ const stats = [
         <article class="job card">
           <h3>{job.role} <span class="at">@ {job.company}</span></h3>
           <p class="period">{job.period}{job.location && ` · ${job.location}`}</p>
-          {job.bullets.length > 0 && (
+          {pick(job.resumeBullets, job.bullets).length > 0 && (
             <ul class="bullets">
-              {job.bullets.map((bullet) => <li>{bullet}</li>)}
+              {pick(job.resumeBullets, job.bullets).map((bullet) => <li>{bullet}</li>)}
             </ul>
           )}
           {job.tech.length > 0 && (
@@ -102,7 +117,7 @@ const stats = [
               <p class="period">{proj.period}{proj.name && proj.location && ` · ${proj.location}`}</p>
               {caseStudy(proj.name) && <p class="period"><a href={caseStudy(proj.name)!}>read the case study →</a></p>}
               <ul class="bullets">
-                {proj.bullets.map((bullet) => <li>{bullet}</li>)}
+                {pick(proj.resumeBullets, proj.bullets).map((bullet) => <li>{bullet}</li>)}
               </ul>
               <ul class="tag-list">
                 {proj.tech.map((t) => <li>{t}</li>)}
@@ -113,6 +128,24 @@ const stats = [
       ))}
     </div>
   </section>
+
+  {testimonials.length > 0 && (
+    <section id="testimonials">
+      <h2>testimonials</h2>
+      <div class="quotes">
+        {testimonials.map((t) => (
+          <figure class="quote card">
+            <blockquote>{t.quote}</blockquote>
+            <figcaption>
+              <strong>{t.name}</strong>
+              <span>{t.role}{t.company && ` · ${t.company}`}</span>
+              {t.result && <em>{t.result}</em>}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+  )}
 
   <section id="skills">
     <h2>skills</h2>
@@ -203,6 +236,8 @@ const stats = [
       ))}
     </section>
   )}
+
+  <Subscribe />
 
   <section id="contact">
     <h2>contact</h2>
@@ -450,6 +485,81 @@ const stats = [
   .btn.primary:focus-visible {
     color: var(--bg);
     box-shadow: 0 0 0 4px var(--glow);
+  }
+
+  .cta {
+    margin-bottom: var(--space-3);
+  }
+
+  .offers {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+  }
+
+  @media (max-width: 640px) {
+    .offers {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .offer h3 {
+    margin: 0 0 0.4rem;
+    font-size: 0.98rem;
+    color: var(--accent);
+  }
+
+  .offer p {
+    margin: 0;
+    font-size: 0.92rem;
+  }
+
+  .offers-more {
+    margin: var(--space-2) 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+
+  .offer .offer-link {
+    margin-top: 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  .quotes {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .quote {
+    margin: 0;
+  }
+
+  .quote blockquote {
+    margin: 0 0 0.8rem;
+    padding: 0;
+    border: none;
+    color: var(--fg);
+    font-size: 1rem;
+  }
+
+  .quote figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.8rem;
+    align-items: baseline;
+    font-size: 0.85rem;
+    color: var(--fg-dim);
+  }
+
+  .quote figcaption strong {
+    color: var(--fg);
+  }
+
+  .quote figcaption em {
+    font-family: var(--font-mono);
+    font-style: normal;
+    color: var(--accent);
   }
 
   .stats {

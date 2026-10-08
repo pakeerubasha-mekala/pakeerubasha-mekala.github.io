@@ -13,6 +13,8 @@ export interface Profile {
   email?: string;
   /** Scheduling link (Calendly, Cal.com...). The "Book a call" button shows only when this is set. */
   bookingUrl?: string;
+  /** Newsletter signup page (Buttondown, Substack...). A "Subscribe by email" band shows only when this is set. */
+  newsletterUrl?: string;
   links: {
     github?: string;
     linkedin: string;

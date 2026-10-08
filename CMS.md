@@ -30,6 +30,7 @@ Open the section, edit, save. Notes:
 - Leave **Email**, **GitHub URL** or **Stack Overflow URL** empty to hide that button.
 - **Projects** and **Publications** sections stay hidden on the site while their lists are empty.
 - In **Experience**, a company can have a list of projects (newest first); each project has its own highlights and tools. The **short highlights for the one-page resume** are what the two resumes print; keep them to a few lines each so the PDF stays on one page.
+- **What I do:** the four cards on the home page. **Testimonials:** the section stays hidden until you add real entries. **Newsletter link** in Profile shows a "Subscribe by email" band when filled in.
 - **Booking link** in Profile shows a "Book a call" button when filled in.
 - **Case studies:** a project in Experience links to its case study when the names match (project `Waitrose` and case study titled `Waitrose`). Add real, measured results under **Impact** and an Impact section appears.
 - The JSON files are in `src/data/`. The matching `.ts` files only add types; edit the JSON, not the `.ts`.

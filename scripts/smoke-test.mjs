@@ -93,8 +93,14 @@ try {
   await go('/does-not-exist/');
   check('unknown address shows the 404 page', (await ev('document.title')) === '404 · Pakeeru Basha Mekala');
 
-  console.log('Home page: terminal, palette, themes');
+  console.log('Home page: hero, sections, footer');
   await go('/');
+  check('hero has "Hire me" and "Download resume" buttons', (await ev("[...document.querySelectorAll('.cta .btn')].map(b=>b.textContent.trim()).join('|')")).startsWith('Hire me|Download resume'));
+  check('"What I do" shows its cards', (await ev("document.querySelectorAll('#what-i-do .offer').length")) >= 3);
+  check('testimonials stay hidden while there are none', (await ev("!document.getElementById('testimonials')")) === true);
+  check('footer has the two link groups', (await ev("document.querySelectorAll('.site-footer nav').length")) === 2);
+
+  console.log('Home page: terminal, palette, themes');
   const run = (cmd) => ev(`(async()=>{const i=document.getElementById('term-input');i.value=${JSON.stringify(cmd)};document.getElementById('term-form').requestSubmit();await new Promise(r=>setTimeout(r,500));return document.getElementById('term-screen').innerText})()`);
   check('terminal answers "help"', (await run('help')).includes('Available commands'));
   check('terminal answers "whoami"', (await run('whoami')).includes('Pakeeru Basha Mekala'));
@@ -117,6 +123,7 @@ try {
   console.log('Blog search');
   await go('/blog/');
   const search = (q) => ev(`(async()=>{const i=document.getElementById('blog-search');i.value=${JSON.stringify(q)};i.dispatchEvent(new Event('input'));await new Promise(r=>setTimeout(r,100));return [...document.querySelectorAll('#post-list>li')].filter(l=>!l.hidden).length})()`);
+  check('blog page offers an RSS link', (await ev("!!document.querySelector('a.rss[href=\"/rss.xml\"]')")) === true);
   check('empty search shows all posts', (await search('')) > 0);
   check('nonsense search shows none', (await search('zzzzqqqq')) === 0);
   check('"no matches" message appears', (await ev("!document.getElementById('blog-empty').hidden")) === true);

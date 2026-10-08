@@ -137,6 +137,9 @@ content:
       - name: bookingUrl
         label: Booking link, e.g. Calendly or Cal.com (leave empty to hide the "Book a call" button)
         type: string
+      - name: newsletterUrl
+        label: Newsletter signup link, e.g. Buttondown or Substack (leave empty to hide the "Subscribe by email" band)
+        type: string
       - name: links
         label: Links
         type: object
@@ -214,6 +217,49 @@ content:
             label: Tools
             type: string
             list: true
+
+  - name: offerings
+    label: What I do (cards on the home page)
+    type: file
+    path: src/data/offerings.json
+    format: json
+    list: true
+    fields:
+      - name: title
+        label: Title
+        type: string
+      - name: text
+        label: Description (keep it factual)
+        type: text
+      - name: href
+        label: Link, e.g. a case study such as /work/waitrose/ (optional)
+        type: string
+      - name: linkLabel
+        label: Link text (optional)
+        type: string
+
+  - name: testimonials
+    label: Testimonials (only add real quotes you have permission to use)
+    type: file
+    path: src/data/testimonials.json
+    format: json
+    list: true
+    fields:
+      - name: quote
+        label: Quote
+        type: text
+      - name: name
+        label: Name
+        type: string
+      - name: role
+        label: Role
+        type: string
+      - name: company
+        label: Company (optional)
+        type: string
+      - name: result
+        label: Measurable result mentioned in the quote (optional)
+        type: string
 
   - name: skills
     label: Skills

@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 import { readingTime } from '../../utils/readingTime';
 import { plainText } from '../../utils/plainText';
+import Subscribe from '../../components/Subscribe.astro';
 
 const posts = (await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft)).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
@@ -27,6 +28,7 @@ const searchText = (p: (typeof posts)[number]) =>
     <div class="search">
       <label class="visually-hidden" for="blog-search">Search posts</label>
       <input id="blog-search" type="search" placeholder="Search posts…  (press / to focus)" autocomplete="off" spellcheck="false" />
+      <a class="rss" href="/rss.xml" title="Subscribe with an RSS reader">RSS</a>
       <p class="count" id="blog-count" aria-live="polite">{posts.length} {posts.length === 1 ? 'post' : 'posts'}</p>
     </div>
 
@@ -58,6 +60,7 @@ const searchText = (p: (typeof posts)[number]) =>
     </ul>
 
     <p class="empty" id="blog-empty" hidden>No posts match. Try a different word, or <button type="button" id="blog-clear">clear the search</button>.</p>
+    <Subscribe />
   </section>
 </Base>
 
@@ -151,6 +154,25 @@ const searchText = (p: (typeof posts)[number]) =>
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 4px var(--glow);
+  }
+
+  .rss {
+    flex: none;
+    padding: 0.35em 0.85em;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    color: var(--fg-dim);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .rss:hover,
+  .rss:focus-visible {
+    color: var(--accent);
+    border-color: var(--accent);
   }
 
   .count {

@@ -96,6 +96,10 @@ To run Lighthouse yourself: `npm run build`, serve `dist/`, then `CHROME_PATH="/
 ## Pages and extras
 
 - **`/work`**: case studies (`src/content/work/*.md`, edited in the CMS). A project in Experience links to its case study when the project name matches the file name, for example `Waitrose` and `waitrose.md`. Add an `impact` list with real, measured results and an Impact section appears on the page.
+- **"What I do" cards** (home page): `src/data/offerings.json`, edited in the CMS under "What I do". Keep them factual and drawn from your real experience.
+- **Testimonials** (home page): `src/data/testimonials.json`. The section is hidden while the list is empty; only add real quotes you have permission to use (quote, name, role, optional company and measurable result).
+- **Newsletter:** set `newsletterUrl` in `profile.json` (a Buttondown or Substack signup link) and a "Subscribe by email" band appears on the home and blog pages. An RSS button is always shown on the blog page.
+- **Home page shows short highlights** for each role and links to the case studies for detail, so the same story is not told twice. The long `bullets` stay in the data and are the fallback when a role has no `resumeBullets`.
 - **`/status`**: live deploy history, success rate, build times and commit activity, read from the public GitHub API for `profile.repo` (set in `src/data/profile.json`). If you rename the repo, update it there.
 - **`/how-its-built`**: the architecture and pipeline of this site.
 - **Terminal, command palette (Ctrl/⌘ + K), boot sequence, Konami code:** try `help` in the terminal on the home page. Commands include `ask`, `open`, `theme`, `cat resume`, `git log`, `status` and `matrix`.

@@ -20,7 +20,7 @@ Client-side JavaScript is used for the interactive extras only: the boot sequenc
 
 ## Content
 
-- `src/data/*.json`: the editable content (`profile`, `experience`, `skills`, `education`, `projects`, `publications`, `comments`). The matching `src/data/*.ts` files only add TypeScript types and tidy empty list items, and are what pages import. Edit the JSON, not the `.ts`. Empty `projects` or `publications` hide their section; `email` and the GitHub/Stack Overflow links are optional (an empty string hides them).
+- `src/data/*.json`: the editable content (`profile`, `experience`, `skills`, `education`, `projects`, `publications`, `offerings`, `testimonials`, `comments`, `analytics`). The matching `src/data/*.ts` files only add TypeScript types and tidy empty list items, and are what pages import. Edit the JSON, not the `.ts`. Empty `projects`, `publications` or `testimonials` hide their section; the home page prints each role's `resumeBullets` (fallback `bullets`) and leaves the detail to `/work`; `email` and the GitHub/Stack Overflow links are optional (an empty string hides them).
 - `src/content/work/*.md`: case studies (collection `work`). A project in `experience.json` links to `/work/<slug>/` when its lowercased name matches the file name.
 - `src/content/blog/*.md`: Astro content collection. Frontmatter: `title`, `description`, `pubDate`, `updatedDate?`, `tags[]`, `draft` (default `false`). The filename is the URL slug. Post images live in `public/blog/`.
 - `src/pages/rss.xml.ts` and `@astrojs/sitemap` both read the non-draft blog posts, newest first.
