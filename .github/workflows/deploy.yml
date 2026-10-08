@@ -29,7 +29,7 @@ jobs:
       - run: node scripts/make-pdf.mjs dist
       # Render the social preview cards (PNG) for every page and post, then drop the card pages.
       - run: node scripts/make-og.mjs dist
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
