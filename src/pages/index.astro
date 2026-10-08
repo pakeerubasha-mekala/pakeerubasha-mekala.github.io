@@ -4,6 +4,9 @@ import BootScreen from '../components/BootScreen.astro';
 import Pipeline from '../components/Pipeline.astro';
 import Terminal from '../components/Terminal.astro';
 import Subscribe from '../components/Subscribe.astro';
+import SideNav from '../components/SideNav.astro';
+import AtAGlance from '../components/AtAGlance.astro';
+import Icon from '../components/art/Icon.astro';
 import { getCollection } from 'astro:content';
 import { profile } from '../data/profile';
 import { experience } from '../data/experience';
@@ -22,6 +25,18 @@ const caseStudy = (name?: string) => {
   const id = (name ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   return workIds.has(id) ? `/work/${id}/` : null;
 };
+
+const navItems = [
+  { id: 'about', label: 'about' },
+  { id: 'what-i-do', label: 'what I do' },
+  { id: 'experience', label: 'experience' },
+  ...(testimonials.length > 0 ? [{ id: 'testimonials', label: 'testimonials' }] : []),
+  { id: 'skills', label: 'skills' },
+  ...(projects.length > 0 ? [{ id: 'projects', label: 'projects' }] : []),
+  { id: 'education', label: 'education' },
+  ...(publications.length > 0 ? [{ id: 'publications', label: 'publications' }] : []),
+  { id: 'contact', label: 'contact' },
+];
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -48,6 +63,9 @@ const stats = [
 
 <Base title="Pakeeru Basha Mekala" description={profile.summary} jsonLd={jsonLd}>
   <BootScreen />
+  <SideNav slot="left" items={navItems} />
+  <AtAGlance slot="right" />
+
   <section id="about" class="hero">
     <img class="avatar" src={profile.photo} alt={profile.name} width="132" height="132" />
     <div class="hero-text">
@@ -81,7 +99,10 @@ const stats = [
     <div class="offers">
       {offerings.map((o) => (
         <article class="offer card">
-          <h3>{o.title}</h3>
+          <div class="offer-head">
+            {o.icon && <span class="offer-icon fx" aria-hidden="true"><Icon name={o.icon} /></span>}
+            <h3>{o.title}</h3>
+          </div>
           <p>{o.text}</p>
           {o.href && <p class="offer-link"><a href={o.href}>{o.linkLabel ?? 'learn more'} →</a></p>}
         </article>
@@ -491,6 +512,30 @@ const stats = [
     margin-bottom: var(--space-3);
   }
 
+  .offer-head {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .offer-head h3 {
+    margin: 0;
+  }
+
+  .offer-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    padding: 0.5rem;
+    border-radius: 12px;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 11%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+  }
+
   .offers {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -504,7 +549,6 @@ const stats = [
   }
 
   .offer h3 {
-    margin: 0 0 0.4rem;
     font-size: 0.98rem;
     color: var(--accent);
   }

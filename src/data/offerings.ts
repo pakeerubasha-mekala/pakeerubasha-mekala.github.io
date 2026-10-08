@@ -7,6 +7,8 @@ export interface Offering {
   /** Optional link, e.g. to a case study. */
   href?: string;
   linkLabel?: string;
+  /** Decorative line icon: cloud, helm, pipeline or pulse. */
+  icon?: 'cloud' | 'helm' | 'pipeline' | 'pulse' | 'git' | 'container' | 'shield' | 'scan' | 'deploy' | 'monitor' | 'server' | 'database';
 }
 
 export const offerings: Offering[] = raw as Offering[];

@@ -1,5 +1,6 @@
 ---
 import { profile } from '../data/profile';
+import GitGraph from './art/GitGraph.astro';
 
 const year = new Date().getFullYear();
 const repoUrl = `https://github.com/${profile.repo}`;
@@ -27,6 +28,7 @@ const groups = [
 ---
 
 <footer class="site-footer">
+  <div class="footer-art fx" aria-hidden="true"><GitGraph /></div>
   <div class="cols">
     {groups.map((g) => (
       <nav aria-label={g.title}>
@@ -58,6 +60,11 @@ const groups = [
     border-top: 1px solid var(--border);
     font-size: 0.9rem;
     color: var(--fg-dim);
+  }
+
+  .footer-art {
+    margin: calc(var(--space-3) * -1) 0 var(--space-3);
+    opacity: 0.55;
   }
 
   .cols {

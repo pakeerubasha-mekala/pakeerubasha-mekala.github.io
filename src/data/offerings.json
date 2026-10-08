@@ -1,18 +1,22 @@
 [
   {
     "title": "Cloud platforms",
-    "text": "Designing and running platforms on AWS, GCP and Azure: migrating off legacy infrastructure, self-service provisioning and cloud cost visibility."
+    "text": "Designing and running platforms on AWS, GCP and Azure: migrating off legacy infrastructure, self-service provisioning and cloud cost visibility.",
+    "icon": "cloud"
   },
   {
     "title": "Kubernetes and GitOps",
-    "text": "Highly available EKS clusters, Helm releases and ArgoCD GitOps deployments, plus Kubernetes on-prem and on Azure Kubernetes Service."
+    "text": "Highly available EKS clusters, Helm releases and ArgoCD GitOps deployments, plus Kubernetes on-prem and on Azure Kubernetes Service.",
+    "icon": "helm"
   },
   {
     "title": "CI/CD and automation",
-    "text": "Pipelines with blue/green and canary deployments and security and quality scanning early on, with infrastructure as code in Terraform, CloudFormation, Crossplane and Ansible."
+    "text": "Pipelines with blue/green and canary deployments and security and quality scanning early on, with infrastructure as code in Terraform, CloudFormation, Crossplane and Ansible.",
+    "icon": "pipeline"
   },
   {
     "title": "Observability",
-    "text": "Monitoring for 150+ microservices with Prometheus, Grafana and CloudWatch, alerting through PagerDuty, and 24/7 on-call with root cause analysis."
+    "text": "Monitoring for 150+ microservices with Prometheus, Grafana and CloudWatch, alerting through PagerDuty, and 24/7 on-call with root cause analysis.",
+    "icon": "pulse"
   }
 ]

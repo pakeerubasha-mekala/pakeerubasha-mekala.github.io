@@ -1,0 +1,19 @@
+---
+import { icons, type IconName } from './icons';
+
+// Small decorative line icon for a DevOps concept (inherits the text colour).
+interface Props {
+  name: IconName;
+}
+const { name } = Astro.props;
+---
+
+<svg class="icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" role="presentation" aria-hidden="true" focusable="false" set:html={icons[name]} />
+
+<style>
+  .icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>

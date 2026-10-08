@@ -1,0 +1,123 @@
+---
+import { profile } from '../data/profile';
+import { experience } from '../data/experience';
+
+// Right rail on wide screens: a sticky card with the essentials. Everything comes from the data files.
+const current = experience[0];
+const rows = [
+  { label: 'now', value: current ? `${current.role}, ${current.company}` : '' },
+  { label: 'since', value: current?.period.split(' - ')[0] ?? '' },
+  { label: 'based in', value: profile.location },
+].filter((r) => r.value);
+
+const links = [
+  profile.email && { label: 'email', href: `mailto:${profile.email}`, text: profile.email },
+  { label: 'linkedin', href: profile.links.linkedin, text: profile.links.linkedin.replace(/^https?:\/\/(www\.)?/, '') },
+  profile.links.github && { label: 'github', href: profile.links.github, text: profile.links.github.replace(/^https?:\/\//, '') },
+].filter(Boolean) as { label: string; href: string; text: string }[];
+---
+
+<aside class="glance" aria-label="At a glance">
+  <p class="glance-title">at a glance</p>
+  <dl>
+    {rows.map((r) => (
+      <>
+        <dt>{r.label}</dt>
+        <dd>{r.value}</dd>
+      </>
+    ))}
+    {links.map((l) => (
+      <>
+        <dt>{l.label}</dt>
+        <dd><a href={l.href}>{l.text}</a></dd>
+      </>
+    ))}
+  </dl>
+  <p class="glance-actions">
+    <a class="btn primary" href="/pakeeru-basha-mekala-resume.pdf" download>Download resume</a>
+    {profile.bookingUrl && <a class="btn" href={profile.bookingUrl}>Book a call</a>}
+  </p>
+</aside>
+
+<style>
+  .glance {
+    padding: var(--space-2);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.82rem;
+  }
+
+  .glance-title {
+    margin: 0 0 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+  }
+
+  dl {
+    margin: 0;
+  }
+
+  dt {
+    margin-top: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+  }
+
+  dt:first-child {
+    margin-top: 0;
+  }
+
+  dd {
+    margin: 0.1rem 0 0;
+    word-break: break-word;
+  }
+
+  dd a {
+    color: var(--link);
+  }
+
+  .glance-actions {
+    display: grid;
+    gap: 0.5rem;
+    margin: var(--space-2) 0 0;
+  }
+
+  .btn {
+    display: block;
+    padding: 0.5em 1em;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-align: center;
+    text-decoration: none;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .btn:hover,
+  .btn:focus-visible {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn.primary {
+    background: linear-gradient(100deg, var(--accent), var(--accent-2));
+    border-color: transparent;
+    color: var(--bg);
+    font-weight: 600;
+  }
+
+  .btn.primary:hover,
+  .btn.primary:focus-visible {
+    color: var(--bg);
+  }
+</style>

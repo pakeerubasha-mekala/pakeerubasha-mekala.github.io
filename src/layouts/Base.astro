@@ -2,6 +2,7 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CommandPalette from '../components/CommandPalette.astro';
+import Backdrop from '../components/art/Backdrop.astro';
 import analytics from '../data/analytics.json';
 import '../styles/global.css';
 
@@ -84,10 +85,17 @@ const pageTitle = title === siteTitle ? title : `${title} · ${siteTitle}`;
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
+    <Backdrop />
     <Header />
+    {Astro.slots.has('left') && (
+      <div class="rail rail-left no-print"><slot name="left" /></div>
+    )}
     <main id="main">
       <slot />
     </main>
+    {Astro.slots.has('right') && (
+      <div class="rail rail-right no-print"><slot name="right" /></div>
+    )}
     <Footer />
     <CommandPalette />
   </body>

@@ -41,6 +41,10 @@ CSS gotchas learned the hard way: `light-dark()` only accepts colours, so never 
 
 `.github/workflows/quality.yml` (link check, Lighthouse via `lighthouserc.json`) and `.github/dependabot.yml`. Colours use CSS `light-dark()` tokens in `src/styles/global.css`; light/dark and accent themes are set with `html[data-scheme]` and `html[data-accent]` (`src/utils/theme.ts`).
 
+## Wide-screen layout
+
+`Base.astro` has named slots `left` and `right` for fixed side rails (`.rail`, shown from 1400px, positioned relative to the centre column using `--measure`). `SideNav.astro` is server-rendered from the page's section or heading list and only uses JS for the active highlight; `AtAGlance.astro` reads `profile` and the first `experience` entry. `art/Backdrop.astro` (from 1700px) draws decorative SVG in the margins; SVG icons live in `art/icons.ts` and are shared with `art/Icon.astro` (the "What I do" badges). All decoration carries `fx`/`aria-hidden`. Changing `--measure` means checking the rail and backdrop breakpoints (rails need `measure + 2 * (13.5rem + 2.5rem)` of width).
+
 ## Layout
 
 `src/layouts/Base.astro` is the shared layout (title, description, canonical, OG/Twitter meta, `Header`, `Footer`). Global styles and the dark/light theme variables live in `src/styles/global.css`; page-specific styles are scoped in each `.astro` file.

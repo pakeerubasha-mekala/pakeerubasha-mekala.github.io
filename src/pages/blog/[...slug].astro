@@ -3,6 +3,8 @@ import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
 import { readingTime } from '../../utils/readingTime';
 import Comments from '../../components/Comments.astro';
+import SideNav from '../../components/SideNav.astro';
+import AtAGlance from '../../components/AtAGlance.astro';
 import { profile } from '../../data/profile';
 
 export async function getStaticPaths() {
@@ -48,6 +50,8 @@ const dateFmt = (d: Date) =>
 ---
 
 <Base title={post.data.title} description={post.data.description} ogType="article" jsonLd={jsonLd} image={`/og/post-${post.id}.png`}>
+  {toc.length >= 3 && <SideNav slot="left" title="on this page" items={toc.map((h) => ({ id: h.slug, label: h.text, depth: h.depth }))} />}
+  <AtAGlance slot="right" />
   <div class="progress no-print" aria-hidden="true"><div id="progress-bar"></div></div>
   <article>
     <header class="post-header">
@@ -186,6 +190,13 @@ const dateFmt = (d: Date) =>
   .prose :global(img) {
     max-width: 100%;
     height: auto;
+  }
+
+  /* The table of contents moves into the left rail on wide screens. */
+  @media (min-width: 1400px) {
+    .toc {
+      display: none;
+    }
   }
 
   .toc {

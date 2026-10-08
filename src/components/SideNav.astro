@@ -1,0 +1,124 @@
+---
+// Left rail on wide screens: a sticky "on this page" menu that highlights the section you are reading.
+// Server-rendered from `items`; the small script below only handles the highlight.
+interface Item {
+  id: string;
+  label: string;
+  /** 3 indents the entry under its parent heading. */
+  depth?: number;
+}
+
+interface Props {
+  title?: string;
+  items: Item[];
+}
+
+const { title = 'on this page', items } = Astro.props;
+---
+
+{items.length > 0 && (
+  <nav class="side-nav" aria-label={title}>
+    <p class="side-title">{title}</p>
+    <ul>
+      {items.map((item) => (
+        <li class={item.depth === 3 ? 'sub' : ''}>
+          <a href={`#${item.id}`} data-spy={item.id}>{item.label}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}
+
+<script>
+  function initSpy() {
+    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('.side-nav a[data-spy]'));
+    const targets = links
+      .map((a) => ({ a, el: document.getElementById(a.dataset.spy ?? '') }))
+      .filter((t): t is { a: HTMLAnchorElement; el: HTMLElement } => t.el !== null);
+    if (targets.length === 0) return;
+
+    let current: HTMLAnchorElement | null = null;
+    const mark = (a: HTMLAnchorElement | null) => {
+      if (a === current) return;
+      current?.removeAttribute('aria-current');
+      current?.classList.remove('active');
+      a?.setAttribute('aria-current', 'location');
+      a?.classList.add('active');
+      current = a;
+    };
+
+    // The active entry is the last section whose top has passed a line a little below the sticky header.
+    const update = () => {
+      const line = window.innerHeight * 0.3;
+      let active = targets[0].a;
+      for (const t of targets) {
+        if (t.el.getBoundingClientRect().top <= line) active = t.a;
+      }
+      // At the very bottom the last sections can never reach the line, so highlight the last one.
+      if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4) {
+        active = targets[targets.length - 1].a;
+      }
+      mark(active);
+    };
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(() => { update(); ticking = false; }); }
+    }, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  }
+
+  initSpy();
+</script>
+
+<style>
+  .side-nav {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  .side-title {
+    margin: 0 0 0.6rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-left: 1px solid var(--border);
+  }
+
+  li {
+    margin: 0;
+  }
+
+  li.sub a {
+    padding-left: 1.6rem;
+    font-size: 0.76rem;
+  }
+
+  a {
+    display: block;
+    padding: 0.28rem 0.9rem;
+    margin-left: -1px;
+    border-left: 2px solid transparent;
+    color: var(--fg-dim);
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  a:hover,
+  a:focus-visible {
+    color: var(--fg);
+  }
+
+  a.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+  }
+</style>

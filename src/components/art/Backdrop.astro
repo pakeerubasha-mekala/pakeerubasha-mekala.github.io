@@ -1,0 +1,186 @@
+---
+import { icons, type IconName } from './icons';
+
+// Decorative "blueprint" in the empty margins of very wide screens (hidden below 1700px, in recruiter mode and
+// in print). Left: a delivery pipeline. Right: an infrastructure stack. Pure SVG in theme colours.
+interface Tile {
+  icon: IconName;
+  label: string;
+  y: number;
+}
+
+const pipeline: Tile[] = [
+  { icon: 'git', label: 'commit', y: 120 },
+  { icon: 'container', label: 'build', y: 270 },
+  { icon: 'shield', label: 'test', y: 420 },
+  { icon: 'scan', label: 'scan', y: 570 },
+  { icon: 'deploy', label: 'deploy', y: 720 },
+  { icon: 'monitor', label: 'observe', y: 870 },
+];
+
+const stack: Tile[] = [
+  { icon: 'cloud', label: 'cloud', y: 120 },
+  { icon: 'helm', label: 'kubernetes', y: 270 },
+  { icon: 'server', label: 'nodes', y: 420 },
+  { icon: 'database', label: 'data', y: 570 },
+  { icon: 'pulse', label: 'metrics', y: 720 },
+  { icon: 'pipeline', label: 'gitops', y: 870 },
+];
+
+// Small terminal lines floating between the tiles.
+const commands: { text: string; y: number }[] = [
+  { text: '$ terraform plan', y: 120 },
+  { text: '$ kubectl get pods', y: 270 },
+  { text: '$ helm upgrade --install', y: 420 },
+  { text: '$ argocd app sync', y: 570 },
+  { text: '$ promtool check rules', y: 720 },
+];
+
+const CX = 150;
+---
+
+<div class="backdrop fx" aria-hidden="true">
+  {[
+    { side: 'left', tiles: pipeline, connect: true, cmds: [] as typeof commands },
+    { side: 'right', tiles: stack, connect: false, cmds: commands },
+  ].map((col) => (
+    <div class={`col ${col.side}`}>
+      <svg viewBox="0 0 300 1000" preserveAspectRatio="xMidYMid meet" role="presentation" focusable="false">
+        {col.connect && col.tiles.slice(0, -1).map((t) => (
+          <g>
+            <line class="spine" x1={CX} y1={t.y + 70} x2={CX} y2={t.y + 112} />
+            <line class="flow" x1={CX} y1={t.y + 70} x2={CX} y2={t.y + 112} />
+            <path class="chevron" d={`M${CX - 7} ${t.y + 84} l7 8 7 -8`} />
+          </g>
+        ))}
+        {col.cmds.map((c) => (
+          <text class="cmd" x={CX} y={c.y + 96} text-anchor="middle">{c.text}</text>
+        ))}
+        {col.tiles.map((t, i) => (
+          <g class="tile" style={`--i:${i}`}>
+            <rect class="glow" x={CX - 42} y={t.y - 42} width="84" height="84" rx="20" />
+            <rect class="box" x={CX - 34} y={t.y - 34} width="68" height="68" rx="16" />
+            <g class="ico" transform={`translate(${CX - 20} ${t.y - 20}) scale(0.84)`} set:html={icons[t.icon]} />
+            <text class="label" x={CX} y={t.y + 58} text-anchor="middle">{t.label}</text>
+          </g>
+        ))}
+      </svg>
+    </div>
+  ))}
+</div>
+
+<style>
+  .backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* Only where the margins are genuinely empty: rails start 42rem either side of the centre. */
+  @media (min-width: 1700px) {
+    .backdrop {
+      display: block;
+    }
+  }
+
+  .col {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: calc((100vw - 84rem) / 2);
+    min-width: 0;
+  }
+
+  .left {
+    left: 0;
+    -webkit-mask-image: linear-gradient(to right, #000 55%, transparent 100%);
+    mask-image: linear-gradient(to right, #000 55%, transparent 100%);
+  }
+
+  .right {
+    right: 0;
+    -webkit-mask-image: linear-gradient(to left, #000 55%, transparent 100%);
+    mask-image: linear-gradient(to left, #000 55%, transparent 100%);
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .spine {
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    opacity: 0.22;
+  }
+
+  .flow {
+    stroke: var(--accent-2);
+    stroke-width: 2;
+    stroke-dasharray: 3 9;
+    stroke-linecap: round;
+    opacity: 0.55;
+    animation: flow 4s linear infinite;
+  }
+
+  @keyframes flow {
+    to { stroke-dashoffset: -48; }
+  }
+
+  .chevron {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.4;
+  }
+
+  .box {
+    fill: var(--bg);
+    stroke: var(--accent);
+    stroke-width: 1.3;
+    opacity: 0.85;
+  }
+
+  .ico {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.85;
+  }
+
+  /* Only opacity animates (colours from light-dark() are unreliable inside keyframes). */
+  .glow {
+    fill: var(--accent);
+    opacity: 0.05;
+    animation: glow 7s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 0.9s);
+  }
+
+  @keyframes glow {
+    0%, 100% { opacity: 0.03; }
+    50% { opacity: 0.16; }
+  }
+
+  .label {
+    fill: var(--fg-dim);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+
+  .cmd {
+    fill: var(--fg-dim);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    opacity: 0.55;
+  }
+</style>

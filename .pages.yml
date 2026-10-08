@@ -237,6 +237,9 @@ content:
       - name: linkLabel
         label: Link text (optional)
         type: string
+      - name: icon
+        label: Icon, one of cloud, helm, pipeline or pulse (optional)
+        type: string
 
   - name: testimonials
     label: Testimonials (only add real quotes you have permission to use)

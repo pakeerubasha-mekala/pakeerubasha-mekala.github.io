@@ -75,6 +75,10 @@ Both use the short `resumeBullets` of each role in `experience.json` (falling ba
 - **On deploy:** GitHub Actions rebuilds both PDFs from the current data (`node scripts/make-pdf.mjs dist`). You don't need to do anything.
 - **Locally:** `npm run pdf` rebuilds the site and writes `public/pakeeru-basha-mekala-resume.pdf` and `public/pakeeru-basha-mekala-resume-ats.pdf` (what the dev server serves for the Download buttons). It uses a locally installed Chromium-based browser (Chrome, Brave, Edge or Chromium; set `CHROME_PATH` to choose one). If a PDF spills onto a second page after you add content, shorten the `resumeBullets`.
 
+## Profile photo
+
+The photo is `public/profile.jpg` (400x400, a head-and-shoulders crop) and the path is set by `photo` in `src/data/profile.json`. It shows in the hero, both resumes and the link-preview cards. To change it, add a new square image with a new file name (so browsers do not keep serving the old one) and update `photo`. A higher-resolution, plainly lit headshot will always look sharper than enlarging a small photo.
+
 ## Fonts and icons
 
 Inter and JetBrains Mono are bundled in `public/fonts/` (licences in `LICENSE.md` there) and loaded site-wide, so every device and the PDFs look the same. The two most used faces are preloaded in `Base.astro`. Touch icons (`apple-touch-icon.png`, `icon-192.png`, `icon-512.png`), the web manifest and the theme-colour tags are in `public/` and `Base.astro`.
@@ -100,6 +104,7 @@ To run Lighthouse yourself: `npm run build`, serve `dist/`, then `CHROME_PATH="/
 - **Testimonials** (home page): `src/data/testimonials.json`. The section is hidden while the list is empty; only add real quotes you have permission to use (quote, name, role, optional company and measurable result).
 - **Newsletter:** set `newsletterUrl` in `profile.json` (a Buttondown or Substack signup link) and a "Subscribe by email" band appears on the home and blog pages. An RSS button is always shown on the blog page.
 - **Home page shows short highlights** for each role and links to the case studies for detail, so the same story is not told twice. The long `bullets` stay in the data and are the fallback when a role has no `resumeBullets`.
+- **Wide screens:** from 1400px wide a sticky "on this page" menu appears on the left (it highlights the section you are reading; on blog posts it holds the table of contents) and an "at a glance" card on the right (`SideNav.astro`, `AtAGlance.astro`, passed to `Base.astro` through the `left` and `right` slots). From 1700px a decorative DevOps "blueprint" fills the empty margins: a delivery pipeline on the left and an infrastructure stack on the right (`components/art/Backdrop.astro`, icons in `components/art/icons.ts`). It is hidden in recruiter mode and in print, and on smaller screens there is nothing to show.
 - **`/status`**: live deploy history, success rate, build times and commit activity, read from the public GitHub API for `profile.repo` (set in `src/data/profile.json`). If you rename the repo, update it there.
 - **`/how-its-built`**: the architecture and pipeline of this site.
 - **Terminal, command palette (Ctrl/⌘ + K), boot sequence, Konami code:** try `help` in the terminal on the home page. Commands include `ask`, `open`, `theme`, `cat resume`, `git log`, `status` and `matrix`.

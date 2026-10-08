@@ -100,6 +100,31 @@ try {
   check('testimonials stay hidden while there are none', (await ev("!document.getElementById('testimonials')")) === true);
   check('footer has the two link groups', (await ev("document.querySelectorAll('.site-footer nav').length")) === 2);
 
+  console.log('Wide-screen side rails');
+  const viewport = (width) => send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+  const shown = (sel) => ev(`(()=>{const e=document.querySelector(${JSON.stringify(sel)});return !!e && getComputedStyle(e).display!=='none'})()`);
+  await viewport(1600);
+  await sleep(300);
+  check('left and right rails show on a wide screen', (await shown('.rail-left')) && (await shown('.rail-right')));
+  check('left rail lists the page sections', (await ev("document.querySelectorAll('.rail-left a[data-spy]').length")) >= 5);
+  await ev("document.getElementById('experience').scrollIntoView({ behavior: 'instant' })"); // the site scrolls smoothly; jump so the check does not race the animation
+  await sleep(400);
+  check('scrolling highlights the matching section', (await ev("document.querySelector('.rail-left a.active')?.dataset.spy")) === 'experience');
+  check('right rail has the resume button', (await ev("!!document.querySelector('.rail-right a[href$=\".pdf\"]')")) === true);
+  await viewport(1800);
+  await sleep(300);
+  check('DevOps backdrop shows in the margins of a very wide screen', (await shown('.backdrop')) && (await ev("document.querySelectorAll('.backdrop .tile').length")) === 12);
+  await ev("document.getElementById('mode-toggle').click()");
+  check('recruiter mode hides the backdrop', !(await shown('.backdrop')));
+  await ev("document.getElementById('mode-toggle').click()");
+  check('"What I do" cards have icon badges', (await ev("document.querySelectorAll('#what-i-do .offer-icon svg').length")) >= 3);
+  await viewport(1000);
+  await sleep(300);
+  check('backdrop is hidden on a normal laptop screen', !(await shown('.backdrop')));
+  check('rails hide on a normal laptop screen', !(await shown('.rail-left')) && !(await shown('.rail-right')));
+  await send('Emulation.clearDeviceMetricsOverride');
+  await ev('window.scrollTo(0, 0)');
+
   console.log('Home page: terminal, palette, themes');
   const run = (cmd) => ev(`(async()=>{const i=document.getElementById('term-input');i.value=${JSON.stringify(cmd)};document.getElementById('term-form').requestSubmit();await new Promise(r=>setTimeout(r,500));return document.getElementById('term-screen').innerText})()`);
   check('terminal answers "help"', (await run('help')).includes('Available commands'));

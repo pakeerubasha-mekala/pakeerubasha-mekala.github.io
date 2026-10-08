@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
+import AtAGlance from '../../components/AtAGlance.astro';
 
 export async function getStaticPaths() {
   const items = await getCollection('work');
@@ -12,6 +13,7 @@ const { Content } = await render(w);
 ---
 
 <Base title={w.data.title} description={w.data.summary} image={`/og/work-${w.id}.png`}>
+  <AtAGlance slot="right" />
   <article>
     <p class="crumb"><a href="/work">← all work</a></p>
     <h1>{w.data.title}</h1>

@@ -142,7 +142,32 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Side rails: only when the screen is wide enough to have spare room on both sides of the column. */
+.rail {
+  display: none;
+}
+
+@media (min-width: 1400px) {
+  .rail {
+    display: block;
+    position: fixed;
+    top: 6rem;
+    width: 13.5rem;
+    max-height: calc(100vh - 8rem);
+    overflow-y: auto;
+  }
+
+  .rail-left {
+    left: calc(50% - var(--measure) / 2 - 13.5rem - 2.5rem);
+  }
+
+  .rail-right {
+    left: calc(50% + var(--measure) / 2 + 2.5rem);
+  }
+}
+
 main {
+  position: relative;
   max-width: var(--measure);
   margin: 0 auto;
   padding: var(--space-3) var(--space-2) var(--space-4);

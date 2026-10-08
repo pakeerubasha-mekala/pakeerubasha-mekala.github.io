@@ -1,0 +1,43 @@
+---
+// Decorative strip: a main branch with two feature branches branching off and merging back, like `git log --graph`.
+---
+
+<svg class="graph" viewBox="0 0 800 70" preserveAspectRatio="xMidYMid meet" role="presentation" aria-hidden="true" focusable="false">
+  <line class="main" x1="0" y1="35" x2="800" y2="35" />
+  <path class="branch" d="M140 35 C 165 35, 165 12, 190 12 L 330 12 C 355 12, 355 35, 380 35" />
+  <path class="branch" d="M470 35 C 495 35, 495 58, 520 58 L 650 58 C 675 58, 675 35, 700 35" />
+  {[60, 140, 380, 470, 700, 760].map((x) => <circle class="commit" cx={x} cy="35" r="5" />)}
+  {[190, 255, 330].map((x) => <circle class="commit alt" cx={x} cy="12" r="4.5" />)}
+  {[520, 585, 650].map((x) => <circle class="commit alt" cx={x} cy="58" r="4.5" />)}
+</svg>
+
+<style>
+  .graph {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 70px;
+  }
+
+  .main,
+  .branch {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.6;
+    opacity: 0.4;
+  }
+
+  .branch {
+    stroke: var(--accent-2);
+  }
+
+  .commit {
+    fill: var(--bg);
+    stroke: var(--accent);
+    stroke-width: 1.6;
+  }
+
+  .commit.alt {
+    stroke: var(--accent-2);
+  }
+</style>
