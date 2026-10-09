@@ -9,12 +9,8 @@ tags:
   - Shift Left
 draft: false
 ---
-```markdown
-# Container Image Scanning in CI/CD
 
-A practical guide for the team: what image scanning is, why it matters in 2026, and how to add it to our pipelines.
-
----
+> Container Image Scanning in CI/CD: Why It Matters in 2026 and How to Do It
 
 ## 1. What is container image scanning?
 
