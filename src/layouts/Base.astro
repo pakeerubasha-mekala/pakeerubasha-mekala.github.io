@@ -15,9 +15,11 @@ interface Props {
   jsonLd?: Record<string, unknown>;
   /** Keep utility pages (duplicate or generated) out of search results. */
   noindex?: boolean;
+  /** Decorative margin art (Backdrop). Turned off for distraction-free reading pages. */
+  decor?: boolean;
 }
 
-const { title, description, ogType = 'website', image = '/og/default.png', jsonLd, noindex = false } = Astro.props;
+const { title, description, ogType = 'website', image = '/og/default.png', jsonLd, noindex = false, decor = true } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImageURL = new URL(image, Astro.site);
@@ -85,7 +87,7 @@ const pageTitle = title === siteTitle ? title : `${title} · ${siteTitle}`;
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <Backdrop />
+    {decor && <Backdrop />}
     <Header />
     {Astro.slots.has('left') && (
       <div class="rail rail-left no-print"><slot name="left" /></div>

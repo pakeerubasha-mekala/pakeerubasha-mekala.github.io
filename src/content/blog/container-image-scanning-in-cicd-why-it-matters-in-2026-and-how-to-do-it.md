@@ -428,5 +428,3 @@ Also enable your registry's native scanning (ECR / Artifact Registry) for contin
 
 Add your team's contact channel and owner here: `<team-channel>` / `<owner>`.
 
-```
-

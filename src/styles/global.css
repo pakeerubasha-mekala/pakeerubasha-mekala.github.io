@@ -46,6 +46,23 @@
   src: url('/fonts/jetbrains-mono-latin-600-normal.woff2') format('woff2');
 }
 
+/* Serif used only on the designed resume (name, role titles, summary). */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/source-serif-4-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url('/fonts/source-serif-4-latin-600-normal.woff2') format('woff2');
+}
+
 :root {
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;

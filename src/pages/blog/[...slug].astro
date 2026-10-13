@@ -4,7 +4,6 @@ import { getCollection, render } from 'astro:content';
 import { readingTime } from '../../utils/readingTime';
 import Comments from '../../components/Comments.astro';
 import SideNav from '../../components/SideNav.astro';
-import AtAGlance from '../../components/AtAGlance.astro';
 import { profile } from '../../data/profile';
 
 export async function getStaticPaths() {
@@ -49,9 +48,8 @@ const dateFmt = (d: Date) =>
   d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 ---
 
-<Base title={post.data.title} description={post.data.description} ogType="article" jsonLd={jsonLd} image={`/og/post-${post.id}.png`}>
+<Base title={post.data.title} description={post.data.description} ogType="article" jsonLd={jsonLd} image={`/og/post-${post.id}.png`} decor={false}>
   {toc.length >= 3 && <SideNav slot="left" title="on this page" items={toc.map((h) => ({ id: h.slug, label: h.text, depth: h.depth }))} />}
-  <AtAGlance slot="right" />
   <div class="progress no-print" aria-hidden="true"><div id="progress-bar"></div></div>
   <article>
     <header class="post-header">
