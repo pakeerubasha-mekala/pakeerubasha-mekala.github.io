@@ -1,0 +1,60 @@
+# Sveltia CMS config (Decap-compatible). Edits commit markdown to this repo; the deploy
+# workflow then publishes to GitHub Pages + Cloudflare Pages. Admin UI at /admin/.
+backend:
+  name: github
+  repo: pakeerubasha-mekala/pakeerubasha-mekala.github.io
+  branch: main
+  # Sign in at /admin/ with "Sign In with Token" using a GitHub fine-grained PAT
+  # (Contents: Read and write on this repo). No OAuth app or worker needed.
+
+# Uploaded images go to public/blog/ and are referenced as /blog/<file>.
+media_folder: public/blog
+public_folder: /blog
+
+# Allow editing locally with `npx @sveltia/cms-server` during `npm run dev` (no auth needed).
+# Comment out for production-only editing.
+# local_backend: true
+
+collections:
+  - name: blog
+    label: Blog posts
+    label_singular: Blog post
+    folder: src/content/blog
+    create: true
+    slug: '{{slug}}'
+    extension: md
+    format: yaml-frontmatter
+    identifier_field: title
+    summary: '{{title}}  ·  {{pubDate}}{{#if draft}}  · draft{{/if}}'
+    sortable_fields: [pubDate, title]
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Description (blog list + link previews), name: description, widget: text }
+      - { label: Publish date, name: pubDate, widget: datetime, date_format: 'YYYY-MM-DD', time_format: false, format: 'YYYY-MM-DD' }
+      - { label: Updated date, name: updatedDate, widget: datetime, required: false, date_format: 'YYYY-MM-DD', time_format: false, format: 'YYYY-MM-DD' }
+      - { label: Tags, name: tags, widget: list, required: false, default: [] }
+      - { label: Draft (hidden from the live site), name: draft, widget: boolean, default: true }
+      - { label: Originally published at (URL, optional — e.g. Medium), name: canonicalUrl, widget: string, required: false }
+      - { label: Post, name: body, widget: markdown }
+
+  - name: work
+    label: Case studies
+    label_singular: Case study
+    folder: src/content/work
+    create: true
+    slug: '{{slug}}'
+    extension: md
+    format: yaml-frontmatter
+    identifier_field: title
+    summary: '{{title}}  ·  {{company}}'
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Company, name: company, widget: string }
+      - { label: Role, name: role, widget: string }
+      - { label: Period, name: period, widget: string }
+      - { label: Location, name: location, widget: string, required: false }
+      - { label: Summary, name: summary, widget: text }
+      - { label: Stack, name: stack, widget: list, required: false, default: [] }
+      - { label: Impact (measured outcomes), name: impact, widget: list, required: false, default: [] }
+      - { label: Order, name: order, widget: number, required: false, default: 0, value_type: int }
+      - { label: Body, name: body, widget: markdown }
