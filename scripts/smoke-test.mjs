@@ -80,7 +80,7 @@ try {
 
   console.log('Pages load without errors');
   const pages = [
-    ['/', 'h1'], ['/blog/', 'h1'], ['/resume/', 'h1'], ['/resume-ats/', 'h1'], ['/work/', 'h1'],
+    ['/', 'h1'], ['/blog/', 'h1'], ['/resume/', 'h1'], ['/work/', 'h1'],
     ['/work/waitrose/', 'h1'], ['/status/', 'h1'], ['/how-its-built/', 'h1'],
   ];
   for (const [path, selector] of pages) {
@@ -125,14 +125,13 @@ try {
   await send('Emulation.clearDeviceMetricsOverride');
   await ev('window.scrollTo(0, 0)');
 
-  console.log('Home page: terminal, palette, themes');
-  const run = (cmd) => ev(`(async()=>{const i=document.getElementById('term-input');i.value=${JSON.stringify(cmd)};document.getElementById('term-form').requestSubmit();await new Promise(r=>setTimeout(r,500));return document.getElementById('term-screen').innerText})()`);
-  check('terminal answers "help"', (await run('help')).includes('Available commands'));
-  check('terminal answers "whoami"', (await run('whoami')).includes('Pakeeru Basha Mekala'));
-  check('terminal rejects unknown commands', (await run('definitely-not-a-command')).includes('command not found'));
-  await run('theme amber');
-  check('"theme amber" sets the accent', (await ev('document.documentElement.dataset.accent')) === 'amber');
-  await run('theme green');
+  console.log('Home page: bot, palette, themes');
+  // Ask-the-bot assistant (retrieval-only): open it and ask questions.
+  const ask = (q) => ev(`(async()=>{document.dispatchEvent(new CustomEvent('bot:open'));const i=document.getElementById('bot-input');i.value=${JSON.stringify(q)};document.getElementById('bot-form').requestSubmit();await new Promise(r=>setTimeout(r,600));return document.getElementById('bot-log').innerText})()`);
+  check('bot answers "skills"', (await ask('skills')).toLowerCase().includes('kubernetes'));
+  check('bot answers "what is MCP"', (await ask('what is mcp')).toLowerCase().includes('model context protocol'));
+  check('bot handles unknown questions', (await ask('do you like pizza xyzzy')).toLowerCase().includes('not sure'));
+  await ev("document.getElementById('bot-close').click()");
   await ev("document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',ctrlKey:true,bubbles:true}))");
   await sleep(300);
   check('Ctrl+K opens the command palette', (await ev("document.getElementById('palette').open && document.querySelectorAll('#palette-list .item').length > 3")) === true);
@@ -141,8 +140,6 @@ try {
   await ev("document.getElementById('scheme-toggle').click()");
   const after = await ev("document.documentElement.dataset.scheme ?? 'auto'");
   check('light/dark toggle changes the scheme', before !== after, `${before} -> ${after}`);
-  await ev("document.getElementById('mode-toggle').click()");
-  check('recruiter mode hides the terminal', (await ev("getComputedStyle(document.getElementById('terminal')).display")) === 'none');
   await ev("localStorage.clear()");
 
   console.log('Blog search');
@@ -153,11 +150,9 @@ try {
   check('nonsense search shows none', (await search('zzzzqqqq')) === 0);
   check('"no matches" message appears', (await ev("!document.getElementById('blog-empty').hidden")) === true);
 
-  console.log('Resume pages');
+  console.log('Resume page');
   await go('/resume/');
   check('designed resume has the sheet and a mailto link', (await ev("!!document.querySelector('.sheet') && !!document.querySelector('a[href^=\"mailto:\"]')")) === true);
-  await go('/resume-ats/');
-  check('ATS resume is plain text sections', (await ev("[...document.querySelectorAll('.ats h2')].map(h=>h.textContent).join('|')")).includes('Experience'));
 
   ws.close();
 } finally {

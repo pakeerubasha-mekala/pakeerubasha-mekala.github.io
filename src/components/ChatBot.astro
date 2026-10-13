@@ -1,0 +1,512 @@
+---
+// Floating "ask the bot" assistant (bottom-right). Retrieval-only RAG: a knowledge base is built
+// from the site data plus curated topic/protocol entries, shipped as JSON, and searched client-side
+// with a small TF-IDF ranker. No LLM, no API keys, no network calls, no cost — works on every browser.
+import { getCollection } from 'astro:content';
+import { profile } from '../data/profile';
+import { experience } from '../data/experience';
+import { skills } from '../data/skills';
+import { offerings } from '../data/offerings';
+import { education } from '../data/education';
+
+const posts = (await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+type Part = string | { t: string; h: string };
+interface Entry { id: string; q: string; title: string; a: Part[] }
+
+const linkedin = profile.links.linkedin;
+const github = profile.links.github;
+const skillGroup = (label: string) => skills.find((g) => g.label === label)?.items.join(', ') ?? '';
+const current = experience[0];
+const currentBullets = (current.resumeBullets ?? current.bullets ?? []);
+
+const kb: Entry[] = [
+  {
+    id: 'whoami',
+    q: 'who are you introduce yourself name about you bio',
+    title: 'Who is Pakeeru?',
+    a: [`${profile.name} — ${profile.headline}. Based in ${profile.location}.`],
+  },
+  {
+    id: 'summary',
+    q: 'summary overview background what do you do profile tldr',
+    title: 'Summary',
+    a: [profile.summary],
+  },
+  {
+    id: 'now',
+    q: 'current role now present job where do you work today equal experts',
+    title: 'Current role',
+    a: [`${current.role} at ${current.company} (${current.period}). ${currentBullets[0] ?? ''}`],
+  },
+  {
+    id: 'experience',
+    q: 'experience work history career companies past roles tcs waitrose omnistore tata',
+    title: 'Experience',
+    a: [
+      experience
+        .map((j) => `• ${j.role} @ ${j.company} (${j.period})`)
+        .join('\n'),
+      '\nAsk about a specific company (Equal Experts, Waitrose, OmniStore) for detail, or ',
+      { t: 'see the case studies', h: '/work' },
+      '.',
+    ],
+  },
+  {
+    id: 'skills',
+    q: 'skills tech stack technologies tools what do you know expertise',
+    title: 'Skills',
+    a: [skills.map((g) => `• ${g.label}: ${g.items.join(', ')}`).join('\n')],
+  },
+  { id: 'cloud', q: 'cloud aws azure gcp amazon google multi-cloud providers', title: 'Cloud', a: [`Multi-cloud across ${skillGroup('Cloud')} — building and running platforms on all three.`] },
+  { id: 'iac', q: 'infrastructure as code iac terraform cloudformation crossplane ansible provisioning', title: 'Infrastructure as Code', a: [`${skillGroup('Infrastructure as Code')}. IaC for provisioning, with Configuration as Code via Ansible (including custom modules).`] },
+  { id: 'containers', q: 'containers kubernetes k8s eks aks docker helm orchestration clusters', title: 'Containers & Orchestration', a: [`${skillGroup('Containers & Orchestration')}. Highly available EKS clusters, Helm releases, and GitOps (ArgoCD, Flux); also AKS and on-prem Kubernetes.`] },
+  { id: 'cicd', q: 'ci cd pipelines continuous integration delivery jenkins github actions gitlab octopus blue green canary', title: 'CI/CD', a: [`${skillGroup('CI/CD')}. Pipelines with blue/green and canary deployments and early quality/security checks.`] },
+  { id: 'security', q: 'security scanning image vulnerabilities trivy snyk orca sonarqube sast dast supply chain', title: 'Security & Scanning', a: [`${skillGroup('Security & Scanning')}. Container image scanning and shift-left security built into CI/CD. `, { t: 'Read my post on image scanning', h: '/blog/container-image-scanning-in-cicd-why-it-matters-in-2026-and-how-to-do-it/' }, '.'] },
+  { id: 'observability', q: 'observability monitoring metrics logs prometheus grafana datadog cloudwatch elk pagerduty alerting on-call', title: 'Monitoring & Observability', a: [`${skillGroup('Monitoring & Observability')}. Instrumented 150+ microservices with metrics, logging and alerting, plus 24/7 on-call and RCA.`] },
+  {
+    id: 'mcp',
+    q: 'mcp model context protocol ai assistant tooling natural language agents',
+    title: 'MCP (Model Context Protocol)',
+    a: ['MCP (Model Context Protocol) lets AI assistants connect securely to real tools and data. I enabled MCP workflows so teams run day-to-day operations in natural language — tailing application logs, checking deployment and service health, and triaging incidents without switching tools.'],
+  },
+  {
+    id: 'oidc',
+    q: 'oidc openid connect keyless credentials federation gitlab aws iam short-lived tokens secrets',
+    title: 'OIDC (keyless CI/CD)',
+    a: ['OpenID Connect lets CI/CD authenticate to the cloud with short-lived, automatically rotated credentials instead of long-lived access keys. ', { t: 'Read my GitLab + AWS OIDC guide', h: '/blog/secure-aws-integration-with-gitlab-ci-cd-using-oidc/' }, '.'],
+  },
+  {
+    id: 'gitops',
+    q: 'gitops argocd flux declarative deployments git source of truth',
+    title: 'GitOps',
+    a: ['I run GitOps with ArgoCD and Flux — declarative, version-controlled Kubernetes deployments where Git is the single source of truth.'],
+  },
+  {
+    id: 'scalr',
+    q: 'scalr terraform cloud tfc migration remote state workspaces policy as code governance',
+    title: 'Terraform Cloud → Scalr',
+    a: ['I led a migration from Terraform Cloud to Scalr — re-platforming remote state, workspaces and policy-as-code with minimal disruption and improved governance and cost visibility.'],
+  },
+  {
+    id: 'ai',
+    q: 'ai artificial intelligence llm automation pipeline fixes remediation devops',
+    title: 'AI in DevOps',
+    a: ['I use AI-assisted DevOps to triage and fix CI/CD pipeline failures and to remediate vulnerabilities in container images — shortening feedback loops and cutting manual effort.'],
+  },
+  {
+    id: 'cost',
+    q: 'cost optimization finops cloud spend savings budget efficiency',
+    title: 'Cloud cost optimisation',
+    a: ['I build cost-optimisation metrics to monitor and reduce total cloud spend, and bring cost visibility/governance into infrastructure workflows.'],
+  },
+  {
+    id: 'offerings',
+    q: 'what do you offer services help hire consulting can you do',
+    title: 'What I do',
+    a: [offerings.map((o) => `• ${o.title}: ${o.text}`).join('\n')],
+  },
+  {
+    id: 'blog',
+    q: 'blog posts articles writing read',
+    title: 'Blog',
+    a: posts.length
+      ? ([] as Part[]).concat(...posts.map((p, i): Part[] => [i ? '\n' : '', { t: `• ${p.data.title}`, h: `/blog/${p.id}/` }]))
+      : ['No posts yet — check back soon.'],
+  },
+  {
+    id: 'education',
+    q: 'education degree college university study qualification btech',
+    title: 'Education',
+    a: [education.map((e) => `${e.degree}, ${e.field} — ${e.institution} (${e.period}).`).join('\n')],
+  },
+  {
+    id: 'site',
+    q: 'how is this site built website portfolio tech stack astro source code',
+    title: 'How this site is built',
+    a: ['A static Astro site deployed from GitHub by GitHub Actions. ', { t: 'See how it is built', h: '/how-its-built' }, ', or the ', { t: 'live status', h: '/status' }, '.'],
+  },
+  {
+    id: 'resume',
+    q: 'resume cv download pdf',
+    title: 'Resume',
+    a: ['Open the ', { t: 'resume page', h: '/resume' }, ' or ', { t: 'download the PDF', h: '/pakeeru-basha-mekala-resume.pdf' }, '.'],
+  },
+  {
+    id: 'hire',
+    q: 'available hiring hire open to work freelance consulting contract opportunity',
+    title: 'Availability',
+    a: [`${current.role} at ${current.company}. Open to interesting platform / DevOps work — the fastest way to reach me is below.`, '\n'],
+  },
+  {
+    id: 'contact',
+    q: 'contact email reach get in touch connect linkedin github message hire',
+    title: 'Contact',
+    a: ([] as Part[]).concat(
+      profile.email ? ['Email: ', { t: profile.email, h: `mailto:${profile.email}` }, '\n'] : [],
+      ['LinkedIn: ', { t: linkedin.replace(/^https?:\/\/(www\.)?/, ''), h: linkedin }],
+      github ? ['\nGitHub: ', { t: github.replace(/^https?:\/\//, ''), h: github }] : []
+    ),
+  },
+];
+
+// Suggested questions shown as quick-reply chips.
+const suggestions = ['Skills', 'Current role', 'What is MCP?', 'Image scanning', 'Contact'];
+---
+
+<div id="bot-root" class="no-print">
+  <button type="button" id="bot-fab" class="bot-fab" aria-label="Ask the bot" aria-expanded="false" aria-controls="bot-panel" title="Ask me anything">
+    <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+      <line x1="12" y1="2" x2="12" y2="5" stroke="currentColor" stroke-width="1.6" />
+      <circle cx="12" cy="2" r="1.4" fill="currentColor" />
+      <rect x="4" y="5" width="16" height="12" rx="3.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+      <circle cx="9" cy="11" r="1.5" fill="currentColor" />
+      <circle cx="15" cy="11" r="1.5" fill="currentColor" />
+      <path d="M9 14c1 1 5 1 6 0" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+    </svg>
+    <span class="bot-fab-dot" aria-hidden="true"></span>
+  </button>
+
+  <section id="bot-panel" class="bot-panel" role="dialog" aria-label="Ask the bot" aria-modal="false" hidden>
+    <header class="bot-head">
+      <span class="bot-ava" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18">
+          <line x1="12" y1="2" x2="12" y2="5" stroke="currentColor" stroke-width="1.6" />
+          <circle cx="12" cy="2" r="1.4" fill="currentColor" />
+          <rect x="4" y="5" width="16" height="12" rx="3.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+          <circle cx="9" cy="11" r="1.5" fill="currentColor" />
+          <circle cx="15" cy="11" r="1.5" fill="currentColor" />
+          <path d="M9 14c1 1 5 1 6 0" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+      </span>
+      <span class="bot-meta">
+        <strong>pakeeru-bot</strong>
+        <span class="bot-online"><i></i>online · ask about my work</span>
+      </span>
+      <button type="button" id="bot-close" class="bot-close" aria-label="Close">×</button>
+    </header>
+
+    <div id="bot-log" class="bot-log" role="log" aria-live="polite"></div>
+
+    <div id="bot-chips" class="bot-chips">
+      {suggestions.map((s) => <button type="button" data-ask={s}>{s}</button>)}
+    </div>
+
+    <form id="bot-form" autocomplete="off">
+      <input id="bot-input" type="text" aria-label="Ask a question" placeholder="Ask about skills, MCP, experience…" spellcheck="false" autocomplete="off" />
+      <button type="submit" aria-label="Send">→</button>
+    </form>
+  </section>
+
+  <script id="bot-data" type="application/json" is:inline set:html={JSON.stringify(kb).replace(/</g, '\\u003c')} />
+</div>
+
+<script>
+  type Part = string | { t: string; h: string };
+  interface Entry { id: string; q: string; title: string; a: Part[] }
+
+  function initBot() {
+    const root = document.getElementById('bot-root');
+    const fab = document.getElementById('bot-fab');
+    const panel = document.getElementById('bot-panel');
+    const log = document.getElementById('bot-log');
+    const form = document.getElementById('bot-form') as HTMLFormElement | null;
+    const input = document.getElementById('bot-input') as HTMLInputElement | null;
+    const close = document.getElementById('bot-close');
+    const raw = document.getElementById('bot-data')?.textContent;
+    if (!root || !fab || !panel || !log || !form || !input || !close || !raw) return;
+
+    const kb: Entry[] = JSON.parse(raw);
+
+    // --- tiny retrieval engine (TF-IDF over the knowledge base) ---
+    const STOP = new Set('a an and are as at be by do for from how i in is it my me of on or that the to we what when where which who with you your about can does'.split(' '));
+    const SYN: Record<string, string[]> = {
+      k8s: ['kubernetes'], kube: ['kubernetes'], eks: ['kubernetes', 'aws'], aks: ['kubernetes', 'azure'],
+      iac: ['infrastructure', 'code', 'terraform'], cicd: ['pipeline', 'ci', 'cd'], pipeline: ['cicd'],
+      monitoring: ['observability'], metrics: ['observability'], logs: ['observability'], alerting: ['observability'],
+      vuln: ['vulnerabilities', 'security'], vulnerabilities: ['security', 'scanning'], scan: ['scanning', 'security'],
+      mcp: ['model', 'context', 'protocol'], oidc: ['openid', 'keyless', 'credentials'],
+      finops: ['cost'], spend: ['cost'], gitops: ['argocd', 'flux'], cloud: ['aws', 'azure', 'gcp'],
+      job: ['role', 'work'], hiring: ['hire', 'available'], cv: ['resume'], contact: ['email', 'reach'],
+      ai: ['llm'], llm: ['ai'], tech: ['skills', 'stack'],
+    };
+    const tok = (s: string): string[] => {
+      const out: string[] = [];
+      for (let w of s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').split(' ')) {
+        if (w.length > 3 && w.endsWith('s')) w = w.slice(0, -1); // light stemming
+        if (w.length < 2 || STOP.has(w)) continue;
+        out.push(w);
+        if (SYN[w]) out.push(...SYN[w]);
+      }
+      return out;
+    };
+    const partText = (a: Part[]) => a.map((p) => (typeof p === 'string' ? p : p.t)).join(' ');
+
+    const N = kb.length;
+    const df: Record<string, number> = {};
+    const docs = kb.map((e) => {
+      const tf: Record<string, number> = {};
+      const add = (s: string, w: number) => { for (const t of tok(s)) tf[t] = (tf[t] || 0) + w; };
+      add(e.q, 3); add(e.title, 2); add(partText(e.a), 1);
+      for (const t of Object.keys(tf)) df[t] = (df[t] || 0) + 1;
+      let norm = 0; for (const t in tf) norm += tf[t] * tf[t];
+      return { tf, norm: Math.sqrt(norm) || 1 };
+    });
+    const idf = (t: string) => Math.log(1 + N / (1 + (df[t] || 0)));
+
+    function search(query: string): Entry | null {
+      const qt = tok(query);
+      if (!qt.length) return null;
+      let best = -1, bestScore = 0;
+      docs.forEach((doc, i) => {
+        let s = 0;
+        for (const t of qt) if (doc.tf[t]) s += doc.tf[t] * idf(t);
+        s /= doc.norm;
+        if (s > bestScore) { bestScore = s; best = i; }
+      });
+      return bestScore > 0.08 && best >= 0 ? kb[best] : null;
+    }
+
+    // --- rendering ---
+    const scroll = () => { log!.scrollTop = log!.scrollHeight; };
+    function bubble(who: 'bot' | 'you', parts: Part[]) {
+      const row = document.createElement('div');
+      row.className = `bot-row ${who}`;
+      const b = document.createElement('div');
+      b.className = 'bot-bubble';
+      for (const p of parts) {
+        if (typeof p === 'string') b.appendChild(document.createTextNode(p));
+        else {
+          const a = document.createElement('a');
+          a.textContent = p.t; a.href = p.h;
+          if (p.h.startsWith('http')) { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
+          b.appendChild(a);
+        }
+      }
+      row.appendChild(b);
+      log!.appendChild(row);
+      scroll();
+    }
+
+    function typing(): () => void {
+      const row = document.createElement('div');
+      row.className = 'bot-row bot';
+      row.innerHTML = '<div class="bot-bubble typing"><i></i><i></i><i></i></div>';
+      log!.appendChild(row); scroll();
+      return () => row.remove();
+    }
+
+    let greeted = false;
+    function answer(query: string) {
+      bubble('you', [query]);
+      const stop = typing();
+      const hit = search(query);
+      const delay = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 320;
+      setTimeout(() => {
+        stop();
+        if (hit) bubble('bot', hit.a);
+        else bubble('bot', ["I'm not sure about that one yet. Try asking about skills, experience, MCP, OIDC, GitOps, image scanning, Scalr, or contact."]);
+      }, delay);
+    }
+
+    function openPanel() {
+      panel!.hidden = false;
+      fab!.setAttribute('aria-expanded', 'true');
+      root!.classList.add('open');
+      if (!greeted) {
+        greeted = true;
+        bubble('bot', ["Hi! I'm Pakeeru's assistant. Ask me about his skills, experience, the protocols he works with (MCP, OIDC, GitOps…), or how to get in touch."]);
+      }
+      setTimeout(() => input!.focus(), 50);
+    }
+    function closePanel() {
+      panel!.hidden = true;
+      fab!.setAttribute('aria-expanded', 'false');
+      root!.classList.remove('open');
+    }
+    const toggle = () => (panel!.hidden ? openPanel() : closePanel());
+
+    fab.addEventListener('click', toggle);
+    close.addEventListener('click', closePanel);
+    document.addEventListener('bot:open', openPanel);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !panel!.hidden) closePanel(); });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const v = input!.value.trim();
+      if (!v) return;
+      input!.value = '';
+      answer(v);
+    });
+    root.querySelectorAll<HTMLButtonElement>('#bot-chips [data-ask]').forEach((b) =>
+      b.addEventListener('click', () => { if (panel!.hidden) openPanel(); answer(b.dataset.ask || ''); })
+    );
+  }
+
+  initBot();
+</script>
+
+<style>
+  #bot-root { position: fixed; right: 1.1rem; bottom: 1.1rem; z-index: 60; }
+
+  /* The panel defaults to display:flex, which would override the [hidden] attribute — so hide it explicitly. */
+  .bot-panel[hidden] { display: none; }
+
+  .bot-fab {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 3.4rem;
+    height: 3.4rem;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    color: var(--bg);
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: var(--shadow), 0 0 0 4px var(--glow);
+    transition: transform 0.15s ease;
+  }
+  .bot-fab:hover, .bot-fab:focus-visible { transform: translateY(-2px); }
+  #bot-root.open .bot-fab { transform: scale(0.92); }
+
+  .bot-fab-dot {
+    position: absolute; top: 6px; right: 6px;
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #36f2a0; border: 2px solid var(--bg);
+  }
+
+  .bot-panel {
+    position: absolute;
+    right: 0;
+    bottom: 4.1rem;
+    width: min(23rem, calc(100vw - 2rem));
+    height: min(30rem, calc(100vh - 7rem));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow), 0 0 0 1px var(--glow);
+    animation: bot-in 0.16s ease;
+  }
+  @keyframes bot-in { from { opacity: 0; transform: translateY(8px); } }
+  @media (prefers-reduced-motion: reduce) { .bot-panel { animation: none; } }
+
+  .bot-head {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.7rem 0.85rem;
+    border-bottom: 1px solid var(--border);
+    background: color-mix(in srgb, var(--accent) 7%, var(--bg-elevated));
+  }
+  .bot-ava {
+    flex: none; display: grid; place-items: center;
+    width: 2rem; height: 2rem; border-radius: 50%;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    border: 1px solid var(--accent-dim);
+  }
+  .bot-meta { display: flex; flex-direction: column; line-height: 1.2; flex: 1; min-width: 0; }
+  .bot-meta strong { font-family: var(--font-mono); font-size: 0.85rem; }
+  .bot-online { display: inline-flex; align-items: center; gap: 0.45ch; font-size: 0.7rem; color: var(--fg-dim); }
+  .bot-online i { width: 6px; height: 6px; border-radius: 50%; background: #36f2a0; box-shadow: 0 0 6px #36f2a0; }
+  .bot-close {
+    flex: none; border: none; background: none; cursor: pointer;
+    color: var(--fg-dim); font-size: 1.3rem; line-height: 1; padding: 0.1rem 0.3rem; border-radius: 6px;
+  }
+  .bot-close:hover { color: var(--fg); background: var(--bg); }
+
+  .bot-log { flex: 1; overflow-y: auto; padding: 0.85rem; display: flex; flex-direction: column; gap: 0.7rem; }
+
+  /* Messages are created in JS, so these must be :global to escape Astro's scoping. */
+  .bot-log :global(.bot-row) { display: flex; align-items: flex-end; gap: 0.4rem; max-width: 100%; }
+  .bot-log :global(.bot-row.you) { justify-content: flex-end; }
+  .bot-log :global(.bot-row.bot) { justify-content: flex-start; }
+
+  /* Small bot avatar beside each bot message, for a clear "from" side. */
+  .bot-log :global(.bot-row.bot)::before {
+    content: "";
+    flex: none;
+    align-self: flex-end;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background:
+      no-repeat center/60% url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%2336f2a0" stroke-width="1.6"><line x1="12" y1="2" x2="12" y2="5"/><circle cx="12" cy="2" r="1.4" fill="%2336f2a0"/><rect x="4" y="5" width="16" height="12" rx="3.5"/><circle cx="9" cy="11" r="1.5" fill="%2336f2a0"/><circle cx="15" cy="11" r="1.5" fill="%2336f2a0"/><path d="M9 14c1 1 5 1 6 0" stroke-linecap="round"/></svg>'),
+      color-mix(in srgb, var(--accent) 14%, var(--bg));
+    border: 1px solid var(--accent-dim);
+  }
+
+  .bot-log :global(.bot-bubble) {
+    max-width: 78%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 16px;
+    font-size: 0.86rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .bot-log :global(.bot-row.bot .bot-bubble) {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    border-bottom-left-radius: 5px;
+  }
+  .bot-log :global(.bot-row.you .bot-bubble) {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: var(--bg);
+    border-bottom-right-radius: 5px;
+  }
+  .bot-log :global(.bot-bubble a) { color: var(--link); font-weight: 500; }
+  .bot-log :global(.bot-row.you .bot-bubble a) { color: var(--bg); text-decoration: underline; }
+
+  .bot-log :global(.bot-bubble.typing) { display: inline-flex; gap: 4px; }
+  .bot-log :global(.bot-bubble.typing i) { width: 6px; height: 6px; border-radius: 50%; background: var(--fg-dim); animation: bot-blink 1.2s infinite both; }
+  .bot-log :global(.bot-bubble.typing i:nth-child(2)) { animation-delay: 0.2s; }
+  .bot-log :global(.bot-bubble.typing i:nth-child(3)) { animation-delay: 0.4s; }
+  @keyframes bot-blink { 0%, 80%, 100% { opacity: 0.3; } 40% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .bot-log :global(.bot-bubble.typing i) { animation: none; } }
+
+  .bot-chips {
+    display: flex; flex-wrap: wrap; gap: 0.35rem;
+    padding: 0.5rem 0.6rem 0;
+  }
+  .bot-chips button {
+    padding: 0.25em 0.7em;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--fg-dim);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .bot-chips button:hover, .bot-chips button:focus-visible { color: var(--accent); border-color: var(--accent-dim); }
+
+  #bot-form { display: flex; gap: 0.4rem; padding: 0.6rem; border-top: 1px solid var(--border); }
+  #bot-form input {
+    flex: 1; min-width: 0;
+    padding: 0.5em 0.7em;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.85rem;
+  }
+  #bot-form input:focus-visible { outline: none; border-color: var(--accent); }
+  #bot-form button[type="submit"] {
+    flex: none; width: 2.3rem; border-radius: 50%;
+    border: none; cursor: pointer;
+    color: var(--bg);
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    font-size: 1rem;
+  }
+
+  @media (max-width: 560px) {
+    #bot-root { right: 0.8rem; bottom: 0.8rem; }
+    .bot-panel { width: calc(100vw - 1.6rem); }
+  }
+</style>

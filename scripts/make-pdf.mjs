@@ -15,7 +15,6 @@ const OUT_DIR = process.argv[2] ?? 'public';
 // path on the built site -> PDF file name
 const TARGETS = [
   { path: '/resume/', file: 'pakeeru-basha-mekala-resume.pdf' },
-  { path: '/resume-ats/', file: 'pakeeru-basha-mekala-resume-ats.pdf' },
 ];
 
 const candidates = [

@@ -16,7 +16,7 @@ There is no test suite and no linter. `astro check` (part of `npm run build`) ty
 
 Static Astro site (`output: 'static'`) deployed to GitHub Pages from `main` by `.github/workflows/deploy.yml`. `astro.config.mjs` sets `site: 'https://pakeerubasha-mekala.github.io'`; keep it in sync with the real URL, since canonical, sitemap and RSS links derive from it.
 
-Client-side JavaScript is used for the interactive extras only: the boot sequence (`BootScreen.astro`), terminal (`Terminal.astro`), command palette (`CommandPalette.astro`), light/dark and recruiter-mode toggles (`Header.astro`; state in `localStorage` keys `scheme`, `accent`, `mode`), blog code-copy buttons, the live `/status` page and the `/how-its-built` diagram. Content pages must stay readable without it. Decorative elements carry the `fx` class and are hidden by `html[data-mode="clean"]`.
+Client-side JavaScript is used for the interactive extras only: the boot sequence (`BootScreen.astro`), the floating "ask the bot" assistant (`ChatBot.astro`: retrieval-only RAG over a knowledge base built from the data files plus curated topic entries — no LLM, no API keys, no network), command palette (`CommandPalette.astro`), light/dark and recruiter-mode toggles (`Header.astro`; state in `localStorage` keys `scheme`, `accent`, `mode`), blog code-copy buttons, the live `/status` page and the `/how-its-built` diagram. Content pages must stay readable without it. Decorative elements carry the `fx` class and are hidden by `html[data-mode="clean"]`.
 
 ## Content
 
@@ -31,7 +31,7 @@ Client-side JavaScript is used for the interactive extras only: the boot sequenc
 
 ## Resume, PDFs and previews
 
-`/resume` (designed, one page, Inter font bundled in `public/fonts/`) and `/resume-ats` (plain Arial, one page) both print `resumeBullets` from `experience.json` (fallback `bullets`). `scripts/make-pdf.mjs <dir>` and `scripts/make-og.mjs <dir>` render PDFs and PNG link previews with headless Chromium through `scripts/static-server.mjs` (a built-in static server, so nothing is left running); the deploy workflow runs both into `dist/`. Keep the PDFs at one page each after content changes: `make-pdf.mjs` fails the deploy otherwise.
+`/resume` (designed, one page, Inter + Source Serif 4 fonts bundled in `public/fonts/`) prints `resumeBullets` from `experience.json` (fallback `bullets`). `scripts/make-pdf.mjs <dir>` and `scripts/make-og.mjs <dir>` render the PDF and PNG link previews with headless Chromium through `scripts/static-server.mjs` (a built-in static server, so nothing is left running); the deploy workflow runs both into `dist/`. Keep the PDF at one page after content changes: `make-pdf.mjs` fails the deploy otherwise.
 
 ## Quality
 

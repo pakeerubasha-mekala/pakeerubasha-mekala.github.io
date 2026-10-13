@@ -20,7 +20,7 @@ const items: Item[] = [
   { group: 'Go to', label: 'What I do', href: '/#what-i-do' },
   { group: 'Go to', label: 'Experience', href: '/#experience' },
   { group: 'Go to', label: 'Skills', href: '/#skills' },
-  { group: 'Go to', label: 'Terminal', href: '/#terminal' },
+  { group: 'Go to', label: 'Ask the bot', href: '#bot', keywords: 'chat assistant ai question help' },
   { group: 'Go to', label: 'Education', href: '/#education' },
   { group: 'Go to', label: 'Contact', href: '/#contact' },
   { group: 'Pages', label: 'Work (case studies)', href: '/work' },
@@ -109,6 +109,7 @@ const items: Item[] = [
 
     function go(item: PaletteItem) {
       dialog!.close();
+      if (item.href === '#bot') { document.dispatchEvent(new CustomEvent('bot:open')); return; }
       if (item.href.startsWith('http')) window.open(item.href, '_blank', 'noopener');
       else location.href = item.href;
     }

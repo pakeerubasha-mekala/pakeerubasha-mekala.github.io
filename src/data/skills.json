@@ -2,9 +2,9 @@
   {
     "label": "Cloud",
     "items": [
-      "AWS (EKS, ECS)",
-      "GCP",
-      "Azure (AKS)"
+      "AWS",
+      "Azure",
+      "GCP"
     ]
   },
   {
@@ -13,7 +13,8 @@
       "Terraform",
       "CloudFormation",
       "Crossplane",
-      "Ansible"
+      "Ansible",
+      "Scalr"
     ]
   },
   {
@@ -22,7 +23,8 @@
       "Docker",
       "Kubernetes",
       "Helm",
-      "ArgoCD (GitOps)"
+      "ArgoCD",
+      "Flux"
     ]
   },
   {
@@ -30,17 +32,27 @@
     "items": [
       "Jenkins (Groovy DSL)",
       "GitHub Actions",
+      "GitLab CI",
       "Octopus Deploy",
       "Blue/Green & Canary",
-      "SonarQube",
       "Nexus"
     ]
   },
   {
-    "label": "Observability",
+    "label": "Security & Scanning",
+    "items": [
+      "Trivy",
+      "Snyk",
+      "Orca",
+      "SonarQube"
+    ]
+  },
+  {
+    "label": "Monitoring & Observability",
     "items": [
       "Prometheus",
       "Grafana",
+      "Datadog",
       "CloudWatch",
       "ELK",
       "PagerDuty"

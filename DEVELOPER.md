@@ -65,19 +65,18 @@ Reading time is calculated automatically. Posts also show a reading-progress bar
 
 ## Resume
 
-Two versions, both built from the same data files (`src/data/*.json`):
+Built from the same data files (`src/data/*.json`):
 
-- **Designed resume** (`/resume`): one page, dark terminal-style sidebar, Inter font, QR code to the site.
-- **ATS-friendly resume** (`/resume-ats`): one page, plain single column in Arial with standard headings, for applicant tracking systems. Not indexed by search engines.
+- **Designed resume** (`/resume`): one page, dark terminal-style sidebar, Inter body with Source Serif 4 headings, QR code to the site.
 
-Both use the short `resumeBullets` of each role in `experience.json` (falling back to the full `bullets`), so the website keeps the detail and the resumes stay on one page. Edit them in the CMS under Experience, or in the JSON.
+It uses the short `resumeBullets` of each role in `experience.json` (falling back to the full `bullets`), so the website keeps the detail and the resume stays on one page. Edit them in the CMS under Experience, or in the JSON.
 
-- **On deploy:** GitHub Actions rebuilds both PDFs from the current data (`node scripts/make-pdf.mjs dist`). You don't need to do anything.
-- **Locally:** `npm run pdf` rebuilds the site and writes `public/pakeeru-basha-mekala-resume.pdf` and `public/pakeeru-basha-mekala-resume-ats.pdf` (what the dev server serves for the Download buttons). It uses a locally installed Chromium-based browser (Chrome, Brave, Edge or Chromium; set `CHROME_PATH` to choose one). If a PDF spills onto a second page after you add content, shorten the `resumeBullets`.
+- **On deploy:** GitHub Actions rebuilds the PDF from the current data (`node scripts/make-pdf.mjs dist`). You don't need to do anything.
+- **Locally:** `npm run pdf` rebuilds the site and writes `public/pakeeru-basha-mekala-resume.pdf` (what the dev server serves for the Download button). It uses a locally installed Chromium-based browser (Chrome, Brave, Edge or Chromium; set `CHROME_PATH` to choose one). If the PDF spills onto a second page after you add content, shorten the `resumeBullets`.
 
 ## Profile photo
 
-The photo is `public/profile.jpg` (400x400, a head-and-shoulders crop) and the path is set by `photo` in `src/data/profile.json`. It shows in the hero, both resumes and the link-preview cards. To change it, add a new square image with a new file name (so browsers do not keep serving the old one) and update `photo`. A higher-resolution, plainly lit headshot will always look sharper than enlarging a small photo.
+The photo is `public/profile-v2.jpg` (400x400, a head-and-shoulders crop) and the path is set by `photo` in `src/data/profile.json`. It shows in the hero, the resume and the link-preview cards. To change it, add a new square image with a new file name (so browsers do not keep serving the old one) and update `photo`. A higher-resolution, plainly lit headshot will always look sharper than enlarging a small photo.
 
 ## Fonts and icons
 

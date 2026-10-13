@@ -66,6 +66,7 @@
 :root {
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
 
   /* Colours use light-dark(): the first value is for light mode, the second for dark mode.
      Light/dark follows the system unless html[data-scheme] is set (header toggle, terminal `theme`). */
@@ -191,9 +192,15 @@ main {
 }
 
 h1, h2, h3, h4 {
-  font-family: var(--font-mono);
+  font-family: var(--font-display);
+  font-weight: 600;
   line-height: 1.25;
   color: var(--fg);
+}
+
+/* Keep the terminal "$" section marker in mono so the command-line identity stays. */
+h2::before {
+  font-family: var(--font-mono);
 }
 
 h1 {
@@ -386,7 +393,7 @@ html.booting {
 /* Print / PDF: plain black-on-white, no site chrome */
 @page {
   size: A4;
-  margin: 14mm;
+  margin: 11mm;
 }
 
 @media print {
@@ -434,5 +441,20 @@ html.booting {
 
   html body::before {
     display: none !important;
+  }
+}
+
+/* Native cross-document view transitions: a smooth cross-fade between pages on
+   supporting browsers (no client-side router, so all page scripts keep working).
+   Unsupported browsers simply navigate as normal. */
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

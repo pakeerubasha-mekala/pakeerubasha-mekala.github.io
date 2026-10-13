@@ -2,7 +2,6 @@
 import Base from '../layouts/Base.astro';
 import BootScreen from '../components/BootScreen.astro';
 import Pipeline from '../components/Pipeline.astro';
-import Terminal from '../components/Terminal.astro';
 import Subscribe from '../components/Subscribe.astro';
 import SideNav from '../components/SideNav.astro';
 import AtAGlance from '../components/AtAGlance.astro';
@@ -71,7 +70,7 @@ const stats = [
     <div class="hero-text">
       <p class="whoami" aria-hidden="true">$ whoami</p>
       <p class="eyebrow"><span class="dot"></span>DevOps · Multi-cloud · Kubernetes</p>
-      <h1 class="glitch" data-text={profile.name}>{profile.name}</h1>
+      <h1>{profile.name}</h1>
       <p class="headline">{profile.headline}</p>
       <p class="meta">{profile.location}</p>
     </div>
@@ -112,8 +111,6 @@ const stats = [
   </section>
 
   <Pipeline />
-
-  <Terminal />
 
   <section id="experience">
     <h2>experience</h2>
@@ -333,47 +330,6 @@ const stats = [
     display: none;
   }
 
-  :global(html:not([data-mode="clean"])) .hero-text h1.glitch {
-    position: relative;
-  }
-
-  :global(html:not([data-mode="clean"])) h1.glitch::before,
-  :global(html:not([data-mode="clean"])) h1.glitch::after {
-    content: attr(data-text);
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    background: none;
-    pointer-events: none;
-  }
-
-  :global(html:not([data-mode="clean"])) h1.glitch::before {
-    -webkit-text-fill-color: #5ab0ff;
-  }
-
-  :global(html:not([data-mode="clean"])) h1.glitch::after {
-    -webkit-text-fill-color: #ff4d8d;
-  }
-
-  :global(html:not([data-mode="clean"])) h1.glitch:hover::before {
-    opacity: 0.8;
-    animation: glitch-a 0.45s steps(2) infinite;
-  }
-
-  :global(html:not([data-mode="clean"])) h1.glitch:hover::after {
-    opacity: 0.8;
-    animation: glitch-b 0.45s steps(2) infinite;
-  }
-
-  @keyframes glitch-a {
-    0% { transform: translate(-3px, 0); clip-path: inset(0 0 60% 0); }
-    100% { transform: translate(2px, 1px); clip-path: inset(40% 0 20% 0); }
-  }
-
-  @keyframes glitch-b {
-    0% { transform: translate(3px, 0); clip-path: inset(55% 0 0 0); }
-    100% { transform: translate(-2px, -1px); clip-path: inset(10% 0 55% 0); }
-  }
 
   .hero {
     display: flex;

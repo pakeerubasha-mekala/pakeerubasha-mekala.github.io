@@ -5,18 +5,30 @@
     "period": "Mar 2025 - Present",
     "location": "Bengaluru, Karnataka, India · Hybrid",
     "bullets": [
-      "Platform and infrastructure work for an HR SaaS platform, across AWS and GCP."
+      "Lead end-to-end delivery for multiple product teams, owning containerised application deployments across AWS, GCP and Azure on Kubernetes with Helm and GitOps.",
+      "Embedded AI into day-to-day DevOps: using LLM-assisted tooling to triage and remediate CI/CD pipeline failures and to identify and fix vulnerabilities in container images, shortening feedback loops and reducing manual effort.",
+      "Enabled Model Context Protocol (MCP) workflows so teams run everyday operations in natural language — tailing application logs, checking deployment and service health, and triaging incidents without switching tools.",
+      "Led the migration from Terraform Cloud to Scalr, re-platforming remote state, workspaces and policy-as-code with minimal disruption and improved governance and cost visibility."
+    ],
+    "resumeBullets": [
+      "Lead end-to-end, multi-cloud delivery across AWS, GCP and Azure for multiple teams, deploying containerised apps on Kubernetes with Helm and GitOps.",
+      "Introduced AI-assisted DevOps to fix pipeline failures and container-image vulnerabilities, and enabled MCP workflows for day-to-day ops in natural language (logs, deployment and service health).",
+      "Led the Terraform Cloud to Scalr migration: remote state, workspaces and policy-as-code with improved governance and cost visibility."
     ],
     "tech": [
       "AWS",
       "GCP",
+      "Azure",
       "Terraform",
+      "Scalr",
       "Kubernetes",
       "Helm",
       "ArgoCD",
       "Docker",
       "GitHub Actions",
-      "Octopus Deploy"
+      "Octopus Deploy",
+      "Trivy",
+      "MCP"
     ]
   },
   {
@@ -63,9 +75,8 @@
         ],
         "resumeBullets": [
           "Led the migration of legacy infrastructure to the cloud and built a self-service portal for provisioning and de-provisioning resources.",
-          "Ran highly available EKS clusters with Helm releases and ArgoCD GitOps deployments.",
-          "Provisioned infrastructure with CloudFormation, Terraform and Crossplane; managed configuration with Ansible, including custom modules and plugins.",
-          "Built Groovy DSL CI/CD pipelines with blue/green and canary deployments and early quality checks; managed Jenkins, Nexus, SonarQube, Contrast, Keycloak and the Elastic Stack.",
+          "Ran highly available EKS clusters (Helm releases, ArgoCD GitOps) and provisioned infrastructure with CloudFormation, Terraform, Crossplane and Ansible, including custom modules.",
+          "Built Groovy DSL CI/CD pipelines with blue/green and canary deployments and early quality checks; managed Jenkins, Nexus, SonarQube and the Elastic Stack.",
           "Instrumented 150+ microservices (CloudWatch, Grafana, Prometheus, PagerDuty) and built cloud cost optimisation metrics."
         ]
       },
@@ -98,10 +109,9 @@
           "Azure Kubernetes Service"
         ],
         "resumeBullets": [
-          "Led CI/CD with Jenkins and shell scripting; set up artifact repositories and quality testing tools.",
+          "Led CI/CD with Jenkins and shell scripting; containerised apps with Docker and integrated SAST, DAST and open-source scanning with artifact repositories and quality gates.",
           "Implemented zero-downtime deployments on AWS ECS and Azure Kubernetes Service, and ran Kubernetes on on-prem VMs, including cluster upgrades.",
-          "Containerised applications with Docker and integrated SAST, DAST and open-source scanning into CI/CD.",
-          "Part of the 24/7 on-call team: incident management, root cause analysis and permanent fixes; supported global development teams and prepared knowledge-transition documents."
+          "Part of the 24/7 on-call team: incident management, root cause analysis and permanent fixes; supported global development teams."
         ]
       }
     ]

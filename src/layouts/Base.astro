@@ -3,6 +3,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CommandPalette from '../components/CommandPalette.astro';
 import Backdrop from '../components/art/Backdrop.astro';
+import ChatBot from '../components/ChatBot.astro';
 import analytics from '../data/analytics.json';
 import '../styles/global.css';
 
@@ -61,6 +62,7 @@ const pageTitle = title === siteTitle ? title : `${title} · ${siteTitle}`;
     {noindex && <meta name="robots" content="noindex, follow" />}
     <link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/jetbrains-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/source-serif-4-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
@@ -99,6 +101,15 @@ const pageTitle = title === siteTitle ? title : `${title} · ${siteTitle}`;
       <div class="rail rail-right no-print"><slot name="right" /></div>
     )}
     <Footer />
+    <ChatBot />
     <CommandPalette />
+    <script is:inline>
+      // Register the service worker (offline + installable). Safe no-op where unsupported.
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>

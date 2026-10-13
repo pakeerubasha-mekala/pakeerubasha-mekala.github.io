@@ -8,9 +8,7 @@ import { education } from '../data/education';
 
 // One-page resume. Experience uses the short `resumeBullets` when a role has them (falls back to the
 // full highlights), so the website keeps the detail and the resume stays on one page.
-// The plain, ATS-friendly version lives at /resume-ats.
 const pdfPath = '/pakeeru-basha-mekala-resume.pdf';
-const atsPdfPath = '/pakeeru-basha-mekala-resume-ats.pdf';
 
 const siteUrl = Astro.site?.href ?? 'https://pakeerubasha-mekala.github.io/';
 const qr = await QRCode.toString(siteUrl, { type: 'svg', margin: 0, color: { dark: '#0d6b4a', light: '#0000' } });
@@ -30,7 +28,6 @@ const pick = (resume?: string[], full: string[] = []) => (resume && resume.lengt
 <Base title="Resume" description={`Resume of ${profile.name}: ${profile.headline}`}>
   <div class="actions no-print">
     <a class="btn primary" href={pdfPath} download>Download PDF</a>
-    <a class="btn" href={atsPdfPath} download title="Plain single-column layout for applicant tracking systems">Download ATS-friendly PDF</a>
     <a class="btn" href="/">← back to site</a>
   </div>
 
@@ -512,9 +509,9 @@ const pick = (resume?: string[], full: string[] = []) => (resume && resume.lengt
       border-radius: 0;
       box-shadow: none;
       grid-template-columns: 65mm 1fr;
-      min-height: 266mm;
+      min-height: 273mm;
       font-size: 8.7pt;
-      line-height: 1.36;
+      line-height: 1.35;
     }
     .side {
       padding: 7mm 5mm 5mm;
@@ -529,19 +526,22 @@ const pick = (resume?: string[], full: string[] = []) => (resume && resume.lengt
       margin-bottom: 0.1rem;
     }
     .main {
-      padding: 7mm 7mm 4mm 7mm;
+      padding: 6mm 7mm 3mm 7mm;
     }
     .foot {
+      /* Flow right after the content instead of being pushed to the sheet's bottom
+         edge, which can tip the footer onto a second page. */
+      margin-top: 0.9rem;
       padding-top: 0.4rem;
     }
     .job {
-      margin-bottom: 0.55rem;
+      margin-bottom: 0.4rem;
     }
     .proj {
-      margin-top: 0.4rem;
+      margin-top: 0.3rem;
     }
     .main section + section {
-      margin-top: 0.75rem;
+      margin-top: 0.6rem;
     }
     .photo {
       width: 23mm;
@@ -552,8 +552,8 @@ const pick = (resume?: string[], full: string[] = []) => (resume && resume.lengt
       font-size: 13.5pt;
     }
     .qr-code {
-      width: 15mm;
-      height: 15mm;
+      width: 12mm;
+      height: 12mm;
     }
     .job-head {
       flex-direction: row;
