@@ -25,7 +25,7 @@ collections:
     extension: md
     format: yaml-frontmatter
     identifier_field: title
-    summary: '{{title}}  ·  {{pubDate}}{{#if draft}}  · draft{{/if}}'
+    summary: '{{title}}  ·  {{pubDate}}'
     sortable_fields: [pubDate, title]
     fields:
       - { label: Title, name: title, widget: string }
