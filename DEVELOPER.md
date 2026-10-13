@@ -113,8 +113,8 @@ To run Lighthouse yourself: `npm run build`, serve `dist/`, then `CHROME_PATH="/
 
 ## Deploy
 
-Pushing to `main` builds and deploys the site to GitHub Pages through `.github/workflows/deploy.yml`.
+Pushing to `main` builds the site once through `.github/workflows/deploy.yml` and deploys it to **GitHub Pages**. The same build is also published to **Cloudflare Pages** when the Cloudflare secrets are configured (the step is skipped automatically until then).
 
 Live site: https://pakeerubasha-mekala.github.io
 
-Planning to move to Cloudflare later? See [CLOUDFLARE_MIGRATION.md](./CLOUDFLARE_MIGRATION.md).
+To turn on the Cloudflare mirror (free `*.pages.dev`, global CDN) or make it primary, see [CLOUDFLARE_MIGRATION.md](./CLOUDFLARE_MIGRATION.md).

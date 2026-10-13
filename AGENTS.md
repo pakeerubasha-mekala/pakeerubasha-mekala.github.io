@@ -14,7 +14,7 @@ There is no test suite and no linter. `astro check` (part of `npm run build`) ty
 
 ## Deployment
 
-Static Astro site (`output: 'static'`) deployed to GitHub Pages from `main` by `.github/workflows/deploy.yml`. `astro.config.mjs` sets `site: 'https://pakeerubasha-mekala.github.io'`; keep it in sync with the real URL, since canonical, sitemap and RSS links derive from it.
+Static Astro site (`output: 'static'`) built once from `main` by `.github/workflows/deploy.yml` and deployed to GitHub Pages; the same `dist/` is also published to Cloudflare Pages (`pakeeru.pages.dev`) when the `CLOUDFLARE_API_TOKEN`/`CLOUDFLARE_ACCOUNT_ID` secrets are set (the step is gated and skipped until then — see `CLOUDFLARE_MIGRATION.md`). `astro.config.mjs` sets `site: 'https://pakeerubasha-mekala.github.io'` (the canonical host); keep it in sync with the real URL, since canonical, sitemap and RSS links derive from it.
 
 Client-side JavaScript is used for the interactive extras only: the boot sequence (`BootScreen.astro`), the floating "ask the bot" assistant (`ChatBot.astro`: retrieval-only RAG over a knowledge base built from the data files plus curated topic entries — no LLM, no API keys, no network), command palette (`CommandPalette.astro`), light/dark and recruiter-mode toggles (`Header.astro`; state in `localStorage` keys `scheme`, `accent`, `mode`), blog code-copy buttons, the live `/status` page and the `/how-its-built` diagram. Content pages must stay readable without it. Decorative elements carry the `fx` class and are hidden by `html[data-mode="clean"]`.
 

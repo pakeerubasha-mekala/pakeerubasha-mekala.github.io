@@ -1,89 +1,43 @@
-# Moving to Cloudflare (future)
+# Cloudflare Pages (dual deploy)
 
-The site currently deploys to GitHub Pages at https://pakeerubasha-mekala.github.io through `.github/workflows/deploy.yml`. This guide covers moving it to Cloudflare. **No domain purchase is needed:** Cloudflare gives a free `*.pages.dev` address (Pages) or `*.workers.dev` address (Workers).
+The site deploys to **GitHub Pages** at https://pakeerubasha-mekala.github.io through `.github/workflows/deploy.yml`. That same workflow now **also** publishes the identical build to **Cloudflare Pages** (free `*.pages.dev`, global CDN, per-deploy preview URLs) — one build, two hosts.
 
-GitHub Pages already hosts the site for free, so only migrate if you want Cloudflare's CDN, per-branch preview URLs, or a custom domain later.
+**No domain purchase is needed:** Cloudflare gives a free `*.pages.dev` address. A custom top-level domain (`.com`, `.dev`) is optional and bought separately (Cloudflare Registrar sells at wholesale/at-cost).
 
-## Choose an option
+## How it works
 
-| | A. Pages + Git integration | B. GitHub Actions + Cloudflare |
-|---|---|---|
-| Setup | Easiest, all in the Cloudflare dashboard | Needs an API token stored as a GitHub secret |
-| Resume PDF | **Not auto-built** (Cloudflare's build image has no Chrome) | **Auto-built** (the workflow already generates it) |
-| Previews per branch | Yes | Only if you add them |
+`make-pdf.mjs` and `make-og.mjs` render the resume PDF and social cards with headless **Chrome**, which GitHub's runners have and Cloudflare's build image does **not**. So Cloudflare never builds the site — GitHub Actions builds `dist/` once (with the PDF and OG cards) and uploads it to both GitHub Pages and Cloudflare Pages. The Cloudflare step is **skipped automatically** until you configure the secrets below, so nothing breaks before setup.
 
-Recommendation: **Option A** if you will remember to run `npm run pdf` before pushing, otherwise **Option B**.
+GitHub Pages stays the canonical site (`site` in `astro.config.mjs`), so there is no duplicate-content SEO split; Cloudflare is a fast mirror. To make Cloudflare (or a custom domain) primary later, see "Make Cloudflare primary" below.
 
-## Option A: Cloudflare Pages connected to GitHub
+## One-time setup
 
-1. Go to https://dash.cloudflare.com, then **Workers & Pages → Create → Pages → Connect to Git**.
-2. Pick the `pakeerubasha-mekala.github.io` repository and the `main` branch.
-3. Build settings:
-   - Framework preset: `Astro` (or `None`)
-   - Build command: `npm run build`
-   - Build output directory: `dist`
-4. Add an environment variable (Production and Preview): `NODE_VERSION` = `24`. The site requires Node 24 or newer (`package.json` engines and `.nvmrc`).
-5. Save and deploy. The site is served at `https://<project-name>.pages.dev`.
+1. **Create the Cloudflare Pages project** (once):
+   - Dashboard: https://dash.cloudflare.com → **Workers & Pages → Create → Pages → Direct Upload**, name it (for example `pakeeru`), create it. (Direct Upload — not "Connect to Git" — because GitHub Actions does the building.)
+   - Or CLI: `npx wrangler pages project create pakeeru --production-branch=main` (after `npx wrangler login`).
+2. **Create an API token:** **My Profile → API Tokens → Create Token → Custom token** with permission **Account → Cloudflare Pages → Edit**. Copy it. Also copy your **Account ID** from the dashboard sidebar.
+3. **Add them to GitHub:** repo **Settings → Secrets and variables → Actions → Secrets**:
+   - `CLOUDFLARE_API_TOKEN` = the token
+   - `CLOUDFLARE_ACCOUNT_ID` = your account ID
 
-**Resume PDF with Option A:** the build only copies `public/pakeeru-basha-mekala-resume.pdf`. Before pushing any change to your data files, run:
+   (The Pages project name is hardcoded as `pakeeru` in `deploy.yml`; change it there if you rename the project.)
+4. **Push to `main`** (or run the workflow from the Actions tab). The build now deploys to both. The site is live at `https://pakeeru.pages.dev`.
 
-```sh
-npm run pdf
-git add public/pakeeru-basha-mekala-resume.pdf
-```
+That's it — both hosts update on every push.
 
-## Option B: GitHub Actions deploys to Cloudflare
+## Make Cloudflare (or a custom domain) primary later
 
-1. In Cloudflare, create the Pages project once: **Workers & Pages → Create → Pages → Direct Upload**, name it (for example `pakeeru-portfolio`).
-2. Create an API token: **My Profile → API Tokens → Create Token**, using the "Edit Cloudflare Workers" template or a custom token with **Account → Cloudflare Pages → Edit**. Copy your **Account ID** from the dashboard sidebar.
-3. In the GitHub repo: **Settings → Secrets and variables → Actions**, add:
-   - `CLOUDFLARE_API_TOKEN`
-   - `CLOUDFLARE_ACCOUNT_ID`
-4. In `.github/workflows/deploy.yml`, keep the `build` job as it is, and replace the final `deploy` job (and the `pages`/`id-token` permissions) with:
+If you want Cloudflare/`pages.dev`/a custom domain to be the main address, replace `https://pakeerubasha-mekala.github.io` with the new address in:
 
-```yaml
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: github-pages        # the artifact made by upload-pages-artifact
-          path: artifact
-      - run: mkdir site && tar -xf artifact/artifact.tar -C site
-      - uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy site --project-name=pakeeru-portfolio
-```
-
-   A simpler variant: skip `upload-pages-artifact` and `download-artifact`, and run the `wrangler-action` step in the `build` job directly with `pages deploy dist --project-name=pakeeru-portfolio`, right after the PDF step.
-
-5. Push to `main`. The site is served at `https://pakeeru-portfolio.pages.dev` (use your project name).
-
-## Code changes needed in both options
-
-Replace `https://pakeerubasha-mekala.github.io` with the new address in:
-
-- `astro.config.mjs`: `site`
+- `astro.config.mjs`: `site` (drives canonical links, sitemap, RSS, social previews)
 - `public/robots.txt`: the `Sitemap:` line
 - `src/pages/rss.xml.ts`: the fallback `site`
-- `AGENTS.md`: the Deployment section
-- `README.md` and `DEVELOPER.md`: the live site links
+- `AGENTS.md`, `README.md`, `DEVELOPER.md`: the live-site links
 
-The site address drives canonical links, the sitemap, RSS and social previews, so a wrong value there points search engines and link previews at the old site.
+A custom domain is added in **Pages project → Custom domains → Set up a domain** once you own one.
 
-## Things that behave differently
+## Notes
 
-- **Live status:** the pipeline line, the `site-deploy` row and the `git log` / `status` terminal commands read the GitHub API for `profile.repo` in `src/data/profile.ts`. They keep working, but they report the GitHub workflow runs. With Option A, "last deploy" will no longer reflect Cloudflare deploys.
-- **GitHub Pages:** the old site stays online until you turn it off (repo **Settings → Pages**) or delete `.github/workflows/deploy.yml`. Keeping both is harmless, but the two addresses can drift apart.
-- **Old `wrangler.jsonc`:** this repo no longer has one. It is only needed if you choose Workers Static Assets instead of Pages (`assets.directory: ./dist`, `not_found_handling: 404-page`) and deploy with `npx wrangler deploy`.
-
-## Custom domain later
-
-When you own a domain, add it in Cloudflare: **Pages project → Custom domains → Set up a domain**. Then update the site address in the files above to the new domain.
-
-## Roll back
-
-Re-enable the GitHub Pages workflow (or keep it), and switch the site address back to `https://pakeerubasha-mekala.github.io` in the files listed above.
+- **Live status:** the `/status` page and the bot's deploy answers read the GitHub API for `profile.repo`, so they report the GitHub Actions run (which is what drives both deploys). No change needed.
+- **Turning off a host:** GitHub Pages can be disabled in repo **Settings → Pages**; Cloudflare deploys stop if you remove the secrets/variable. Keeping both is harmless.
+- **Rollback:** remove the three Cloudflare secrets/variable and the Cloudflare step goes dormant again; GitHub Pages is unaffected.
