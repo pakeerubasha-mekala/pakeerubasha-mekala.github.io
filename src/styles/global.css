@@ -107,6 +107,20 @@
   color-scheme: dark;
 }
 
+/* Sepia reading theme (a warm cream "Medium reading mode" alongside light and dark). */
+:root[data-scheme="sepia"] {
+  color-scheme: light;
+  --bg: #f1e7d0;
+  --bg-elevated: #f8f1de;
+  --fg: #3b3122;
+  --fg-dim: #7c6c52;
+  --border: #e4d8bd;
+  --grid: rgba(120, 92, 46, 0.09);
+  --glow: rgba(10, 125, 82, 0.08);
+  --glow-3: rgba(150, 110, 55, 0.09);
+  --shadow-color: rgba(84, 64, 36, 0.14);
+}
+
 /* Accent themes (terminal command `theme amber|cyan|violet|green`) */
 :root[data-accent="amber"] {
   --accent: light-dark(#b45309, #ffb454);

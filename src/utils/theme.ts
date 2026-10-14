@@ -2,19 +2,20 @@
 // restored before first paint by the inline script in Base.astro.
 export const ACCENTS = ['green', 'amber', 'cyan', 'violet'] as const;
 export type Accent = (typeof ACCENTS)[number];
-export type Scheme = 'light' | 'dark' | 'auto';
+export type Scheme = 'light' | 'dark' | 'sepia' | 'auto';
 
 const root = () => document.documentElement;
 
 export function currentScheme(): Scheme {
   const s = root().dataset.scheme;
-  return s === 'light' || s === 'dark' ? s : 'auto';
+  return s === 'light' || s === 'dark' || s === 'sepia' ? s : 'auto';
 }
 
-/** The scheme the page is actually showing right now, resolving "auto" against the system setting. */
+/** The light/dark family the page resolves to (sepia is a light-family reading theme). */
 export function effectiveScheme(): 'light' | 'dark' {
   const s = currentScheme();
-  if (s !== 'auto') return s;
+  if (s === 'light' || s === 'sepia') return 'light';
+  if (s === 'dark') return 'dark';
   return matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 
@@ -26,6 +27,16 @@ export function setScheme(scheme: Scheme) {
 
 export function toggleScheme(): 'light' | 'dark' {
   const next = effectiveScheme() === 'dark' ? 'light' : 'dark';
+  setScheme(next);
+  return next;
+}
+
+/** Header button: cycle light → dark → sepia → light. */
+const CYCLE: Scheme[] = ['light', 'dark', 'sepia'];
+export function cycleScheme(): Scheme {
+  const cur = currentScheme();
+  const start = cur === 'auto' ? effectiveScheme() : cur;
+  const next = CYCLE[(CYCLE.indexOf(start) + 1) % CYCLE.length];
   setScheme(next);
   return next;
 }
