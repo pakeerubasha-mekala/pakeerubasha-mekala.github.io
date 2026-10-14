@@ -1,0 +1,68 @@
+---
+// Faint service-mesh / network topology behind everything. Edge-weighted (masked) so it stays out of
+// the central reading column, visible at all screen sizes. Decorative: carries `fx` (hidden in clean
+// mode and print) and aria-hidden.
+const nodes: { x: number; y: number; r?: number }[] = [
+  { x: 110, y: 150 }, { x: 70, y: 330 }, { x: 190, y: 470 }, { x: 95, y: 650 }, { x: 250, y: 790 },
+  { x: 420, y: 120 }, { x: 680, y: 80 }, { x: 300, y: 260 },
+  { x: 1330, y: 170 }, { x: 1370, y: 360 }, { x: 1250, y: 520 }, { x: 1350, y: 700 }, { x: 1180, y: 790 },
+  { x: 1120, y: 120 }, { x: 980, y: 70 }, { x: 600, y: 440 }, { x: 860, y: 520 }, { x: 730, y: 720 },
+];
+const edges: [number, number][] = [
+  [0, 1], [1, 2], [2, 3], [3, 4], [0, 7], [7, 2], [5, 7], [5, 6], [6, 14],
+  [8, 9], [9, 10], [10, 11], [11, 12], [13, 8], [13, 14], [10, 16], [12, 17],
+  [7, 15], [15, 16], [16, 17], [15, 2], [16, 10], [5, 15],
+];
+const pulse = new Set([0, 8, 15, 10, 12]);
+---
+
+<div class="topology fx" aria-hidden="true">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" role="presentation" focusable="false">
+    {edges.map(([a, b]) => (
+      <line class="link" x1={nodes[a].x} y1={nodes[a].y} x2={nodes[b].x} y2={nodes[b].y} />
+    ))}
+    {nodes.map((n, i) => (
+      <circle class={`node ${pulse.has(i) ? 'pulse' : ''}`} cx={n.x} cy={n.y} r={n.r ?? 4} style={`--d:${(i % 6) * 0.7}s`} />
+    ))}
+  </svg>
+</div>
+
+<style>
+  .topology {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.6;
+    /* Keep it in the margins, faint behind the reading column. */
+    -webkit-mask-image: linear-gradient(to right, #000, rgba(0, 0, 0, 0.18) 50%, #000);
+    mask-image: linear-gradient(to right, #000, rgba(0, 0, 0, 0.18) 50%, #000);
+  }
+
+  svg { display: block; width: 100%; height: 100%; }
+
+  .link {
+    stroke: var(--accent);
+    stroke-width: 1;
+    opacity: 0.14;
+  }
+
+  .node {
+    fill: var(--accent);
+    opacity: 0.32;
+  }
+
+  .node.pulse {
+    animation: topo-pulse 6s ease-in-out infinite;
+    animation-delay: var(--d);
+  }
+
+  @keyframes topo-pulse {
+    0%, 100% { opacity: 0.18; }
+    50% { opacity: 0.7; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .node.pulse { animation: none; }
+  }
+</style>

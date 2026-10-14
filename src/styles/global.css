@@ -352,17 +352,16 @@ html:not([data-mode="clean"]) body::before {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 44px 44px;
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 0%, transparent 75%);
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 0%, transparent 75%);
-  animation: grid-drift 30s linear infinite;
+  /* Dot-grid: the modern infra/dashboard texture. */
+  background-image: radial-gradient(var(--grid) 1.3px, transparent 1.5px);
+  background-size: 30px 30px;
+  -webkit-mask-image: radial-gradient(ellipse 85% 65% at 50% 0%, #000 0%, transparent 78%);
+  mask-image: radial-gradient(ellipse 85% 65% at 50% 0%, #000 0%, transparent 78%);
+  animation: grid-drift 40s linear infinite;
 }
 
 @keyframes grid-drift {
-  to { background-position: 0 44px, 44px 0; }
+  to { background-position: 30px 30px; }
 }
 
 html[data-mode="clean"] .fx {

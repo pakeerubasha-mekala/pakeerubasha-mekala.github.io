@@ -41,12 +41,26 @@ const links = [
 
 <style>
   .glance {
+    position: relative;
+    overflow: hidden;
     padding: var(--space-2);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     font-size: 0.82rem;
   }
+
+  /* Gradient accent along the top edge — a small "panel" cue. */
+  .glance::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  }
+
 
   .glance-title {
     margin: 0 0 0.7rem;

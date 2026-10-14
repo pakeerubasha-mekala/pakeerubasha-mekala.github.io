@@ -3,6 +3,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CommandPalette from '../components/CommandPalette.astro';
 import Backdrop from '../components/art/Backdrop.astro';
+import Topology from '../components/art/Topology.astro';
 import ChatBot from '../components/ChatBot.astro';
 import analytics from '../data/analytics.json';
 import '../styles/global.css';
@@ -89,6 +90,7 @@ const pageTitle = title === siteTitle ? title : `${title} · ${siteTitle}`;
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
+    {decor && <Topology />}
     {decor && <Backdrop />}
     <Header />
     {Astro.slots.has('left') && (

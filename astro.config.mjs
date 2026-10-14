@@ -7,6 +7,8 @@ export default defineConfig({
   site: 'https://pakeerubasha-mekala.github.io',
   output: 'static',
   trailingSlash: 'ignore',
+  // Hide the Astro dev toolbar (the floating bar at the bottom in `npm run dev`).
+  devToolbar: { enabled: false },
   build: {
     format: 'directory',
     // Inline the (small) stylesheet so it does not block first paint.

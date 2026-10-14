@@ -76,6 +76,11 @@ const stats = [
     </div>
   </section>
 
+  <div class="livebar fx" id="livebar" aria-live="polite" data-repo={profile.repo}>
+    <span class="seg" data-k="deploy"><span class="dot"></span>checking deploy…</span>
+    <span class="seg" data-k="commit"></span>
+  </div>
+
   <p class="summary">{profile.summary}</p>
 
   <p class="cta">
@@ -270,6 +275,26 @@ const stats = [
   </section>
 </Base>
 
+<script>
+  import { getDeploy, getCommits } from '../utils/liveStatus';
+  const bar = document.getElementById('livebar');
+  const repo = bar?.dataset.repo;
+  if (bar && repo) {
+    getDeploy(repo).then((d) => {
+      const seg = bar.querySelector('[data-k="deploy"]');
+      if (!seg) return;
+      if (!d) { seg.textContent = 'deploy status unavailable'; return; }
+      bar.dataset.state = d.state === 'success' ? 'ok' : 'bad';
+      seg.innerHTML = '<span class="dot"></span>deploy ' + d.state + ' · ' + d.ago;
+    });
+    getCommits(repo, 1).then((c) => {
+      const seg = bar.querySelector('[data-k="commit"]');
+      const latest = c && c[0];
+      if (seg && latest) seg.textContent = 'latest: ' + (latest.message.length > 40 ? latest.message.slice(0, 40) + '…' : latest.message);
+    });
+  }
+</script>
+
 <style>
   .pods {
     padding: var(--space-2);
@@ -415,6 +440,51 @@ const stats = [
     font-size: 0.85rem;
     color: var(--fg-dim);
     margin: 0;
+  }
+
+  /* Live status strip: real deploy state + latest commit from GitHub Actions. */
+  .livebar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 1.2rem;
+    margin: var(--space-2) 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+  }
+
+  .livebar .seg {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5ch;
+  }
+
+  .livebar .seg:empty { display: none; }
+
+  .livebar .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--fg-dim);
+    flex: none;
+  }
+
+  .livebar[data-state="ok"] [data-k="deploy"] .dot {
+    background: #36f2a0;
+    box-shadow: 0 0 7px #36f2a0;
+    animation: lb-pulse 2.4s ease-in-out infinite;
+  }
+
+  .livebar[data-state="bad"] [data-k="deploy"] .dot {
+    background: #ff6b6b;
+    box-shadow: 0 0 7px #ff6b6b;
+  }
+
+  @keyframes lb-pulse { 50% { opacity: 0.4; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .livebar[data-state="ok"] [data-k="deploy"] .dot { animation: none; }
   }
 
   .summary {
@@ -601,7 +671,9 @@ const stats = [
   }
 
   .card {
-    background: var(--bg-elevated);
+    background: color-mix(in srgb, var(--bg-elevated) 82%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: var(--space-2) var(--space-3);
@@ -612,6 +684,22 @@ const stats = [
     transform: translateY(-2px);
     border-color: var(--accent-dim);
     box-shadow: var(--shadow), 0 0 0 1px var(--glow);
+  }
+
+  /* Home sections numbered like CI/CD pipeline stages (01 → 02 → …). */
+  section.hero { counter-reset: stage; }
+  section:not(.hero) { counter-increment: stage; }
+
+  section:not(.hero) > h2::before {
+    content: counter(stage, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: 0.66em;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--glow);
+    border: 1px solid var(--accent-dim);
+    border-radius: 7px;
+    padding: 0.22em 0.5em;
   }
 
   .card h3 {
