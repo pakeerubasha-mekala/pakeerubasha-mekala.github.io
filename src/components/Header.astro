@@ -11,7 +11,7 @@ const nav = [
 <header class="site-header">
   <div class="inner">
     <a class="brand" href="/" aria-label="Pakeeru Basha Mekala — home">
-      <svg class="logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
+      <svg class="logo" viewBox="0 0 32 32" width="38" height="38" aria-hidden="true">
         <defs>
           <linearGradient id="pb-logo" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stop-color="var(--accent)" />
@@ -122,8 +122,13 @@ const nav = [
   .brand .logo {
     flex: none;
     display: block;
-    filter: drop-shadow(0 1px 4px var(--glow));
-    transition: transform 0.18s ease;
+    filter: drop-shadow(0 2px 8px color-mix(in srgb, var(--accent) 45%, transparent));
+    transition: transform 0.18s ease, filter 0.18s ease;
+  }
+
+  .brand:hover .logo,
+  .brand:focus-visible .logo {
+    filter: drop-shadow(0 3px 12px color-mix(in srgb, var(--accent) 60%, transparent));
   }
 
   .brand:hover .logo,
