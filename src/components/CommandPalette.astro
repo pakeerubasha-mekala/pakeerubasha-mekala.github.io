@@ -30,6 +30,10 @@ const items: Item[] = [
   { group: 'Pages', label: 'How this site is built', href: '/how-its-built' },
   { group: 'Pages', label: 'Resume', href: '/resume' },
   { group: 'Pages', label: 'Download resume (PDF)', href: '/pakeeru-basha-mekala-resume.pdf' },
+  { group: 'Theme', label: 'Light', href: '#theme:light', keywords: 'scheme white day' },
+  { group: 'Theme', label: 'Dark', href: '#theme:dark', keywords: 'scheme black night' },
+  { group: 'Theme', label: 'Sepia (reading mode)', href: '#theme:sepia', keywords: 'scheme warm cream reading medium kindle' },
+  { group: 'Theme', label: 'System (auto)', href: '#theme:auto', keywords: 'scheme automatic default follow' },
   ...posts.map((p) => ({
     group: 'Posts',
     label: p.data.title,
@@ -52,6 +56,8 @@ const items: Item[] = [
 </dialog>
 
 <script>
+  import { setScheme, type Scheme } from '../utils/theme';
+
   interface PaletteItem { group: string; label: string; href: string; hint?: string; keywords?: string }
 
   function initPalette() {
@@ -110,6 +116,11 @@ const items: Item[] = [
     function go(item: PaletteItem) {
       dialog!.close();
       if (item.href === '#bot') { document.dispatchEvent(new CustomEvent('bot:open')); return; }
+      if (item.href.startsWith('#theme:')) {
+        setScheme(item.href.slice(7) as Scheme);
+        document.dispatchEvent(new CustomEvent('scheme:changed'));
+        return;
+      }
       if (item.href.startsWith('http')) window.open(item.href, '_blank', 'noopener');
       else location.href = item.href;
     }

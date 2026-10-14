@@ -83,6 +83,7 @@ const nav = [
   }
   schemeBtn?.addEventListener('click', () => { cycleScheme(); syncScheme(); });
   matchMedia('(prefers-color-scheme: light)').addEventListener('change', syncScheme);
+  document.addEventListener('scheme:changed', syncScheme);
   syncScheme();
 
   // Konami code: up up down down left right left right b a
