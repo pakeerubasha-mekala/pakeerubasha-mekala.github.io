@@ -10,20 +10,19 @@ const nav = [
 
 <header class="site-header">
   <div class="inner">
-    <a class="brand" href="/" aria-label="Pakeeru Basha Mekala — home">
-      <svg class="logo" viewBox="0 0 40 40" width="38" height="38" aria-hidden="true">
-        <defs>
-          <linearGradient id="pb-logo" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="var(--accent)" />
-            <stop offset="1" stop-color="var(--accent-2)" />
-          </linearGradient>
-        </defs>
-        <rect x="2" y="2" width="36" height="36" rx="10" fill="url(#pb-logo)" />
-        <text x="20" y="26.5" text-anchor="middle" font-family="var(--font-sans)" font-weight="700" font-size="18" letter-spacing="0.5" fill="var(--bg)">PB</text>
-      </svg>
-    </a>
-
-    <div class="right">
+    <div class="left">
+      <a class="brand" href="/" aria-label="Pakeeru Basha Mekala — home">
+        <svg class="logo" viewBox="0 0 40 40" width="36" height="36" aria-hidden="true">
+          <defs>
+            <linearGradient id="pb-logo" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="var(--accent)" />
+              <stop offset="1" stop-color="var(--accent-2)" />
+            </linearGradient>
+          </defs>
+          <circle cx="20" cy="20" r="18" fill="url(#pb-logo)" />
+          <text x="20" y="26" text-anchor="middle" font-family="var(--font-sans)" font-weight="700" font-size="16.5" letter-spacing="0.3" fill="var(--bg)">PB</text>
+        </svg>
+      </a>
       <nav aria-label="Primary">
         <ul>
           {nav.map((item) => (
@@ -31,17 +30,18 @@ const nav = [
           ))}
         </ul>
       </nav>
-      <div class="tools">
-        <button type="button" class="tool icon" data-open-palette aria-label="Open command palette" title="Search / command palette">
-          <kbd id="kbd-hint">⌘K</kbd>
-        </button>
-        <button type="button" class="tool icon" id="scheme-toggle" aria-label="Switch between light and dark theme" title="Switch between light and dark theme">
-          <span id="scheme-icon">◐</span>
-        </button>
-        <button type="button" class="tool" id="mode-toggle" aria-pressed="false" title="Switch between the hacker look and a clean look">
-          <span id="mode-label">recruiter mode</span>
-        </button>
-      </div>
+    </div>
+
+    <div class="tools">
+      <button type="button" class="tool icon" data-open-palette aria-label="Open command palette" title="Search / command palette">
+        <kbd id="kbd-hint">⌘K</kbd>
+      </button>
+      <button type="button" class="tool icon" id="scheme-toggle" aria-label="Switch between light and dark theme" title="Switch between light and dark theme">
+        <span id="scheme-icon">◐</span>
+      </button>
+      <button type="button" class="tool" id="mode-toggle" aria-pressed="false" title="Switch between the hacker look and a clean look">
+        <span id="mode-label">recruiter mode</span>
+      </button>
     </div>
   </div>
 </header>
@@ -114,6 +114,13 @@ const nav = [
     flex-wrap: wrap;
   }
 
+  /* Logo + nav sit together on the left. */
+  .left {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+  }
+
   .brand {
     display: inline-flex;
     align-items: center;
@@ -122,21 +129,14 @@ const nav = [
 
   .brand .logo {
     display: block;
-    border-radius: 10px;
-    filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--accent) 28%, transparent));
+    border-radius: 50%;
+    filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--accent) 26%, transparent));
     transition: transform 0.18s ease;
   }
 
   .brand:hover .logo,
   .brand:focus-visible .logo {
     transform: scale(1.06);
-  }
-
-  /* Everything except the logo lives on the right. */
-  .right {
-    display: flex;
-    align-items: center;
-    gap: 1.4rem;
   }
 
   nav ul {
@@ -208,7 +208,7 @@ const nav = [
 
   @media (max-width: 680px) {
     .inner { padding: 0.6rem var(--space-2); }
-    .right { gap: 0.8rem; flex-wrap: wrap; justify-content: flex-end; }
+    .left { gap: 1rem; }
     nav ul { gap: 0.9rem; font-size: 0.8rem; }
     .tools { padding-left: 0.8rem; }
   }
