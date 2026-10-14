@@ -114,9 +114,6 @@ try {
   await viewport(1800);
   await sleep(300);
   check('DevOps backdrop shows in the margins of a very wide screen', (await shown('.backdrop')) && (await ev("document.querySelectorAll('.backdrop .tile').length")) === 12);
-  await ev("document.getElementById('mode-toggle').click()");
-  check('recruiter mode hides the backdrop', !(await shown('.backdrop')));
-  await ev("document.getElementById('mode-toggle').click()");
   check('"What I do" cards have icon badges', (await ev("document.querySelectorAll('#what-i-do .offer-icon svg').length")) >= 3);
   await viewport(1000);
   await sleep(300);

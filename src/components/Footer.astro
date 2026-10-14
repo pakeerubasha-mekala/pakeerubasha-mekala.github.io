@@ -19,6 +19,8 @@ const groups = [
     title: 'more',
     links: [
       { label: 'status', href: '/status' },
+      { label: 'changelog', href: '/changelog' },
+      { label: 'now', href: '/now' },
       { label: "how it's built", href: '/how-its-built' },
       { label: 'rss feed', href: '/rss.xml' },
       { label: 'source code', href: repoUrl },
@@ -40,6 +42,12 @@ const groups = [
     ))}
   </div>
   <p class="copyright">© {year} {profile.name} · <span id="uptime" class="fx"></span></p>
+  <p class="eco" aria-label="Site footprint">
+    <span class="eco-seg">⚡ $0/mo</span>
+    <span class="eco-seg">static + global CDN</span>
+    <span class="eco-seg">~0.09 g CO₂/view</span>
+    <span class="eco-seg">green hosting</span>
+  </p>
 </footer>
 
 <script>
@@ -108,5 +116,27 @@ const groups = [
     margin: var(--space-3) 0 0;
     font-family: var(--font-mono);
     font-size: 0.8rem;
+  }
+
+  .eco {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.7rem 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+  }
+
+  .eco-seg {
+    padding: 0.16em 0.65em;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    color: var(--fg-dim);
+  }
+
+  .eco-seg:first-child {
+    color: var(--accent);
+    border-color: var(--accent-dim);
   }
 </style>

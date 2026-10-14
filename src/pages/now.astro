@@ -1,0 +1,46 @@
+---
+import Base from '../layouts/Base.astro';
+import { profile } from '../data/profile';
+import { experience } from '../data/experience';
+
+// A /now page (https://nownownow.com): what I'm focused on right now.
+// Edit the content below and bump `updated` when you change it.
+const current = experience[0];
+const updated = 'October 2026';
+---
+
+<Base title="Now" description={`What ${profile.name} is focused on right now.`}>
+  <h1>Now</h1>
+  <p class="lead">What I'm focused on at the moment. <span class="muted">(A <a href="https://nownownow.com/about" rel="noopener noreferrer" target="_blank">/now page</a> — last updated {updated}.)</span></p>
+
+  <section>
+    <h2>working on</h2>
+    <p>{current.role} at {current.company}, leading end-to-end delivery for product teams across AWS, GCP and Azure — containerised apps on Kubernetes with Helm and GitOps, and a Terraform&nbsp;Cloud&nbsp;→&nbsp;Scalr migration.</p>
+  </section>
+
+  <section>
+    <h2>exploring</h2>
+    <ul>
+      <li>AI-assisted DevOps — using LLMs and MCP to triage pipeline failures, remediate container-image vulnerabilities, and run day-to-day ops (logs, deploy health) in natural language.</li>
+      <li>Shift-left security: image scanning (Trivy, Snyk, Orca) and policy-as-code across pipelines.</li>
+      <li>FinOps / green-ops: cost visibility and cutting cloud spend without slowing teams down.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>writing</h2>
+    <p>Occasional posts on the <a href="/blog">blog</a> — most recently on container image scanning and keyless GitLab→AWS auth with OIDC.</p>
+  </section>
+
+  <section>
+    <h2>this site</h2>
+    <p>Static Astro, deployed to GitHub Pages and Cloudflare on every push. <a href="/how-its-built">How it's built</a> · <a href="/changelog">changelog</a> · <a href="/status">live status</a>.</p>
+  </section>
+</Base>
+
+<style>
+  .lead { color: var(--fg-dim); max-width: 62ch; }
+  .muted { color: var(--fg-dim); }
+  section { margin-top: var(--space-3); max-width: 62ch; }
+  section p { color: var(--fg); }
+</style>

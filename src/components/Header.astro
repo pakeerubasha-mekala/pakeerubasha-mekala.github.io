@@ -36,11 +36,8 @@ const nav = [
       <button type="button" class="tool icon" data-open-palette aria-label="Open command palette" title="Search / command palette">
         <kbd id="kbd-hint">⌘K</kbd>
       </button>
-      <button type="button" class="tool icon" id="scheme-toggle" aria-label="Switch between light and dark theme" title="Switch between light and dark theme">
+      <button type="button" class="tool icon" id="scheme-toggle" aria-label="Switch theme (light, dark, sepia)" title="Switch theme">
         <span id="scheme-icon">◐</span>
-      </button>
-      <button type="button" class="tool" id="mode-toggle" aria-pressed="false" title="Switch between the hacker look and a clean look">
-        <span id="mode-label">recruiter mode</span>
       </button>
     </div>
   </div>
@@ -50,29 +47,8 @@ const nav = [
   import { startMatrix } from '../utils/matrix';
   import { effectiveScheme, cycleScheme, currentScheme } from '../utils/theme';
 
-  const root = document.documentElement;
-  const toggle = document.getElementById('mode-toggle');
-  const label = document.getElementById('mode-label');
   const hint = document.getElementById('kbd-hint');
-
   if (hint && !/Mac|iPhone|iPad/.test(navigator.platform)) hint.textContent = 'Ctrl K';
-
-  function sync() {
-    const clean = root.dataset.mode === 'clean';
-    if (label) label.textContent = clean ? 'hacker mode' : 'recruiter mode';
-    toggle?.setAttribute('aria-pressed', String(clean));
-  }
-
-  toggle?.addEventListener('click', () => {
-    const clean = root.dataset.mode !== 'clean';
-    if (clean) root.dataset.mode = 'clean';
-    else delete root.dataset.mode;
-    root.classList.remove('booting');
-    try { localStorage.setItem('mode', clean ? 'clean' : 'hacker'); } catch {}
-    sync();
-  });
-
-  sync();
 
   const schemeBtn = document.getElementById('scheme-toggle');
   const schemeIcon = document.getElementById('scheme-icon');

@@ -359,14 +359,13 @@ blockquote {
   border: 0;
 }
 
-/* ---- Hacker mode effects (disabled by html[data-mode="clean"], the recruiter mode) ---- */
-html:not([data-mode="clean"]) body::before {
+/* ---- Ambient dot-grid: the modern infra/dashboard texture (always on; hidden only in print). ---- */
+body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  /* Dot-grid: the modern infra/dashboard texture. */
   background-image: radial-gradient(var(--grid) 1.3px, transparent 1.5px);
   background-size: 30px 30px;
   -webkit-mask-image: radial-gradient(ellipse 85% 65% at 50% 0%, #000 0%, transparent 78%);
@@ -376,10 +375,6 @@ html:not([data-mode="clean"]) body::before {
 
 @keyframes grid-drift {
   to { background-position: 30px 30px; }
-}
-
-html[data-mode="clean"] .fx {
-  display: none !important;
 }
 
 html.booting {

@@ -73,13 +73,9 @@ const stats = [
       <h1>{profile.name}</h1>
       <p class="headline">{profile.headline}</p>
       <p class="meta">{profile.location}</p>
+      <button type="button" class="kbd-cue" data-open-palette aria-label="Open the command palette">press <kbd>⌘K</kbd> to explore</button>
     </div>
   </section>
-
-  <div class="livebar fx" id="livebar" aria-live="polite" data-repo={profile.repo}>
-    <span class="seg" data-k="deploy"><span class="dot"></span>checking deploy…</span>
-    <span class="seg" data-k="commit"></span>
-  </div>
 
   <p class="summary">{profile.summary}</p>
 
@@ -172,24 +168,6 @@ const stats = [
 
   <section id="skills">
     <h2>skills</h2>
-    <div class="pods fx" role="group" aria-label="Skills">
-      <div class="pod head"><span>NAME</span><span>READY</span><span>STATUS</span><span>TOOLS</span></div>
-      <div class="pod live-row" id="pod-live" hidden>
-        <span class="name">site-deploy</span>
-        <span>1/1</span>
-        <span class="run"><i></i><b class="state">Succeeded</b></span>
-        <span class="tools"></span>
-      </div>
-      {skills.map((group) => (
-        <div class="pod">
-          <span class="name">{group.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '')}</span>
-          <span>1/1</span>
-          <span class="run"><i></i>Running</span>
-          <span class="tools">{group.items.join(', ')}</span>
-        </div>
-      ))}
-      <p class="foot">Skill rows are decorative (no cluster behind them). The <b>site-deploy</b> row is live from GitHub Actions.</p>
-    </div>
     <div class="skills-grid">
       {skills.map((group) => (
         <div class="skill-group card">
@@ -276,86 +254,12 @@ const stats = [
 </Base>
 
 <script>
-  import { getDeploy, getCommits } from '../utils/liveStatus';
-  const bar = document.getElementById('livebar');
-  const repo = bar?.dataset.repo;
-  if (bar && repo) {
-    getDeploy(repo).then((d) => {
-      const seg = bar.querySelector('[data-k="deploy"]');
-      if (!seg) return;
-      if (!d) { seg.textContent = 'deploy status unavailable'; return; }
-      bar.dataset.state = d.state === 'success' ? 'ok' : 'bad';
-      seg.innerHTML = '<span class="dot"></span>deploy ' + d.state + ' · ' + d.ago;
-    });
-    getCommits(repo, 1).then((c) => {
-      const seg = bar.querySelector('[data-k="commit"]');
-      const latest = c && c[0];
-      if (seg && latest) seg.textContent = 'latest: ' + (latest.message.length > 40 ? latest.message.slice(0, 40) + '…' : latest.message);
-    });
+  if (!/Mac|iPhone|iPad/.test(navigator.platform)) {
+    document.querySelectorAll('.kbd-cue kbd').forEach((k) => (k.textContent = 'Ctrl K'));
   }
 </script>
 
 <style>
-  .pods {
-    padding: var(--space-2);
-    background: #05080c;
-    color: #d7dde3;
-    border: 1px solid #1c2530;
-    border-radius: var(--radius);
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    overflow-x: auto;
-  }
-
-  .pod {
-    display: grid;
-    grid-template-columns: 15rem 3.5rem 7.5rem 1fr;
-    gap: 0.4rem 1rem;
-    padding: 0.3rem 0;
-    border-bottom: 1px dashed #17202a;
-    min-width: 40rem;
-  }
-
-  .pod[hidden] { display: none; }
-  .pod.live-row .name { color: #ffd479; }
-  .pod.live-row.failure .run { color: #ff6b6b; }
-  .pod.live-row.failure .run i { background: #ff6b6b; box-shadow: 0 0 8px #ff6b6b; }
-
-  .pods .foot {
-    margin: 0.6rem 0 0;
-    font-size: 0.72rem;
-    color: #8b98ab;
-  }
-
-  .pods .foot b { color: #ffd479; font-weight: 500; }
-  .pod.head { color: #8b98ab; }
-  .pod .name { color: #8fd1ff; }
-  .pod .tools { color: #9aa6b6; }
-
-  .run {
-    color: #36f2a0;
-  }
-
-  .run i {
-    display: inline-block;
-    width: 7px;
-    height: 7px;
-    margin-right: 0.5ch;
-    border-radius: 50%;
-    background: #36f2a0;
-    box-shadow: 0 0 8px #36f2a0;
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    50% { opacity: 0.35; }
-  }
-
-  :global(html:not([data-mode="clean"])) .skills-grid {
-    display: none;
-  }
-
-
   .hero {
     display: flex;
     align-items: center;
@@ -442,49 +346,34 @@ const stats = [
     margin: 0;
   }
 
-  /* Live status strip: real deploy state + latest commit from GitHub Actions. */
-  .livebar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.4rem 1.2rem;
-    margin: var(--space-2) 0 0;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    color: var(--fg-dim);
-  }
-
-  .livebar .seg {
+  .kbd-cue {
+    margin-top: 0.8rem;
     display: inline-flex;
     align-items: center;
-    gap: 0.5ch;
+    gap: 0.6ch;
+    padding: 0.28em 0.75em;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--fg-dim);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
   }
 
-  .livebar .seg:empty { display: none; }
-
-  .livebar .dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--fg-dim);
-    flex: none;
+  .kbd-cue:hover,
+  .kbd-cue:focus-visible {
+    color: var(--accent);
+    border-color: var(--accent-dim);
   }
 
-  .livebar[data-state="ok"] [data-k="deploy"] .dot {
-    background: #36f2a0;
-    box-shadow: 0 0 7px #36f2a0;
-    animation: lb-pulse 2.4s ease-in-out infinite;
-  }
-
-  .livebar[data-state="bad"] [data-k="deploy"] .dot {
-    background: #ff6b6b;
-    box-shadow: 0 0 7px #ff6b6b;
-  }
-
-  @keyframes lb-pulse { 50% { opacity: 0.4; } }
-
-  @media (prefers-reduced-motion: reduce) {
-    .livebar[data-state="ok"] [data-k="deploy"] .dot { animation: none; }
+  .kbd-cue kbd {
+    font-family: inherit;
+    padding: 0 0.35em;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
   }
 
   .summary {

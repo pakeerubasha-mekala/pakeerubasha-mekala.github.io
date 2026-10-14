@@ -38,15 +38,6 @@ const x = (i: number) => 50 + i * 130;
     dot.className = info.state;
     line.append(dot, `live from GitHub Actions: last deploy ${label} ${info.ago} (${info.sha})`);
     line.hidden = false;
-
-    // Matching real row in the skills table.
-    const row = document.getElementById('pod-live');
-    if (row) {
-      row.querySelector('.state')!.textContent = label === 'success' ? 'Succeeded' : label === 'failed' ? 'Failed' : 'Unknown';
-      row.querySelector('.tools')!.textContent = `GitHub Actions · ${info.sha} · ${info.ago} · live from api.github.com`;
-      row.classList.add(info.state);
-      row.hidden = false;
-    }
   }
 
   initLive();

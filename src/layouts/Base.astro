@@ -36,18 +36,14 @@ const pageTitle = title === siteTitle ? title : `${title} · ${siteTitle}`;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark light" />
     <script is:inline>
-      // Runs before first paint: restore recruiter/clean mode and decide whether to play the boot sequence.
+      // Runs before first paint: restore the theme and decide whether to play the boot sequence.
       (function () {
         try {
           var d = document.documentElement;
-          if (localStorage.getItem('mode') === 'clean') d.dataset.mode = 'clean';
           var sc = localStorage.getItem('scheme');
           if (sc === 'light' || sc === 'dark' || sc === 'sepia') d.dataset.scheme = sc;
-          var ac = localStorage.getItem('accent');
-          if (ac && ac !== 'green') d.dataset.accent = ac;
           if (
             location.pathname === '/' &&
-            d.dataset.mode !== 'clean' &&
             !sessionStorage.getItem('booted') &&
             !matchMedia('(prefers-reduced-motion: reduce)').matches
           ) d.classList.add('booting');
